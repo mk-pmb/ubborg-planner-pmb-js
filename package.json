@@ -1,0 +1,38 @@
+{ "name": "ubborg-pmb",
+  "version": "0.0.1",
+  "description": "Helps me describe system configurations.",
+  "keywords": [
+    "borg",
+    "config",
+    "hive",
+    "puppet",
+    "ubuntu"
+  ],
+
+  "author": "M.K. (https://github.com/mk-pmb)",
+  "homepage": "https://github.com/mk-pmb/ubborg-pmb-js/#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mk-pmb/ubborg-pmb-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mk-pmb/ubborg-pmb-js/issues"
+  },
+  "contributors": [],
+
+  "private": false, "license": "ISC",
+
+  "main": "ubborg-pmb.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": { "test": "nodejs test/all.js" },
+
+  "dependencies": {},
+  "devDependencies": {
+  },
+
+
+  "npm vs. BOM = Unexpected token": "-*- coding: UTF-8 -*-"
+}
