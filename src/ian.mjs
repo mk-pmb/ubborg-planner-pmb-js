@@ -7,9 +7,11 @@ import resourceProviders from './resProv/resourceProviders';
 
 async function ian(cliArgs) {
   const [topBundleFile] = cliArgs;
-  const bun = await resourceProviders.planByTypeName('bundle', null,
-    topBundleFile);
-  console.dir(bun.context);
+  const topCtx = {
+    resourcesByTypeName: Object.create(null),
+  };
+  await resourceProviders.planByTypeName('bundle', topCtx, topBundleFile);
+  console.dir(topCtx.resourcesByTypeName);
 }
 
 

@@ -33,23 +33,14 @@ async function collectAllPlans(promisesByType) {
 
 
 function findBundleDirectory(bun) {
-  if (!bun) { return '.'; }
-  const { path } = bun;
-  mustBe.nest('bundle path', bun.path);
+  const path = (isStr(bun) ? bun : bun['']);
+  mustBe.nest('bundle path', path);
   return (path.replace(/\/+[\x00-.0-\uFFFF]*$/, '') || '.');
 }
 
 
 async function planBundle(bundleSpec) {
   const parentContext = this;
-  if (!parentContext) {
-    const topCtx = {
-      resourcesByTypeName: Object.create(null),
-    };
-    const topBun = await planBundle.call(topCtx, bundleSpec);
-    topBun.context = topCtx;
-    return topBun;
-  }
   const bundleName = mustBe.nest('bundle name', bundleSpec['']);
   const parentBundle = parentContext.bundle;
   const resourcePlansPromisesByType = {};
@@ -57,7 +48,7 @@ async function planBundle(bundleSpec) {
 
   const bun = {
     parentBundle,
-    basedir: findBundleDirectory(parentBundle),
+    basedir: findBundleDirectory(bundleName),
     toString: bundleToString,
   };
   function subCtx() { return { ...parentContext, bundle: bun }; }

@@ -41,7 +41,13 @@ async function tryPlanByTypeName(typeName, ctx, details) {
   const mgdSame = goak(mgdRes, typeName, '{}');
   const dupe = mgdSame[resId];
   const resPlan = await plannerFunc.call(ctx, details);
-  if (dupe && (resPlan !== dupe)) { throw new Error('Duplicate resource ID'); }
+  if (dupe) {
+    if (resPlan !== dupe) {
+      throw new Error(`Duplicate resource ID "${resId}" for ${typeName}`);
+    }
+  } else {
+    mgdSame[resId] = resPlan;
+  }
   return resPlan;
 }
 
