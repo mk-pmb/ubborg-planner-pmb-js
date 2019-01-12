@@ -4,28 +4,16 @@ import spRes from '../resUtil/simplePassiveResource';
 
 
 const spawnCore = spRes.makeSpawner({
-  typeName: 'file',
+  typeName: 'bundle',
   idProp: 'path',
   defaultProps: {
   },
   acceptProps: {
-    weakGroup: true,
-    weakModes: true,
-    weakOwner: true,
-
-    forceGroup: true,
-    forceModes: true,
-    forceOwner: true,
-
-    replace: true,
-    backupDir: true,
-
-    content: true,
   },
 });
 
 
-async function planFile(spec) {
+async function planBundle(spec) {
   const res = await spawnCore(this, spec);
   return res;
 }
@@ -33,5 +21,5 @@ async function planFile(spec) {
 
 
 export default {
-  plan: planFile,
+  plan: planBundle,
 };

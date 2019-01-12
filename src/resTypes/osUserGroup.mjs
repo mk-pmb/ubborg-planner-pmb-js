@@ -3,24 +3,18 @@
 import spRes from '../resUtil/simplePassiveResource';
 
 
-const sprRecipe = {
+const spawnCore = spRes.makeSpawner({
   typeName: 'osUserGroup',
   idProp: 'group',
   defaultProps: {
     exists: true,
   },
   acceptProps: {
+    gid: true,
   },
-}
-
-
-async function osUserGroup(spec) {
-  const res = spRes.spawn(sprRecipe, this, spec);
-  return res;
-}
-
+});
 
 
 export default {
-  plan: osUserGroup,
+  plan(spec) { return spawnCore(this, spec); },
 };

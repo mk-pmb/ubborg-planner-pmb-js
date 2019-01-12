@@ -1,10 +1,12 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import aMap from 'map-assoc-core';
+
 import spRes from '../resUtil/simplePassiveResource';
 import parseUserGroupsList from '../parseUserGroupsList';
 
 
-const sprRecipe = {
+const spawnCore = spRes.makeSpawner({
   typeName: 'osUser',
   idProp: 'loginName',
   defaultProps: {
@@ -16,18 +18,18 @@ const sprRecipe = {
     uid: true,
     passwordHash: true,
   },
-}
+});
 
 
 async function planOsUser(spec) {
-  const res = spRes.spawn(sprRecipe, this, {
+  const res = await spawnCore(this, {
     ...spec,
     groups: undefined,
   });
 
   const { loginName, groups } = spec;
   if (groups) {
-    aMap(parseUserGroupsList(groups), function (member, group) {
+    aMap(parseUserGroupsList(groups), (member, group) => {
       res.needs('osUserGroupMembership', { user: loginName, group, member });
     });
   }
