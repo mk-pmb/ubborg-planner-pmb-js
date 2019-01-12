@@ -4,6 +4,7 @@ import objPop from 'objpop';
 import mustBe from 'typechecks-pmb/must-be';
 import goak from 'getoraddkey-simple';
 import vTry from 'vtry';
+import is from 'typechecks-pmb';
 
 import joinIdParts from './joinIdParts';
 import verifyAcceptProps from './verifyAcceptProps';
@@ -44,7 +45,7 @@ function makeSpawner(recipe) {
   const recPop = objPop(recipe);
   recPop.nest = key => mustBe.nest(key, recPop(key));
   const typeName = recPop.nest('typeName');
-  const idProp = recPop.nest('idProp');
+  const idProp = recPop('idProp');
   const api = { ...apiBasics, ...recPop.ifHas('api') };
   const acceptProps = recPop.ifHas('acceptProps', {});
   const typeMeta = {
@@ -57,13 +58,18 @@ function makeSpawner(recipe) {
 
   const idJoiner = vTry(joinIdParts, 'construct ID for ' + typeName);
 
-  async function spawn(props) {
-    const ctx = this;
+  function copyProps(orig) {
+    if (is.obj(orig)) { return { ...orig }; }
+    if (is.str(idProp)) { return { [idProp]: orig }; }
+    throw new Error('Unsupported props format for ' + typeName);
+  }
+
+  async function spawn(ctx, origProps) {
+    const props = copyProps(origProps, typeName);
     const mgdRes = mustBe.prop('obj', ctx, 'resourcesByTypeName');
     const mgdSameType = goak(mgdRes, typeName, '{}');
-
-    const popProp = objPop(props);
-    const id = idJoiner(popProp(props, idProp));
+    const popProp = objPop.d(props);
+    const id = idJoiner(idProp, popProp);
     const dupe = mgdSameType[id];
     const res = {
       typeName,
