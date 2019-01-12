@@ -3,7 +3,7 @@
 import spRes from '../resUtil/simplePassiveResource';
 
 
-const sprRecipe = {
+const spawnCore = spRes.makeSpawner({
   typeName: 'osUserGroupMembership',
   idProp: ['user', 'group'],
   defaultProps: {
@@ -13,23 +13,18 @@ const sprRecipe = {
     group: true,
     member: true,
   },
-}
+});
 
 
-async function osUserGroupMembership(spec) {
-  const res = spRes.spawn(sprRecipe, this, {
-    ...spec,
-    groups: undefined,
-  });
-
+async function planOsUserGroupMembership(spec) {
+  const res = await spawnCore(this, spec);
   const { group, member } = spec;
   if (member) { res.needs('osUserGroup', { group, exists: true }); }
-
   return res;
 }
 
 
 
 export default {
-  plan: osUserGroupMembership,
+  plan: planOsUserGroupMembership,
 };
