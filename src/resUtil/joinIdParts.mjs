@@ -8,7 +8,7 @@ import describeType from '../describeType';
 function joinIdParts(i, p) {
   if (!i) { throw new Error('idProp cannot be empty'); }
   if (i.map) {
-    return i.map(k => joinIdParts(p, k)).join(specialChars.idPropListSep);
+    return i.map(k => joinIdParts(k, p)).join(specialChars.idPropListSep);
   }
   const v = (is.fun(p) ? p(i) : p[i]);
   if (is.fin(v) && is.int(v)) { return String(v); }

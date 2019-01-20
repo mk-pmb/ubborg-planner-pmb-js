@@ -1,25 +1,32 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import spRes from '../resUtil/simplePassiveResource';
+import relRes from '../resUtil/parentRelPathResource';
+import slashableImport from '../slashableImport';
 
 
-const spawnCore = spRes.makeSpawner({
+async function hatchBundle() {
+  const bun = this;
+  const imp = await slashableImport(bun.id);
+  await imp(bun);
+};
+
+
+const recipe = {
   typeName: 'bundle',
   idProp: 'path',
   defaultProps: {
   },
   acceptProps: {
   },
-});
+  api: {
+    hatch: hatchBundle,
+  },
+};
 
-
-async function planBundle(spec) {
-  const res = await spawnCore(this, spec);
-  return res;
-}
-
+const spawnCore = relRes.makeSpawner(recipe);
 
 
 export default {
-  plan: planBundle,
+  recipe,
+  plan(spec) { return spawnCore(this, spec); },
 };
