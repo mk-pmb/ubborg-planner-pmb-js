@@ -25,8 +25,15 @@ const recipe = {
 
 const spawnCore = relRes.makeSpawner(recipe);
 
+async function planBundle(spec) {
+  const bun = await spawnCore(this, spec);
+  await bun.hatchedPr;
+  return bun;
+}
+
+
 
 export default {
   recipe,
-  plan(spec) { return spawnCore(this, spec); },
+  plan: planBundle,
 };

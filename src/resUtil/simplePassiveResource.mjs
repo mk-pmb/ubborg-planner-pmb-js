@@ -5,12 +5,12 @@ import mustBe from 'typechecks-pmb/must-be';
 import goak from 'getoraddkey-simple';
 import vTry from 'vtry';
 import is from 'typechecks-pmb';
-import pProps from 'p-props';
 
 import joinIdParts from './joinIdParts';
 import verifyAcceptProps from './verifyAcceptProps';
 import trivialDictMergeInplace from '../trivialDictMergeInplace';
-import makeResDepFunc from './makeResDepFunc';
+import basicRelation from './basicRelation';
+import hook from '../hook';
 
 
 function resToString() { return `${this.typeName}[${this.id}]`; }
@@ -40,41 +40,9 @@ const apiBasics = {
     return dupeOf;
   },
 
-  prepareDependenciesManagement() {
-    const res = this;
-    const { dupeOf, getContext } = res.spawning;
-    if (dupeOf) {
-      throw new Error("A transient dupe should't depend on anything!");
-    }
-    const deps = [];
-    const dpnd = {};
-    Object.assign(res, {
-      getDependencyPlanPromises() { return deps; },
-      getDependentsPlans() { return dpnd; },
-    });
-    const { requestedBy, requestVerb } = getContext();
-    if (requestedBy) {
-      const rqDict = goak(dpnd, requestVerb, '{}');
-      const rqKey = requestedBy.toDictKey();
-      const rqDupe = rqDict[rqKey];
-      if (rqDupe !== res) {
-        if (rqDupe) {
-          throw new Error(`Duplicate dependent ${rqKey} ${requestVerb}`);
-        }
-        rqDict[rqKey] = res;
-      }
-    }
-  },
 
-  async waitForAllPlanning() {
-    const res = this;
-    async function collectOneVerbDict(vd) {
-      const depVerbPlans = await pProps(vd);
-      return depVerbPlans;
-    }
-    const verbDicts = res.getDependencyPlanPromises();
-    const subDepPlans = await pProps(verbDicts, collectOneVerbDict);
-    return subDepPlans;
+  prepareRelationsManagement() {
+    return basicRelation.prepareRelationsManagement(this);
   },
 
   hatch() {},   // thus "simple passive"
@@ -83,12 +51,18 @@ const apiBasics = {
 
 const vanillaRecipe = {
 
-  dependencyVerbs: [
+  relationVerbs: [
     'needs',
+    'suggests',
+    'conflictsWith',
   ],
 
-  installResDepFuncs(res, typeMeta) {
-    makeResDepFunc.install(this, res, typeMeta.dependencyVerbs);
+  makeSubContext(origCtx, changes) {
+    return { ...origCtx, ...changes };
+  },
+
+  installRelationFuncs(res, typeMeta) {
+    basicRelation.installRelationFuncs(res, typeMeta.relationVerbs);
   },
 
 };
@@ -116,13 +90,14 @@ function makeSpawner(recipe) {
   const api = { ...apiBasics, ...recPop.ifHas('api') };
   const acceptProps = recPop.ifHas('acceptProps', {});
   function vanil(k) { return recPop.ifHas(k, vanillaRecipe[k]); }
-  const installResDepFuncs = vanil('installResDepFuncs');
+  const installRelationFuncs = vanil('installRelationFuncs');
+  const makeSubCtx = vanil('makeSubContext');
   const typeMeta = {
     name: typeName,
     idProp,
     defaultProps: recPop.ifHas('defaultProps', {}),
-    dependencyVerbs: vanil('dependencyVerbs'),
     acceptProps,
+    relationVerbs: vanil('relationVerbs'),
   };
   recPop.expectEmpty('Unsupported recipe feature(s)');
 
@@ -135,10 +110,11 @@ function makeSpawner(recipe) {
   const idJoiner = vTry(joinIdParts, 'construct ID for ' + typeName);
 
   async function spawn(ctx, origProps) {
+    if (ctx.getTypeMeta) {
+      throw new Error("A context shouldn't have a getTypeMeta.");
+    }
     const props = copyProps(origProps);
-    const mgdRes = mustBe.prop('obj', ctx, 'resourcesByTypeName');
-    const { requestedBy } = ctx;
-    const mgdSameType = goak(mgdRes, typeName, '{}');
+    const mgdSameType = goak(ctx.getResourcesByTypeName(), typeName, '{}');
     const popProp = objPop.d(props);
     const id = idJoiner(idProp, popProp);
     const dupeOf = mgdSameType[id];
@@ -152,11 +128,9 @@ function makeSpawner(recipe) {
       spawning: {
         dupeOf,
         getContext() { return ctx; },
+        makeSubContext(changes) { return makeSubCtx.call(res, ctx, changes); },
       },
-      parent: requestedBy, // ok to be discarded in case of dupe
-      dependents: null, // don't accept deps until self-registered
     };
-    installResDepFuncs.call(ctx, res, typeMeta);
 
     Object.keys(api).forEach(function installProxy(mtdName) {
       const impl = api[mtdName];
@@ -168,14 +142,20 @@ function makeSpawner(recipe) {
     await res.incubate(props);
     if (dupeOf) {
       const ack = await dupeOf.mergeUpdate(res);
-      if (ack === dupeOf) { return dupeOf; }
+      if (ack === dupeOf) {
+        await hook(ctx, 'ResourceRespawned', dupeOf);
+        return dupeOf;
+      }
       throw new Error('Unmerged duplicate resource ID for ' + String(res));
     }
 
-    mgdSameType[id] = res;
-    await res.prepareDependenciesManagement();
+    await res.prepareRelationsManagement();
+    installRelationFuncs.call(ctx, res, typeMeta);
 
+    mgdSameType[id] = res;
     delete res.spawning;
+    await hook(ctx, 'ResourceSpawned', res);
+
     startHatching(res, props);
     return res;
   }
@@ -189,4 +169,5 @@ function makeSpawner(recipe) {
 export default {
   apiBasics,
   makeSpawner,
+  vanillaRecipe,
 };

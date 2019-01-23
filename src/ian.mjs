@@ -1,20 +1,31 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import 'p-fatal';
-import nodeUtil from 'util';
+import nodeRepl from 'repl';
 
 import planResourceByTypeName from './resUtil/planResourceByTypeName';
 
 
 async function ian(cliArgs) {
   const [topBundleFile] = cliArgs;
+  const resourcesByTypeName = Object.create(null);
   const topCtx = {
-    resourcesByTypeName: Object.create(null),
+    getResourcesByTypeName() { return resourcesByTypeName; },
   };
-  await planResourceByTypeName('bundle', topCtx, topBundleFile);
-  console.log(nodeUtil.inspect(topCtx.resourcesByTypeName, {
-    depth: null,
-  }));
+  const topRes = await planResourceByTypeName('bundle', topCtx, topBundleFile);
+  const masterPlan = await topRes.relations.waitForAllPlanning();
+
+  if (!process.stdin.isTTY) {
+    console.log('non-interactive');
+    return;
+  }
+  const repl = nodeRepl.start();
+  Object.assign(repl.context, {
+    masterPlan,
+    topBundleFile,
+    topCtx,
+    topRes,
+  });
 }
 
 
