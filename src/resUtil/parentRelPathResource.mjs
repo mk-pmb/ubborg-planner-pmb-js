@@ -18,7 +18,7 @@ function makeSpawner(recipe) {
 
   async function spawn(ctx, origSpec) {
     let path = mustBe.nest(typeName + ' spec', origSpec);
-    const parent = ctx.requestedBy;
+    const parent = ctx.relatedBy;
     if (parent) {
       parentMustBeObj(parent);
       const parentBaseDir = mustBe.nest(typeName + ' parent basedir',
@@ -34,5 +34,6 @@ function makeSpawner(recipe) {
 
 
 export default {
+  ...spRes,
   makeSpawner,
 };
