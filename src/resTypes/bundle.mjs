@@ -11,7 +11,7 @@ async function hatchBundle() {
   // console.debug(String(bun), 'run');
   await imp(bun);
   console.debug(String(bun), 'wfp');
-  await bun.relations.waitForAllPlanning();
+  await bun.relations.waitForAllSubPlanning();
   console.debug(String(bun), 'bundle hatched');
 };
 
