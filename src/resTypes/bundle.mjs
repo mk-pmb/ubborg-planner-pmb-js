@@ -10,9 +10,9 @@ async function hatchBundle() {
   const imp = await slashableImport(bun.id);
   // console.debug(String(bun), 'run');
   await imp(bun);
-  console.debug(String(bun), 'wfp');
+  // console.debug(String(bun), 'wfp');
   await bun.relations.waitForAllSubPlanning();
-  console.debug(String(bun), 'bundle hatched');
+  // console.debug(String(bun), 'bundle hatched');
 };
 
 

@@ -35,8 +35,8 @@ function relateToMaybeSpawn(res, spawning, verb, relResType, relSpec) {
     relatedBy: res,
     relationVerb: verb,
   });
-  console.debug('relateTo: gonna spawn a new', String(relResType),
-    String(relSpec), 'for', String(res));
+  // console.debug('relateTo: gonna spawn a new', String(relResType),
+  //   String(relSpec), 'for', String(res));
   const planPr = planResourceByTypeName(relResType, subCtx, relSpec);
   return planPr;
 }
