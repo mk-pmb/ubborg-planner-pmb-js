@@ -32,6 +32,7 @@ function makeSubContext(origCtx, changes) {
 
 
 const recipe = {
+  ...bundle.recipe,
   typeName: 'stage',
 
   relationVerbs: [
