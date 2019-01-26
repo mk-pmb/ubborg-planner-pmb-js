@@ -3,12 +3,12 @@
 import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 
-const promiseCache = {};
+const resProvPrCache = {};
 
 
 async function loadResourceProviderByTypeName(typeName) {
   mustBe.nest('resource type', typeName);
-  let rpp = promiseCache[typeName];
+  let rpp = resProvPrCache[typeName];
   if (rpp) { return rpp; }
   async function init() {
     const how = (await import('../resTypes/' + typeName)).default;
@@ -16,7 +16,7 @@ async function loadResourceProviderByTypeName(typeName) {
     return how;
   }
   rpp = init();
-  promiseCache[typeName] = rpp;
+  resProvPrCache[typeName] = rpp;
   return rpp;
 }
 
