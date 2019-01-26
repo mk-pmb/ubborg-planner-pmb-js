@@ -16,11 +16,11 @@ async function ian(cliArgs) {
     getResourcesByTypeName() { return resourcesByTypeName; },
     traceParents() { return []; },
   };
-  console.log('topRes: awaiting bundle');
+  // console.log('topRes: awaiting bundle');
   const topRes = await planResourceByTypeName('bundle', topCtx, topBundleFile);
-  console.log('topPlan: waitForAllPlanning');
+  // console.log('topPlan: waitForAllPlanning');
   const topPlan = await topRes.relations.waitForAllPlanning();
-  console.log('topPlan: ready');
+  // console.log('topPlan: ready');
 
   if (!process.stdin.isTTY) {
     console.log('non-interactive');
