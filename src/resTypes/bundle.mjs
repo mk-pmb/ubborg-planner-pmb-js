@@ -39,6 +39,6 @@ async function planBundle(spec) {
 
 
 export default {
-  recipe,
+  recipe: recipe,
   plan: planBundle,
 };

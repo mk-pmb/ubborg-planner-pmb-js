@@ -7,82 +7,14 @@ import vTry from 'vtry';
 import is from 'typechecks-pmb';
 
 import joinIdParts from '../joinIdParts';
-import verifyAcceptProps from '../verifyAcceptProps';
-import trivialDictMergeInplace from '../../trivialDictMergeInplace';
-import basicRelation from '../basicRelation';
-import mightBeResourcePlan from '../mightBeResourcePlan';
 import recipeTimeouts from '../recipeTimeouts';
 import hook from '../../hook';
 
+import apiBasics from './apiBasics';
+import vanillaRecipe from './vanillaRecipe';
+
 
 function resToDictKey() { return `${this.typeName}[${this.id}]`; }
-
-const apiBasics = {
-
-  incubate(newProps) {
-    const res = this;
-    const typeMeta = res.getTypeMeta();
-    verifyAcceptProps(typeMeta, newProps);
-    const { dupeOf } = res.spawning;
-    if (!dupeOf) {
-      res.props = { ...newProps };
-      return res;
-    }
-    try {
-      trivialDictMergeInplace(dupeOf.props, newProps);
-    } catch (caught) {
-      if (caught.name === 'trivialDictMergeError') {
-        const dunno = `No idea how to merge unequal ${
-          String(res)} property "${caught.dictKey}": `;
-        caught.message = dunno + caught.message;
-      }
-      throw caught;
-    }
-    return dupeOf;
-  },
-
-
-  prepareRelationsManagement() {
-    return basicRelation.prepareRelationsManagement(this);
-  },
-
-  hatch() {},   // thus "simple passive"
-};
-
-
-const vanillaRecipe = {
-
-  spawnTimeoutSec: 5,
-
-  relationVerbs: [
-    'needs',
-    'suggests',
-    'conflictsWith',
-  ],
-
-  makeSubContext(origCtx, changes) {
-    const { relatedBy, relationVerb } = changes;
-    mustBe.nest('relationVerb', relationVerb);
-    if (!mightBeResourcePlan(relatedBy)) {
-      console.debug('Bad parent:', relatedBy);
-      throw new Error('Bad parent: ' + relatedBy);
-    }
-    const parentReason = String(relatedBy) + '.' + relationVerb;
-    const parStk = origCtx.traceParents().concat(parentReason);
-    const subCtx = {
-      ...origCtx,
-      ...changes,
-      traceParents() { return parStk; },
-    };
-    return subCtx;
-  },
-
-  installRelationFuncs(res, typeMeta) {
-    basicRelation.installRelationFuncs(res, typeMeta.relationVerbs);
-  },
-
-};
-
 
 function startHatching(res, ...hatchArgs) {
   // console.debug('startHatching', String(res), 'go!');
@@ -152,10 +84,6 @@ function makeSpawner(recipe) {
       timeout: recipeTimeouts.startTimer(res, 'spawn'),
     };
 
-    console.debug('spawning', String(res),
-      'dupe of', String(dupeOf),
-      'for', String(ctx.relatedBy));
-
     Object.keys(api).forEach(function installProxy(mtdName) {
       const impl = api[mtdName];
       if (!impl) { return; }
@@ -194,5 +122,5 @@ function makeSpawner(recipe) {
 export default {
   apiBasics,
   makeSpawner,
-  vanillaRecipe,
+  recipe: vanillaRecipe,
 };

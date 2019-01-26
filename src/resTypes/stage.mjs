@@ -27,16 +27,15 @@ function makeSubContext(origCtx, changes) {
       return hook(origCtx, 'onResourceSpawned', spawnedRes);
     },
   };
-  return relRes.vanillaRecipe.makeSubContext.call(stg, origCtx, upd);
+  return relRes.recipe.makeSubContext.call(stg, origCtx, upd);
 }
 
 
 const recipe = {
-  ...bundle.recipe,
   typeName: 'stage',
 
   relationVerbs: [
-    ...relRes.vanillaRecipe.relationVerbs,
+    ...relRes.recipe.relationVerbs,
     'spawns',
   ],
 
