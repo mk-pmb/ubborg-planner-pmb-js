@@ -5,16 +5,24 @@ import mustBe from 'typechecks-pmb/must-be';
 import goak from 'getoraddkey-simple';
 import vTry from 'vtry';
 import is from 'typechecks-pmb';
+import makeCounter from 'maxuniqid';
 
 import joinIdParts from './joinIdParts';
 import verifyAcceptProps from './verifyAcceptProps';
 import trivialDictMergeInplace from '../trivialDictMergeInplace';
 import basicRelation from './basicRelation';
+import mightBeResourcePlan from './mightBeResourcePlan';
 import hook from '../hook';
+import recipeTimeouts from './recipeTimeouts';
 
 
-function resToString() { return `${this.typeName}[${this.id}]`; }
+function resToDictKey() { return `${this.typeName}[${this.id}]`; }
 
+function resToString() {
+  return resToDictKey.call(this) + '#' + String(this.instanceId);
+}
+
+const spawnCounter = makeCounter();
 
 const apiBasics = {
 
@@ -51,6 +59,8 @@ const apiBasics = {
 
 const vanillaRecipe = {
 
+  spawnTimeoutSec: 5,
+
   relationVerbs: [
     'needs',
     'suggests',
@@ -58,7 +68,20 @@ const vanillaRecipe = {
   ],
 
   makeSubContext(origCtx, changes) {
-    return { ...origCtx, ...changes };
+    const { relatedBy, relationVerb } = changes;
+    mustBe.nest('relationVerb', relationVerb);
+    if (!mightBeResourcePlan(relatedBy)) {
+      console.debug('Bad parent:', relatedBy);
+      throw new Error('Bad parent: ' + relatedBy);
+    }
+    const parentReason = String(relatedBy) + '.' + relationVerb;
+    const parStk = origCtx.traceParents().concat(parentReason);
+    const subCtx = {
+      ...origCtx,
+      ...changes,
+      traceParents() { return parStk; },
+    };
+    return subCtx;
   },
 
   installRelationFuncs(res, typeMeta) {
@@ -69,9 +92,11 @@ const vanillaRecipe = {
 
 
 function startHatching(res, ...hatchArgs) {
+  // console.debug('startHatching', String(res), 'go!');
   async function waitUntilHatched() {
     await res.hatch(...hatchArgs);
     res.hatching = false;
+    // console.debug('startHatching', String(res), 'done.');
     return res;
   }
   res.hatching = true;
@@ -98,6 +123,7 @@ function makeSpawner(recipe) {
     defaultProps: recPop.ifHas('defaultProps', {}),
     acceptProps,
     relationVerbs: vanil('relationVerbs'),
+    timeoutsSec: recipeTimeouts.copy(vanillaRecipe, vanil),
   };
   recPop.expectEmpty('Unsupported recipe feature(s)');
 
@@ -122,15 +148,21 @@ function makeSpawner(recipe) {
     const res = {
       typeName,
       id,
+      instanceId: spawnCounter(),
       getTypeMeta() { return typeMeta; },
       toString: resToString,
-      toDictKey: resToString,
-      spawning: {
-        dupeOf,
-        getContext() { return ctx; },
-        makeSubContext(changes) { return makeSubCtx.call(res, ctx, changes); },
-      },
+      toDictKey: resToDictKey,
     };
+    res.spawning = {
+      dupeOf,
+      getContext() { return ctx; },
+      makeSubContext(changes) { return makeSubCtx.call(res, ctx, changes); },
+      timeout: recipeTimeouts.startTimer(res, 'spawn'),
+    };
+
+    console.debug('spawning', String(res),
+      'dupe of', String(dupeOf),
+      'for', String(ctx.relatedBy));
 
     Object.keys(api).forEach(function installProxy(mtdName) {
       const impl = api[mtdName];
@@ -152,9 +184,10 @@ function makeSpawner(recipe) {
     await res.prepareRelationsManagement();
     installRelationFuncs.call(ctx, res, typeMeta);
 
+    res.spawning.timeout.abandon();
     mgdSameType[id] = res;
-    delete res.spawning;
     await hook(ctx, 'ResourceSpawned', res);
+    delete res.spawning;
 
     startHatching(res, props);
     return res;

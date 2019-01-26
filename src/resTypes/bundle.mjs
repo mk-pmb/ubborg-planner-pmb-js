@@ -6,8 +6,13 @@ import slashableImport from '../slashableImport';
 
 async function hatchBundle() {
   const bun = this;
+  // console.debug(String(bun), 'import');
   const imp = await slashableImport(bun.id);
+  // console.debug(String(bun), 'run');
   await imp(bun);
+  console.debug(String(bun), 'wfp');
+  await bun.relations.waitForAllPlanning();
+  console.debug(String(bun), 'bundle hatched');
 };
 
 
