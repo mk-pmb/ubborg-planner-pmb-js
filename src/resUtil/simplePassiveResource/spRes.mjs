@@ -5,24 +5,17 @@ import mustBe from 'typechecks-pmb/must-be';
 import goak from 'getoraddkey-simple';
 import vTry from 'vtry';
 import is from 'typechecks-pmb';
-import makeCounter from 'maxuniqid';
 
-import joinIdParts from './joinIdParts';
-import verifyAcceptProps from './verifyAcceptProps';
-import trivialDictMergeInplace from '../trivialDictMergeInplace';
-import basicRelation from './basicRelation';
-import mightBeResourcePlan from './mightBeResourcePlan';
-import hook from '../hook';
-import recipeTimeouts from './recipeTimeouts';
+import joinIdParts from '../joinIdParts';
+import verifyAcceptProps from '../verifyAcceptProps';
+import trivialDictMergeInplace from '../../trivialDictMergeInplace';
+import basicRelation from '../basicRelation';
+import mightBeResourcePlan from '../mightBeResourcePlan';
+import recipeTimeouts from '../recipeTimeouts';
+import hook from '../../hook';
 
 
 function resToDictKey() { return `${this.typeName}[${this.id}]`; }
-
-function resToString() {
-  return resToDictKey.call(this) + '#' + String(this.instanceId);
-}
-
-const spawnCounter = makeCounter();
 
 const apiBasics = {
 
@@ -148,9 +141,8 @@ function makeSpawner(recipe) {
     const res = {
       typeName,
       id,
-      instanceId: spawnCounter(),
       getTypeMeta() { return typeMeta; },
-      toString: resToString,
+      toString: resToDictKey,
       toDictKey: resToDictKey,
     };
     res.spawning = {
