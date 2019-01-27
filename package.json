@@ -1,4 +1,4 @@
-{ "name": "ubborg-pmb",
+{ "name": "ubborg-planner-pmb",
   "version": "0.0.1",
   "description": "Helps me describe system configurations.",
   "keywords": [
@@ -10,19 +10,20 @@
   ],
 
   "author": "M.K. (https://github.com/mk-pmb)",
-  "homepage": "https://github.com/mk-pmb/ubborg-pmb-js/#readme",
+  "homepage": "https://github.com/mk-pmb/ubborg-planner-pmb-js/#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mk-pmb/ubborg-pmb-js.git"
+    "url": "git+https://github.com/mk-pmb/ubborg-planner-pmb-js.git"
   },
   "bugs": {
-    "url": "https://github.com/mk-pmb/ubborg-pmb-js/issues"
+    "url": "https://github.com/mk-pmb/ubborg-planner-pmb-js/issues"
   },
   "contributors": [],
 
   "private": false, "license": "ISC",
 
-  "main": "ubborg-pmb.js",
+  "main": "ubborg-planner-pmb.js",
+  "bin": "bin/cli.mjs",
   "directories": {
     "doc": "docs",
     "test": "test"

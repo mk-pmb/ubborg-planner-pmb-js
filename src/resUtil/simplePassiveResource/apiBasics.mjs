@@ -34,6 +34,13 @@ const apiBasics = {
     return basicRelation.prepareRelationsManagement(this);
   },
 
+  async toFactsDict() {
+    const { hatchedPr, props } = this;
+    if (!hatchedPr) { throw new Error('Facts not ready yet'); }
+    await hatchedPr;
+    return props;
+  },
+
   hatch() {},   // thus "simple passive"
 };
 
