@@ -14,7 +14,22 @@ function findBaseDir(path) {
 function makeSpawner(recipe) {
   const { typeName } = recipe;
   const parentMustBeObj = mustBe('obj', typeName + ' parent');
-  const baseSpawner = spRes.makeSpawner(recipe);
+  const origApi = recipe.api;
+  const origFin = (origApi || false).finalizePlan;
+  if (!origFin) {
+    console.log(recipe);
+    throw new Error('no origFin!');
+  }
+  const baseSpawner = spRes.makeSpawner({
+    ...recipe,
+    api: {
+      ...origApi,
+      finalizePlan(...args) {
+        this.props.basedir = findBaseDir(this.id);
+        return origFin.apply(this, args);
+      },
+    },
+  });
 
   async function spawn(ctx, origSpec) {
     let path = mustBe.nest(typeName + ' spec', origSpec);
@@ -25,9 +40,7 @@ function makeSpawner(recipe) {
         parent.props.basedir);
       path = normJoinPath(parentBaseDir, path);
     }
-    const res = await baseSpawner(ctx, { path });
-    res.props.basedir = findBaseDir(path);
-    return res;
+    return baseSpawner(ctx, { path });
   }
   return spawn;
 }

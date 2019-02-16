@@ -6,10 +6,14 @@ import bundle from './bundle';
 import hook from '../hook';
 
 
+const bunRep = bundle.recipe;
+const hatchBundle = bunRep.api.hatch;
+
+
 async function hatchStage() {
   const stg = this;
   // console.debug(String(stg), 'hatching my bundle');
-  await bundle.recipe.api.hatch.call(stg);
+  await (hatchBundle && hatchBundle.call(stg));
   // console.debug(String(stg), 'collecting my spawn list');
   const spawnsPrList = stg.relations.getRelatedPlanPromises().spawns;
   stg.spawns.list = await Promise.all(spawnsPrList || []);
@@ -32,7 +36,7 @@ function makeSubContext(origCtx, changes) {
 
 
 const recipe = {
-  ...bundle.recipe,
+  ...bunRep,
   typeName: 'stage',
 
   relationVerbs: [
@@ -41,6 +45,7 @@ const recipe = {
   ],
 
   api: {
+    ...bunRep.api,
     hatch: hatchStage,
   },
 
