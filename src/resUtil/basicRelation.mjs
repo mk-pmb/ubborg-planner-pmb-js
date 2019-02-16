@@ -101,7 +101,13 @@ Object.assign(rela, {
       throw new Error(String(res) + " hasn't promised hatching yet");
     }
     const subRelPlans = await rela.waitForAllSubPlanning(res);
+    // ^- This Promise has to work as soon as the plan is planned,
+    //    especially before hatching has completed!
+    // v- That's why we wait for hatching only then:
     await res.hatchedPr;
+    // Any resource that cannot promise its subplans before it has hatched,
+    // is itself responsible for including all such preconditions into its
+    // subplans promise.
     return subRelPlans;
   },
 

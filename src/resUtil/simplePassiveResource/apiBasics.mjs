@@ -5,6 +5,9 @@ import trivialDictMergeInplace from '../../trivialDictMergeInplace';
 import basicRelation from '../basicRelation';
 
 
+function doNothing() {}
+
+
 const apiBasics = {
 
   incubate(newProps) {
@@ -29,7 +32,6 @@ const apiBasics = {
     return dupeOf;
   },
 
-
   prepareRelationsManagement() {
     return basicRelation.prepareRelationsManagement(this);
   },
@@ -41,7 +43,9 @@ const apiBasics = {
     return props;
   },
 
-  hatch() {},   // thus "simple passive"
+  // The reasons for naming this resType "simple passive":
+  hatch: doNothing,
+  finalizePlan: doNothing,
 };
 
 

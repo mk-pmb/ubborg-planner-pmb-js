@@ -20,6 +20,7 @@ function startHatching(res, ...hatchArgs) {
   // console.debug('startHatching', String(res), 'go!');
   async function waitUntilHatched() {
     await res.hatch(...hatchArgs);
+    await res.relations.waitForAllSubPlanning();
     res.hatching = false;
     // console.debug('startHatching', String(res), 'done.');
     return res;
@@ -110,6 +111,7 @@ function makeSpawner(recipe) {
     delete res.spawning;
 
     startHatching(res, props);
+    await res.finalizePlan();
     return res;
   }
 

@@ -4,15 +4,13 @@ import relRes from '../resUtil/parentRelPathResource';
 import slashableImport from '../slashableImport';
 
 
-async function hatchBundle() {
+async function breedBundle() {
   const bun = this;
   // console.debug(String(bun), 'import');
   const imp = await slashableImport(bun.id);
   // console.debug(String(bun), 'run');
   await imp(bun);
-  // console.debug(String(bun), 'wfp');
-  await bun.relations.waitForAllSubPlanning();
-  // console.debug(String(bun), 'bundle hatched');
+  // console.debug(String(bun), 'bred');
 };
 
 
@@ -24,21 +22,15 @@ const recipe = {
   acceptProps: {
   },
   api: {
-    hatch: hatchBundle,
+    hatch: breedBundle,
+    finalizePlan() { return this.hatchedPr; },
   },
 };
 
 const spawnCore = relRes.makeSpawner(recipe);
 
-async function planBundle(spec) {
-  const bun = await spawnCore(this, spec);
-  await bun.hatchedPr;
-  return bun;
-}
-
-
 
 export default {
   recipe,
-  plan: planBundle,
+  plan(spec) { return spawnCore(this, spec); },
 };
