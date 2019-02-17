@@ -12,7 +12,6 @@ import planResourceByTypeName from '../resUtil/planResourceByTypeName';
 async function runFromCli(topBundleFile) {
   const topCtx = makeToplevelContext();
   const topRes = await planResourceByTypeName('stage', topCtx, topBundleFile);
-  const topPlan = await topRes.relations.waitForAllPlanning();
 
   const resourcesByTypeName = topCtx.getResourcesByTypeName();
   const stages = resourcesByTypeName.stage;
@@ -24,7 +23,6 @@ async function runFromCli(topBundleFile) {
     stages,
     topBundleFile,
     topCtx,
-    topPlan,
     topRes,
   };
 

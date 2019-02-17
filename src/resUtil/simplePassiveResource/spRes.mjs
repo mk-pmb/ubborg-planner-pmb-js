@@ -95,6 +95,7 @@ function makeSpawner(recipe) {
     await res.incubate(props);
     if (dupeOf) {
       const ack = await dupeOf.mergeUpdate(res);
+      res.spawning.timeout.abandon();
       if (ack === dupeOf) {
         await hook(ctx, 'ResourceRespawned', dupeOf);
         return dupeOf;

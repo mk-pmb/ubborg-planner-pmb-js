@@ -1,5 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import loMapKeys from 'lodash.mapkeys';
+
 import verifyAcceptProps from '../verifyAcceptProps';
 import trivialDictMergeInplace from '../../trivialDictMergeInplace';
 import basicRelation from '../basicRelation';
@@ -10,26 +12,34 @@ function doNothing() {}
 
 const apiBasics = {
 
-  incubate(newProps) {
+  incubate(setProps) {
     const res = this;
     const typeMeta = res.getTypeMeta();
-    verifyAcceptProps(typeMeta, newProps);
-    const { dupeOf } = res.spawning;
-    if (!dupeOf) {
-      res.props = { ...newProps };
-      return res;
+    verifyAcceptProps(typeMeta, setProps);
+    if (res.props !== undefined) {
+      throw new TypeError('Expected props to not be defined yet');
     }
+    const okProps = {};
+    loMapKeys(setProps, function checkProp(val, key) {
+      if (val === undefined) { return; }
+      okProps[key] = val;
+    });
+    res.props = okProps;
+  },
+
+  mergeUpdate(dupeRes) {
+    const origRes = this;
     try {
-      trivialDictMergeInplace(dupeOf.props, newProps);
+      trivialDictMergeInplace(origRes.props, dupeRes.props);
     } catch (caught) {
       if (caught.name === 'trivialDictMergeError') {
         const dunno = `No idea how to merge unequal ${
-          String(res)} property "${caught.dictKey}": `;
+          String(origRes)} property "${caught.dictKey}": `;
         caught.message = dunno + caught.message;
       }
       throw caught;
     }
-    return dupeOf;
+    return origRes;
   },
 
   prepareRelationsManagement() {

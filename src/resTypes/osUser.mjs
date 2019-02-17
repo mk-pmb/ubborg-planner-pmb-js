@@ -15,7 +15,7 @@ const spawnCore = spRes.makeSpawner({
     fullName: '',
   },
   acceptProps: {
-    uid: true,
+    userIdNum: true,
     passwordHash: true,
   },
 });
@@ -29,8 +29,8 @@ async function planOsUser(spec) {
 
   const { loginName, groups } = spec;
   if (groups) {
-    aMap(parseUserGroupsList(groups), (member, group) => {
-      res.needs('osUserGroupMembership', { user: loginName, group, member });
+    aMap(parseUserGroupsList(groups), (member, grName) => {
+      res.needs('osUserGroupMembership', { loginName, grName, member });
     });
   }
 

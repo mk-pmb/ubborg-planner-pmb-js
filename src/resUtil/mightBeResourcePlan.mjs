@@ -11,7 +11,7 @@ mbrp.whyNot = function whyNotResourcePlan(x) {
   const rela = x.relations;
   if (!rela) { return 'unrelated'; }
   if (!is.fun(rela.relateTo)) { return 'unrelatable'; }
-  if (!is.fun(rela.waitForAllPlanning)) { return 'cannot waitForAllPlanning'; }
+  if (!is.fun(rela.waitForAllSubPlanning)) { return 'cannot plan deeply'; }
   const spw = (x.spawning || false);
   if (!spw.getContext) {
     // test features only available after hatching has started

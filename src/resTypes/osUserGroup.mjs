@@ -5,12 +5,12 @@ import spRes from '../resUtil/simplePassiveResource';
 
 const spawnCore = spRes.makeSpawner({
   typeName: 'osUserGroup',
-  idProp: 'group',
+  idProp: 'grName',
   defaultProps: {
     exists: true,
   },
   acceptProps: {
-    gid: true,
+    grIdNum: true,
   },
 });
 
