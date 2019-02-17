@@ -2,7 +2,7 @@
 
 import equalPmb from 'equal-pmb';
 
-function trivialDictMergeInplace(destDict, updates) {
+function trivialDictMergeInplace(destDict, ...updates) {
   if (updates.length > 1) {
     updates.forEach(u => trivialDictMergeInplace(destDict, u));
     return destDict;
