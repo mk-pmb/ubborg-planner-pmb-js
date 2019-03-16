@@ -46,11 +46,17 @@ const apiBasics = {
     return basicRelation.prepareRelationsManagement(this);
   },
 
-  async toFactsDict() {
+  async customizedFactsToDict() {
     const { hatchedPr, props } = this;
     if (!hatchedPr) { throw new Error('Facts not ready yet'); }
     await hatchedPr;
     return props;
+  },
+
+  async toFactsDict() {
+    const custom = await this.customizedFactsToDict();
+    const dflt = this.getTypeMeta().defaultProps;
+    return { ...dflt, ...custom };
   },
 
   // The reasons for naming this resType "simple passive":
