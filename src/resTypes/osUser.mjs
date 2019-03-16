@@ -10,9 +10,10 @@ const spawnCore = spRes.makeSpawner({
   typeName: 'osUser',
   idProp: 'loginName',
   defaultProps: {
-    system: false,
-    locked: false,
+    createDefaultHomeDir: false,
     fullName: '',
+    locked: false,
+    system: false,
   },
   acceptProps: {
     userIdNum: true,
