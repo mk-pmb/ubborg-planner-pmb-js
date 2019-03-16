@@ -1,72 +1,55 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import 'usnam-pmb';
-import pEachSeries from 'p-each-series';
 import univeil from 'univeil';
 
 import makeToplevelContext from '../resUtil/makeToplevelContext';
 import planResourceByTypeName from '../resUtil/planResourceByTypeName';
+import walkDepsTree from '../walkDepsTree';
 
 
 const { jsonify } = univeil;
+const indentPrefix = '  ';
+
+function keyCnt(x) { return Object.keys(x).length; }
 
 
-function printDepsTree(resPr) {
-  const ctx = { hadRes: new Set() };
-  return printDepsTree.core(ctx, '', resPr);
-}
-
-printDepsTree.core = async function printDepsTreeCore(ctx, indent, resPr) {
-  const res = await resPr;
-  const resName = String(res);
-  await res.hatchedPr;
-
-  const { hadRes } = ctx;
-  if (hadRes.has(resName)) {
-    console.log((indent + '^'), resName);
-    return;
-  }
-  hadRes.add(resName);
-
-  const factsDict = await res.toFactsDict();
-  const factNames = Object.keys(factsDict).sort();
-
-  const verbsDict = { ...(await res.relations.getRelatedPlanPromises()) };
-  delete verbsDict.spawns;
-  const relaVerbs = Object.keys(verbsDict).sort();
-
-  if (relaVerbs.length || factNames.length) {
-    console.log((indent + '+'), resName);
-  } else {
-    console.log((indent + '*'), resName);
+async function foundRes(ev) {
+  const { indent, subInd } = ev.ctx;
+  if (ev.prevEncounters) {
+    console.log(indent + '^', ev.resName);
     return;
   }
 
-  const verbInd = indent + '  ';
-  const subInd = verbInd + '  ';
+  // const state = ev.forkState();
 
-  factNames.forEach(function printOneFact(key) {
-    const val = factsDict[key];
-    console.log(verbInd + '=', jsonify(key) + ':', jsonify(val));
+  const { resPlan, resName, subRelVerbPrs } = ev;
+  delete subRelVerbPrs.spawns;
+  const factsDict = await resPlan.toFactsDict();
+  const factNames = Object.keys(factsDict);
+
+  const showDetails = (factNames.length || keyCnt(subRelVerbPrs));
+  console.log(indent + (showDetails ? '+' : '*'), resName);
+  if (!showDetails) { return; }
+
+  factNames.sort().forEach(function printOneFact(key) {
+    console.log(subInd + '=', jsonify(key) + ':', jsonify(factsDict[key]));
   });
 
-  function printSubDep(subPr) {
-    return printDepsTree.core(ctx, subInd, subPr);
-  }
-  async function collectOneVerb(verb) {
-    const plans = await Promise.all(verbsDict[verb]);
-    console.log((verbInd + '~'), verb);
-    await pEachSeries(plans, printSubDep);
-  }
-  await pEachSeries(relaVerbs, collectOneVerb);
-  console.log((verbInd + '-'), resName);
-};
+  await ev.diveVerbsSeries();
+  console.log(subInd + '-', resName);
+}
 
 
 async function runFromCli(topBundleFile) {
   const topCtx = makeToplevelContext();
   const topRes = await planResourceByTypeName('stage', topCtx, topBundleFile);
-  await printDepsTree(topRes);
+
+  await walkDepsTree({
+    root: topRes,
+    indentPrefix,
+    foundRes,
+  });
 }
 
 
