@@ -33,6 +33,14 @@ async function diveVerbsSeriesCore(ev, diver) {
 }
 
 
+function forkState() {
+  const { ctx } = this;
+  const orig = ctx.inheritedState;
+  if (ctx.state === orig) { ctx.state = { ...orig }; }
+  return ctx.state;
+}
+
+
 async function walkDepsTreeCore(inheritedCtx, resPr, relVerb) {
   const resPlan = await resPr;
   await resPlan.hatchedPr;
@@ -42,6 +50,7 @@ async function walkDepsTreeCore(inheritedCtx, resPr, relVerb) {
     ...inheritedCtx,
     ...updateStacks(inheritedCtx, relVerb, resPlan),
     depth: inheritedCtx.parentPlans.length,
+    inheritedState: inheritedCtx.state,
   };
 
   const { knownRes } = ctx;
@@ -68,6 +77,7 @@ async function walkDepsTreeCore(inheritedCtx, resPr, relVerb) {
   const ev = {
     ctx,
     diveVerbsSeries,
+    forkState,
     notes,
     relVerb,
     resName,
@@ -79,10 +89,14 @@ async function walkDepsTreeCore(inheritedCtx, resPr, relVerb) {
 
 
 function walkDepsTree(opt) {
+  const { root, foundRes } = (opt || false);
+  if (!foundRes) { throw new Error('foundRes handler required'); }
+  if (!root) { throw new Error('root resPlan required'); }
   const ctx = {
     knownRes: new Map(),
     nDiscovered: 0,
     ...updateStacks(),
+    foundRes,
   };
   function orDefault(val, key) { ctx[key] = (opt[key] || val); }
   aMap({
@@ -90,12 +104,9 @@ function walkDepsTree(opt) {
     indent: '',
     indentPrefix: '',
     indentSuffix: '',
-    foundRes: null,
   }, orDefault);
   ctx.subInd = subIndent(ctx);
-
-  if (!ctx.foundRes) { throw new Error('foundRes handler required'); }
-  return walkDepsTreeCore(ctx, opt.root, null);
+  return walkDepsTreeCore(ctx, root, null);
 }
 
 
