@@ -29,8 +29,8 @@ async function mapFactsDict(opt, iter) {
 
 
 async function foundRes(ev) {
-  const { logDest, formatter: fmt } = ev.ctx.state;
-  if (ev.prevEncounters && fmt.known) { return fmt.known(logDest, ev); }
+  const { outputDest, formatter: fmt } = ev.ctx.state;
+  if (ev.prevEncounters && fmt.known) { return fmt.known(outputDest, ev); }
 
   const { resPlan, subRelVerbPrs } = ev;
   delete subRelVerbPrs.spawns;
@@ -50,8 +50,11 @@ async function foundRes(ev) {
     hasDetails,
   });
   const hnd = ((hasDetails ? fmt.branch : fmt.leaf) || fmt.res);
-  return hnd.call(fmt, logDest, ev);
+  return hnd.call(fmt, outputDest, ev);
 }
+
+
+function callIf(func, ...args) { return (func && func(...args)); }
 
 
 async function runFromCli(...cliArgsOrig) {
@@ -67,16 +70,30 @@ async function runFromCli(...cliArgsOrig) {
   ])).default;
   if (!mkFmt) { throw new Error('Unsupported output format'); }
   const formatter = await (mkFmt.call ? mkFmt(job) : mkFmt);
-
-  await walkDepsTree({
+  const outputDest = {
+    stream: process.stdout,
+    pending: '',
+    setPending(x) { this.pending = (x || ''); },
+    addPending(x) { this.pending += x; },
+    write(...args) {
+      if (this.pending) { this.stream.write(this.pending); }
+      this.pending = '';
+      return this.stream.write(...args);
+    },
+    log(...parts) { return this.write(parts.join(' ') + '\n'); },
+  };
+  const wdtJob = {
     ...formatter.walkOpts,
     root: topRes,
     foundRes,
     state: {
-      logDest: console,
+      outputDest,
       formatter,
     },
-  });
+  };
+  await callIf(formatter.header, wdtJob);
+  await walkDepsTree(wdtJob);
+  await callIf(formatter.footer, wdtJob);
 }
 
 
