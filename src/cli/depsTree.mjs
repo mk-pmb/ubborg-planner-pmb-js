@@ -30,7 +30,7 @@ async function mapFactsDict(opt, iter) {
 
 async function foundRes(ev) {
   const { outputDest, formatter: fmt } = ev.ctx.state;
-  if (ev.prevEncounters && fmt.known) { return fmt.known(outputDest, ev); }
+  if (ev.nPrevEncounters && fmt.known) { return fmt.known(outputDest, ev); }
 
   const { resPlan, subRelVerbPrs } = ev;
   delete subRelVerbPrs.spawns;

@@ -53,19 +53,18 @@ async function walkDepsTreeCore(inheritedCtx, resPr, relVerb) {
     inheritedState: inheritedCtx.state,
   };
 
-  const { knownRes } = ctx;
-  const inheritedNotes = knownRes.get(resName);
-  const notes = (inheritedNotes || {});
-  if (!inheritedNotes) { knownRes.set(resName, resPlan); }
-
   if (ctx.depth > 0) {
     ctx.indent = ctx.subInd;
     ctx.subInd = subIndent(ctx);
   }
-  if (notes.encounterNo) {
-    notes.encounterNo += 1;
-  } else {
-    notes.encounterNo = 1;
+
+  const { knownRes, resNotes } = ctx;
+  if (!knownRes.has(resName)) { knownRes.set(resName, resPlan); }
+  const notes = (resNotes.get(resName) || {});
+  const nPrevEncounters = (notes.encounterNo || 0);
+  notes.encounterNo = nPrevEncounters + 1;
+  if (!nPrevEncounters) {
+    resNotes.set(resName, notes);
     ctx.nDiscovered += 1;
     notes.nthDiscovered = ctx.nDiscovered;
   }
@@ -79,6 +78,7 @@ async function walkDepsTreeCore(inheritedCtx, resPr, relVerb) {
     diveVerbsSeries,
     forkState,
     notes,
+    nPrevEncounters,
     relVerb,
     resName,
     resPlan,
@@ -94,6 +94,7 @@ function walkDepsTree(opt) {
   if (!root) { throw new Error('root resPlan required'); }
   const ctx = {
     knownRes: new Map(),
+    resNotes: new Map(),
     nDiscovered: 0,
     ...updateStacks(),
     foundRes,
