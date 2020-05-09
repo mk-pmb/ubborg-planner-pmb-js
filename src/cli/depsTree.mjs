@@ -8,9 +8,9 @@ import makeFirstAvailModLoader from 'load-first-avail-module';
 import makeToplevelContext from '../resUtil/makeToplevelContext';
 import planResourceByTypeName from '../resUtil/planResourceByTypeName';
 import walkDepsTree from '../depsTree/walk';
+import makeColorfulLogDest from '../makeColorfulLogDest';
 
 const importFirstAvailableModule = makeFirstAvailModLoader(id => import(id));
-
 
 function keyCnt(x) { return Object.keys(x).length; }
 
@@ -70,18 +70,8 @@ async function runFromCli(...cliArgsOrig) {
   ])).default;
   if (!mkFmt) { throw new Error('Unsupported output format'); }
   const formatter = await (mkFmt.call ? mkFmt(job) : mkFmt);
-  const outputDest = {
-    stream: process.stdout,
-    pending: '',
-    setPending(x) { this.pending = (x || ''); },
-    addPending(x) { this.pending += x; },
-    write(...args) {
-      if (this.pending) { this.stream.write(this.pending); }
-      this.pending = '';
-      return this.stream.write(...args);
-    },
-    log(...parts) { return this.write(parts.join(' ') + '\n'); },
-  };
+  const outputDest = makeColorfulLogDest(job);
+
   const wdtJob = {
     ...formatter.walkOpts,
     root: topRes,
