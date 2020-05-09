@@ -4,10 +4,13 @@ import univeil from 'univeil';
 
 const { jsonify } = univeil;
 
-function nameLine(cont, dest, ev) {
+function nameLine(color, cont, dest, ev) {
   const { indent } = ev.ctx;
-  dest.write(indent + '{ "name": ' + jsonify(ev.resName) + cont);
-  dest.setPending(',\n');
+  const clz = dest.colorize;
+  dest.write(indent + clz(color) + '{'
+    + clz('dimgrey') + ' "name": '
+    + clz(color) + jsonify(ev.resName) + cont);
+  dest.setPending(clz('dimgrey') + ',' + clz() + '\n');
 }
 
 const formatter = {
@@ -16,25 +19,28 @@ const formatter = {
     indentPrefix: '    ',
   },
 
-  known: nameLine.bind(null,  ', "had": true }'),
-  leaf: nameLine.bind(null,   ' }'),
+  known: nameLine.bind(null,  'green',    ', "isRef": true }'),
+  leaf: nameLine.bind(null,   'brviolet', ', "props": {} }'),
 
   async branch(dest, ev) {
-    nameLine('', dest, ev);
+    nameLine('yellow', '', dest, ev);
     const { indent } = ev.ctx;
+    const clz = dest.colorize;
     let props = jsonify(ev.factsDict, null, 2);
     props = (ev.nFacts > 1
-      ? props.replace(/\n/g, '\n  ' + indent)
-      : props.replace(/\n\s*/g, ' ')
-    );
-    dest.write(indent + '  "props": ' + props);
+      ? props.replace(/\n/g, clz() + '\n  ' + indent + clz('teal'))
+      : props.replace(/\n\s*/g, ' '));
+    dest.write(indent + '  ' + clz('dimgrey') + '"props": '
+      + clz('teal') + props + clz());
     if (ev.nVerbs) {
-      dest.write(',\n' + indent + '  "deps": [\n');
+      dest.write(clz('dimgrey') + ',' + clz() + '\n' + indent + '  '
+        + clz('dimgrey') + '"deps": [' + clz() + '\n');
       await ev.diveVerbsSeries();
       dest.setPending();
-      dest.write('\n' + indent + '  ]');
+      dest.write('\n' + indent + '  ' + clz('dimgrey')
+        + ']' + clz());
     }
-    dest.write(' }');
+    dest.write(' ' + clz('brown') + '}' + clz());
     dest.setPending(indent && ',\n');
   },
 
