@@ -11,6 +11,7 @@ const spawnCore = spRes.makeSpawner({
   idProp: 'loginName',
   defaultProps: {
     createDefaultHomeDir: false,
+    exists: true,
     fullName: '',
     locked: false,
     system: false,
