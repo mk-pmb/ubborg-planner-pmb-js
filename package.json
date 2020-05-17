@@ -31,9 +31,10 @@
   "scripts": { "test": "nodejs test/all.js" },
 
   "dependencies": {
-    "callback-timeout-flexible": "^0.1.9",
+    "@instaffogmbh/promise-timeout-with-warning": "^0.1.14",
     "equal-pmb": "^0.1.20",
     "getoraddkey-simple": "^0.1.5",
+    "is-fn": "^2.0.0",
     "load-first-avail-module": "^0.1.1",
     "lodash.camelcase": "^4.3.0",
     "lodash.mapkeys": "^4.6.0",
@@ -46,7 +47,6 @@
     "p-fatal": "^0.1.2",
     "p-map": "^4.0.0",
     "p-props": "^4.0.0",
-    "process-exitcode-atleast": "^1.0.0",
     "terminal-color-numbers-pmb": "^0.1.1",
     "typechecks-pmb": "^0.190810.0",
     "univeil": "^0.1.14",

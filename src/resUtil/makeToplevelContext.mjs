@@ -6,6 +6,7 @@ function makeToplevelContext() {
   const topCtx = {
     getResourcesByTypeName() { return resourcesByTypeName; },
     traceParents() { return []; },
+    pendingResPlanPromises: new Map(),
   };
   return topCtx;
 }

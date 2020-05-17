@@ -3,13 +3,15 @@
 import pProps from 'p-props';
 import vTry from 'vtry';
 import is from 'typechecks-pmb';
-
 import goak from 'getoraddkey-simple';
+
 import planResourceByTypeName from './planResourceByTypeName';
 import mightBeResourcePlan from './mightBeResourcePlan';
-
+import recipeTimeouts from './recipeTimeouts';
 
 const rela = {};
+
+function listConcatOrNew(a, b) { return (a ? [...a, b] : [b]); }
 
 
 function relateToMaybeSpawn(res, spawning, verb, relResType, relSpec) {
@@ -76,11 +78,14 @@ Object.assign(rela, {
       return planPr;
     }
 
+    const makeResMtdTmoProxy = recipeTimeouts.makeResMtdTimeoutProxifier(res);
     const api = {
       getRelatedPlanPromises() { return active; },
       getRelatingPlans() { return passive; },
       relateTo,
-      waitForAllSubPlanning() { return rela.waitForAllSubPlanning(res); },
+      ...makeResMtdTmoProxy.mapFuncs({
+        waitForAllSubPlanning: rela.waitForAllSubPlanning.bind(null, res),
+      }),
     };
     res.relations = api; // eslint-disable-line no-param-reassign
   },
@@ -95,17 +100,22 @@ Object.assign(rela, {
   },
 
 
-  async waitForAllSubPlanning(res) {
+  async waitForAllSubPlanning(res, opt) {
+    const disPath = (opt || false).discoveryPath;
+    const subDisPath = listConcatOrNew(disPath, res);
+    const subOpt = { ...opt, discoveryPath: subDisPath };
     async function waitForOneSubPlan(plan) {
       const subPlan = await plan;
-      await subPlan.relations.waitForAllSubPlanning();
+      if (subPlan === res) { return subPlan; }
+      if (disPath && disPath.includes(res)) { return subPlan; }
+      await subPlan.relations.waitForAllSubPlanning(subOpt);
       return subPlan;
     }
     async function collectOneVerb(relsPr) {
       const rels = await relsPr;
       const planPrs = await Promise.all(rels);
       const plans = await Promise.all(planPrs.map(waitForOneSubPlan));
-      return plans;
+      return plans.filter(Boolean);
     }
     const verbsDict = res.relations.getRelatedPlanPromises();
     const subRelPlans = await pProps(verbsDict, collectOneVerb);

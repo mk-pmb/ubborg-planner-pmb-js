@@ -7,14 +7,47 @@ function arrLast(i) { return this[this.length - (i || 1)]; }
 function subIndent(c) { return (c.indentPrefix + c.indent + c.indentSuffix); }
 
 
-function updateStacks(orig, relVerb, resPlan) {
-  return aMap({
+function updateStacks(origCtx, relVerb, resPlan) {
+  const valuesToBePushed = {
+    // stack name -> value to be added if stack exists
     parentPlans: resPlan,
     parentVerbs: relVerb,
     stack: {},
-  }, function updateOneStack(val, key) {
-    return Object.assign((orig ? [...orig[key], val] : []), { arrLast });
-  });
+  };
+  if (!origCtx) {
+    // Creating empty stacks for a fresh new ctx.
+    if (relVerb || resPlan) {
+      throw new Error('Cannot push resource details without a parent context');
+    }
+    return aMap(valuesToBePushed, function makeEmptyArray() { return []; });
+  }
+  const { parentPlans, maxDiveDepth, forbidCyclicDive } = origCtx;
+  const depth = parentPlans.length;
+  if (depth > maxDiveDepth) {
+    throw new Error('Trying to dive deeper (' + depth
+      + ' levels) than maxDiveDepth (' + maxDiveDepth + ') @ '
+      + String(origCtx));
+  }
+  const parentIndex = parentPlans.lastIndexOf(resPlan);
+  const isCyclicDive = (parentIndex >= 0);
+  const cycleSteps = (isCyclicDive && (depth - parentIndex));
+  if (isCyclicDive && forbidCyclicDive) {
+    throw new Error('Found a cyclic dependency while forbidCyclicDive is set: '
+      + String(origCtx) + ' « ' + String(resPlan)
+      + ' (' + cycleSteps + ' steps up)');
+  }
+
+  const arrayBonusFeatures = { arrLast };
+  function updateOneStack(val, key) {
+    const origStack = origCtx[key];
+    return Object.assign([...origStack, val], arrayBonusFeatures);
+  }
+  const ctxUpd = {
+    depth,
+    cycleSteps,
+    ...aMap(valuesToBePushed, updateOneStack),
+  };
+  return ctxUpd;
 }
 
 
@@ -49,7 +82,6 @@ async function walkDepsTreeCore(inheritedCtx, resPr, relVerb) {
   const ctx = {
     ...inheritedCtx,
     ...updateStacks(inheritedCtx, relVerb, resPlan),
-    depth: inheritedCtx.parentPlans.length,
     inheritedState: inheritedCtx.state,
   };
 
@@ -88,11 +120,20 @@ async function walkDepsTreeCore(inheritedCtx, resPr, relVerb) {
 };
 
 
+function ctxSelfToString() {
+  const parPl = (this.parentPlans || false);
+  if (!parPl.map) { return '[partially initialized context]'; }
+  if (!parPl.length) { return '[empty context]'; }
+  return ('[context ' + parPl.map(String).join(' » ') + ']');
+}
+
+
 function walkDepsTree(opt) {
   const { root, foundRes } = (opt || false);
   if (!foundRes) { throw new Error('foundRes handler required'); }
   if (!root) { throw new Error('root resPlan required'); }
   const ctx = {
+    toString: ctxSelfToString,
     knownRes: new Map(),
     resNotes: new Map(),
     nDiscovered: 0,
@@ -101,6 +142,8 @@ function walkDepsTree(opt) {
   };
   function orDefault(val, key) { ctx[key] = (opt[key] || val); }
   aMap({
+    maxDiveDepth: 6,
+    forbidCyclicDive: true,
     state: {},
     indent: '',
     indentPrefix: '',
