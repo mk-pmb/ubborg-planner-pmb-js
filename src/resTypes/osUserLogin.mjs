@@ -3,7 +3,7 @@
 import spRes from '../resUtil/simplePassiveResource';
 
 
-const spawnCore = spRes.makeSpawner({
+const recipe = {
   typeName: 'osUserLogin',
   idProp: 'loginName',
   defaultProps: {
@@ -17,7 +17,9 @@ const spawnCore = spRes.makeSpawner({
     userIdNum: true,
     passwordHash: true,
   },
-});
+};
+
+const spawnCore = spRes.makeSpawner(recipe);
 
 
 async function planOsUserLogin(spec) {
@@ -32,5 +34,6 @@ async function planOsUserLogin(spec) {
 
 
 export default {
+  recipe,
   plan: planOsUserLogin,
 };
