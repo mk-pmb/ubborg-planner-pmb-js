@@ -20,8 +20,8 @@ async function planOsUserGroupMembership(spec) {
   const res = await spawnCore(this, spec);
   const { loginName, grName, member } = spec;
   if (member) {
+    res.needs('osUserLogin', { loginName, exists: true });
     res.needs('osUserGroup', { grName, exists: true });
-    res.needs('osUser', { loginName, exists: true });
   }
   return res;
 }
