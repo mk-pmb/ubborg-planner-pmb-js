@@ -48,9 +48,10 @@ const formatter = {
     version: '200509-0700',
   },
 
+  supportsCyclicDive: true,
+
   walkOpts: {
     indentPrefix: '',
-    forbidCyclicDive: false,
   },
 
   header(job) {

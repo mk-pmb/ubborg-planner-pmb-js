@@ -54,6 +54,21 @@ async function foundRes(ev) {
 }
 
 
+function checkCyclicDeps(job, formatter) {
+  const optName = 'allowCyclicDeps';
+  const optVal = job[optName];
+  if (!optVal) { return; }
+  if (optVal !== true) {
+    throw new Error('Unsupported value for option ' + optName);
+  }
+  if (!formatter.supportsCyclicDive) {
+    throw new Error('Option ' + optName
+      + ' is not supported for the selected output format');
+  }
+  return { forbidCyclicDive: false };
+}
+
+
 function callIf(func, ...args) { return (func && func(...args)); }
 
 
@@ -74,6 +89,7 @@ async function runFromCli(...cliArgsOrig) {
 
   const wdtJob = {
     ...formatter.walkOpts,
+    ...checkCyclicDeps(job, formatter),
     root: topRes,
     foundRes,
     state: {
@@ -81,6 +97,7 @@ async function runFromCli(...cliArgsOrig) {
       formatter,
     },
   };
+
   await callIf(formatter.header, wdtJob);
   await walkDepsTree(wdtJob);
   await callIf(formatter.footer, wdtJob);
