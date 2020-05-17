@@ -3,14 +3,17 @@
 import univeil from 'univeil';
 
 const { jsonify } = univeil;
+const dimColor = 'dimgrey';
 
-function nameLine(color, cont, dest, ev) {
+function nameLine(nameColor, cont, dest, ev) {
   const { indent } = ev.ctx;
   const clz = dest.colorize;
-  dest.write(indent + clz(color) + '{'
-    + clz('dimgrey') + ' "name": '
-    + clz(color) + jsonify(ev.resName) + cont);
-  dest.setPending(clz('dimgrey') + ',' + clz() + '\n');
+  const res = ev.resPlan;
+  dest.write(indent + clz(nameColor) + '{'
+    + clz(dimColor) + ' "type": ' + clz(nameColor) + jsonify(res.typeName)
+    + clz(dimColor) + ' "id": ' + clz(nameColor) + jsonify(res.id)
+    + cont);
+  dest.setPending(clz(dimColor) + ',' + clz() + '\n');
 }
 
 const formatter = {
@@ -30,14 +33,14 @@ const formatter = {
     props = (ev.nFacts > 1
       ? props.replace(/\n/g, clz() + '\n  ' + indent + clz('teal'))
       : props.replace(/\n\s*/g, ' '));
-    dest.write(indent + '  ' + clz('dimgrey') + '"props": '
+    dest.write(indent + '  ' + clz(dimColor) + '"props": '
       + clz('teal') + props + clz());
     if (ev.nVerbs) {
-      dest.write(clz('dimgrey') + ',' + clz() + '\n' + indent + '  '
-        + clz('dimgrey') + '"deps": [' + clz() + '\n');
+      dest.write(clz(dimColor) + ',' + clz() + '\n' + indent + '  '
+        + clz(dimColor) + '"deps": [' + clz() + '\n');
       await ev.diveVerbsSeries();
       dest.setPending();
-      dest.write('\n' + indent + '  ' + clz('dimgrey')
+      dest.write('\n' + indent + '  ' + clz(dimColor)
         + ']' + clz());
     }
     dest.write(' ' + clz('brown') + '}' + clz());

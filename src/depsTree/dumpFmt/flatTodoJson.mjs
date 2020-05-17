@@ -3,6 +3,7 @@
 import univeil from 'univeil';
 
 const { jsonify } = univeil;
+const dimColor = 'dimgrey';
 
 function mergeLines(s) { return s.replace(/\n\s*/g, ' '); }
 
@@ -14,9 +15,13 @@ function renderProps(ev, clz) {
   return props.replace(/\n/g, clz() + '\n  ' + ev.ctx.indent + clz('teal'));
 }
 
-function nameLine(color, cont, dest, ev) {
-  dest.clog('dimgrey', ev.ctx.indent,
-    ', { "name": ' + dest.colorize(color) + jsonify(ev.resName) + cont);
+function nameLine(nameColor, cont, dest, ev) {
+  const clz = dest.colorize;
+  const res = ev.resPlan;
+  dest.clog(dimColor, ev.ctx.indent + ', ', clz(nameColor) + '{'
+    + clz(dimColor) + ' "type": ' + clz(nameColor) + jsonify(res.typeName)
+    + clz(dimColor) + ', "id": ' + clz(nameColor) + jsonify(res.id)
+    + cont);
 }
 
 
@@ -35,8 +40,8 @@ async function describeRes(dest, ev) {
   let color = 'yellow';
   if (ev.nFacts < 1) { color = 'brown'; }
   const clz = dest.colorize;
-  const props = (clz('dimgrey') + ', "props": '
-    + renderProps(ev, clz) + clz('dimgrey') + ' }');
+  const props = (clz(dimColor) + ', "props": '
+    + renderProps(ev, clz) + clz(dimColor) + ' }');
   nameLine(color, props, dest, ev);
   notes.wasExplained = true;
 }
