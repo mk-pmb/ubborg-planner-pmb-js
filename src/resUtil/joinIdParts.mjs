@@ -6,7 +6,7 @@ import specialChars from '../specialChars';
 import describeType from '../describeType';
 
 function joinIdParts(i, p) {
-  if (!i) { throw new Error('idProp cannot be empty'); }
+  if (!(i || false).length) { throw new Error('idProp cannot be empty'); }
   if (i.map) {
     return i.map(k => joinIdParts(k, p)).join(specialChars.idPropListSep);
   }

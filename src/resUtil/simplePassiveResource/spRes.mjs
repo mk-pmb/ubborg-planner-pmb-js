@@ -53,7 +53,7 @@ function makeSpawner(recipe) {
   };
   recPop.expectEmpty('Unsupported recipe feature(s)');
 
-  function copyProps(orig) {
+  function normalizeProps(orig) {
     if (is.obj(orig)) { return { ...orig }; }
     if (is.str(idProp)) { return { [idProp]: orig }; }
     throw new Error('Unsupported props format for ' + typeName);
@@ -65,10 +65,9 @@ function makeSpawner(recipe) {
     if (ctx.getTypeMeta) {
       throw new Error("A context shouldn't have a getTypeMeta.");
     }
-    const props = copyProps(origProps);
+    const normalizedProps = normalizeProps(origProps);
     const mergedSameType = goak(ctx.getResourcesByTypeName(), typeName, '{}');
-    const popProp = objPop.d(props);
-    const id = idJoiner(idProp, popProp);
+    const id = idJoiner(idProp, normalizedProps);
     const dupeOf = mergedSameType[id];
 
     const res = {
@@ -90,7 +89,7 @@ function makeSpawner(recipe) {
     };
 
     async function extendedIncubate() {
-      await res.incubate(props);
+      await res.incubate(normalizedProps);
       if (dupeOf) { return; }
 
       await res.prepareRelationsManagement();
@@ -110,7 +109,7 @@ function makeSpawner(recipe) {
     }
     delete res.spawning;
 
-    startHatching(res, props);
+    startHatching(res, normalizedProps);
     // ^-- Should be awaited by the top-level resource via res.hatchedPr.
     await res.finalizePlan();
     return res;

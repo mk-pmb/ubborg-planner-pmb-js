@@ -5,29 +5,37 @@ import pProps from 'p-props';
 import spRes from '../resUtil/simplePassiveResource';
 import parseUserGroupsList from '../parseUserGroupsList';
 
-const spawnCore = spRes.makeSpawner({
+import osUserLogin from './osUserLogin';
+
+const recipe = {
   typeName: 'osUser',
   idProp: 'loginName',
-  defaultProps: {},
-  acceptProps: {},
+  defaultProps: {
+    ...osUserLogin.recipe.defaultProps,
+  },
+  acceptProps: {
+    ...osUserLogin.recipe.acceptProps,
+    groups: true,
+    homonymousGroupIdNum: true,
+  },
 
   api: {
-    async hatch(props) {
+    async hatch() {
       const res = this;
-      const { loginName, groups } = props;
+      const { loginName, groups } = res.props;
       if (groups) {
         const memberships = parseUserGroupsList(groups);
         await pProps(memberships, function setMembership(member, grName) {
-          res.needs('osUserGroupMembership',
+          return res.needs('osUserGroupMembership',
             { loginName, grName, member });
         });
       }
     },
-    // finalizePlan() { return this.hatchedPr; },
   },
 
-});
+};
 
+const spawnCore = spRes.makeSpawner(recipe);
 
 async function planOsUser(spec) {
   const { loginName } = spec;
@@ -47,5 +55,6 @@ async function planOsUser(spec) {
 
 
 export default {
+  recipe,
   plan: planOsUser,
 };

@@ -4,12 +4,14 @@ import aMap from 'map-assoc-core';
 
 
 function verifyAcceptProps(typeMeta, props) {
-  const { acceptProps, defaultProps } = typeMeta;
+  const { acceptProps, defaultProps, idProp } = typeMeta;
   if (acceptProps === true) { return true; }
+  const idPropsList = [].concat(idProp);
   const unsupp = [];
   // const inval = [];
   aMap(props, function checkProp(val, key) {
     if (val === undefined) { return; }
+    if (idPropsList.includes(key)) { return; }
     const rule = acceptProps[key];
     if (rule === true) { return; }
     if (rule === undefined) {
