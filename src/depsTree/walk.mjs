@@ -132,26 +132,32 @@ function walkDepsTree(opt) {
   const { root, foundRes } = (opt || false);
   if (!foundRes) { throw new Error('foundRes handler required'); }
   if (!root) { throw new Error('root resPlan required'); }
+  function orDefault(defaultVal, key) {
+    const optVal = opt[key];
+    if (optVal === undefined) { return defaultVal; }
+    return optVal;
+  }
   const ctx = {
-    toString: ctxSelfToString,
     knownRes: new Map(),
     resNotes: new Map(),
     nDiscovered: 0,
     ...updateStacks(),
     foundRes,
+    ...aMap(walkDepsTree.defaultOpts, orDefault),
   };
-  function orDefault(val, key) { ctx[key] = (opt[key] || val); }
-  aMap({
-    maxDiveDepth: 6,
-    forbidCyclicDive: true,
-    state: {},
-    indent: '',
-    indentPrefix: '',
-    indentSuffix: '',
-  }, orDefault);
   ctx.subInd = subIndent(ctx);
   return walkDepsTreeCore(ctx, root, null);
 }
+
+walkDepsTree.defaultOpts = {
+  toString: ctxSelfToString,
+  maxDiveDepth: 64,
+  forbidCyclicDive: true,
+  state: {},
+  indent: '',
+  indentPrefix: '',
+  indentSuffix: '',
+};
 
 
 export default walkDepsTree;

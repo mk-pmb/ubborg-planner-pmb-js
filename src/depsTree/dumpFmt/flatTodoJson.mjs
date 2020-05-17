@@ -16,16 +16,19 @@ function renderProps(ev, clz) {
 
 function nameLine(color, cont, dest, ev) {
   dest.clog('dimgrey', ev.ctx.indent,
-    ', { "name": ' + dest.colorize(color) + jsonify(ev.resName)
-    + ', "cycle": ' + String(ev.ctx.cycleSteps)
-    + cont);
+    ', { "name": ' + dest.colorize(color) + jsonify(ev.resName) + cont);
 }
 
 
-async function branch(dest, ev) {
-  const { state } = ev.ctx;
-  if (state.branchesExplained.has(ev.resName)) {
-    nameLine('green',    ', "isRef": true }', dest, ev);
+async function describeRes(dest, ev) {
+  const { notes } = ev;
+  if (notes.wasExplained) {
+    nameLine('green', ', "isRef": true }', dest, ev);
+    return;
+  }
+  const { cycleSteps } = ev.ctx;
+  if (cycleSteps) {
+    nameLine('brred', ', "cyclic": ' + cycleSteps + ' }', dest, ev);
     return;
   }
   await ev.diveVerbsSeries();
@@ -35,7 +38,7 @@ async function branch(dest, ev) {
   const props = (clz('dimgrey') + ', "props": '
     + renderProps(ev, clz) + clz('dimgrey') + ' }');
   nameLine(color, props, dest, ev);
-  state.branchesExplained.add(ev.resName);
+  notes.wasExplained = true;
 }
 
 
@@ -46,18 +49,16 @@ const formatter = {
   },
 
   walkOpts: {
-    indentPrefix: '    ',
+    indentPrefix: '',
+    forbidCyclicDive: false,
   },
 
   header(job) {
     const meta = { format: formatter.fmtMeta };
     const { state } = job;
     state.outputDest.log('[ ' + mergeLines(jsonify(meta, null, 2)));
-    state.branchesExplained = new Set();
   },
-  branch,
-  known: branch,
-  leaf: nameLine.bind(null,   'brviolet', ', "props": {} }'),
+  res: describeRes,
 
   footer(job) { job.state.outputDest.log(']'); },
 };

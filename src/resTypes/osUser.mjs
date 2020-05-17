@@ -1,40 +1,45 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import aMap from 'map-assoc-core';
+import pProps from 'p-props';
 
 import spRes from '../resUtil/simplePassiveResource';
 import parseUserGroupsList from '../parseUserGroupsList';
 
-
 const spawnCore = spRes.makeSpawner({
   typeName: 'osUser',
   idProp: 'loginName',
-  defaultProps: {
-    createDefaultHomeDir: false,
-    exists: true,
-    fullName: '',
-    locked: false,
-    system: false,
+  defaultProps: {},
+  acceptProps: {},
+
+  api: {
+    async hatch(props) {
+      const res = this;
+      const { loginName, groups } = props;
+      if (groups) {
+        const memberships = parseUserGroupsList(groups);
+        await pProps(memberships, function setMembership(member, grName) {
+          res.needs('osUserGroupMembership',
+            { loginName, grName, member });
+        });
+      }
+    },
+    // finalizePlan() { return this.hatchedPr; },
   },
-  acceptProps: {
-    userIdNum: true,
-    passwordHash: true,
-  },
+
 });
 
 
 async function planOsUser(spec) {
-  const res = await spawnCore(this, {
+  const { loginName } = spec;
+  const res = await spawnCore(this, { loginName });
+  res.needs('osUserLogin', {
     ...spec,
     groups: undefined,
+    homonymousGroupIdNum: undefined,
   });
 
-  const { loginName, groups } = spec;
-  if (groups) {
-    aMap(parseUserGroupsList(groups), (member, grName) => {
-      res.needs('osUserGroupMembership', { loginName, grName, member });
-    });
-  }
+  const grIdNum = spec.homonymousGroupIdNum;
+  if (grIdNum) { res.needs('osUserGroup', { grName: loginName, grIdNum }); }
 
   return res;
 }

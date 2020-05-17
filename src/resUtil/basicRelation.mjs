@@ -13,10 +13,15 @@ const rela = {};
 
 function listConcatOrNew(a, b) { return (a ? [...a, b] : [b]); }
 
+function describeSpecShort(x) {
+  if (is.pojo(x)) { return '{' + Object.keys(x).join(',') + '}'; }
+  return String(x);
+}
+
 
 function relateToMaybeSpawn(res, spawning, verb, relResType, relSpec) {
   if (!(res.spawning || res.hatching)) {
-    const errMsg = res + ' cannot currently relate to any new resource';
+    const errMsg = `${res} cannot currently relate to any new resource`;
     throw new Error(errMsg);
   }
   const { makeSubContext } = spawning;
@@ -71,7 +76,7 @@ Object.assign(rela, {
 
     function relateTo(verb, relResType, relSpec) {
       const errTrace = `${String(res)}.${verb}(${
-        String(relResType)}, ${String(relSpec)})`;
+        String(relResType)}, ${describeSpecShort(relSpec)})`;
       const planPr = vTry(relateToMaybeSpawn, errTrace)(res, spawning,
         verb, relResType, relSpec);
       goak.pushToKey(active, verb, planPr);
