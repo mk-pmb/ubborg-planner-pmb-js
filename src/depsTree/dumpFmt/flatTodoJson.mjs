@@ -11,13 +11,33 @@ function renderProps(ev, clz) {
   if (nFacts < 1) { return '{}'; }
   const props = clz('teal') + jsonify(ev.factsDict, null, 2);
   if (nFacts < 2) { return mergeLines(props); }
-  return props.replace(/\n/g, clz() + '\n  ' + clz('teal'));
+  return props.replace(/\n/g, clz() + '\n  ' + ev.ctx.indent + clz('teal'));
 }
 
 function nameLine(color, cont, dest, ev) {
-  dest.clog('dimgrey', '',
-    ', { "name": ' + dest.colorize(color) + jsonify(ev.resName) + cont);
+  dest.clog('dimgrey', ev.ctx.indent,
+    ', { "name": ' + dest.colorize(color) + jsonify(ev.resName)
+    + ', "cycle": ' + String(ev.ctx.cycleSteps)
+    + cont);
 }
+
+
+async function branch(dest, ev) {
+  const { state } = ev.ctx;
+  if (state.branchesExplained.has(ev.resName)) {
+    nameLine('green',    ', "isRef": true }', dest, ev);
+    return;
+  }
+  await ev.diveVerbsSeries();
+  let color = 'yellow';
+  if (ev.nFacts < 1) { color = 'brown'; }
+  const clz = dest.colorize;
+  const props = (clz('dimgrey') + ', "props": '
+    + renderProps(ev, clz) + clz('dimgrey') + ' }');
+  nameLine(color, props, dest, ev);
+  state.branchesExplained.add(ev.resName);
+}
+
 
 const formatter = {
   fmtMeta: {
@@ -25,23 +45,19 @@ const formatter = {
     version: '200509-0700',
   },
 
+  walkOpts: {
+    indentPrefix: '    ',
+  },
+
   header(job) {
     const meta = { format: formatter.fmtMeta };
-    job.state.outputDest.log('[ ' + mergeLines(jsonify(meta, null, 2)));
+    const { state } = job;
+    state.outputDest.log('[ ' + mergeLines(jsonify(meta, null, 2)));
+    state.branchesExplained = new Set();
   },
-
-  known: nameLine.bind(null,  'green',    ', "isRef": true }'),
+  branch,
+  known: branch,
   leaf: nameLine.bind(null,   'brviolet', ', "props": {} }'),
-
-  async branch(dest, ev) {
-    await ev.diveVerbsSeries();
-    let color = 'yellow';
-    if (ev.nFacts < 1) { color = 'brown'; }
-    const clz = dest.colorize;
-    const props = (clz('dimgrey') + ', "props": '
-      + renderProps(ev, clz) + clz('dimgrey') + ' }');
-    nameLine(color, props, dest, ev);
-  },
 
   footer(job) { job.state.outputDest.log(']'); },
 };

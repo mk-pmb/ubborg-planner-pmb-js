@@ -1,10 +1,10 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import objPop from 'objpop';
+import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 import goak from 'getoraddkey-simple';
 import vTry from 'vtry';
-import is from 'typechecks-pmb';
 
 import joinIdParts from '../joinIdParts';
 import recipeTimeouts from '../recipeTimeouts';
@@ -66,10 +66,10 @@ function makeSpawner(recipe) {
       throw new Error("A context shouldn't have a getTypeMeta.");
     }
     const props = copyProps(origProps);
-    const mgdSameType = goak(ctx.getResourcesByTypeName(), typeName, '{}');
+    const mergedSameType = goak(ctx.getResourcesByTypeName(), typeName, '{}');
     const popProp = objPop.d(props);
     const id = idJoiner(idProp, popProp);
-    const dupeOf = mgdSameType[id];
+    const dupeOf = mergedSameType[id];
 
     const res = {
       typeName,
@@ -78,40 +78,40 @@ function makeSpawner(recipe) {
       toString: resToDictKey,
       toDictKey: resToDictKey,
     };
+    res.relations = String(res) + ' not ready for relations yet!';
+
+    const makeResMtdTmoProxy = recipeTimeouts.makeResMtdTimeoutProxifier(res);
+    Object.assign(res, makeResMtdTmoProxy.mapFuncs(api));
+
     res.spawning = {
       dupeOf,
       getContext() { return ctx; },
       makeSubContext(changes) { return makeSubCtx.call(res, ctx, changes); },
-      timeout: recipeTimeouts.startTimer(res, 'spawn'),
     };
 
-    Object.keys(api).forEach(function installProxy(mtdName) {
-      const impl = api[mtdName];
-      if (!impl) { return; }
-      async function mtdProxy(...args) { return impl.apply(res, args); }
-      res[mtdName] = vTry.pr(mtdProxy, `${String(res)}.${mtdName}`);
-    });
+    async function extendedIncubate() {
+      await res.incubate(props);
+      if (dupeOf) { return; }
 
-    await res.incubate(props);
+      await res.prepareRelationsManagement();
+      installRelationFuncs.call(ctx, res, typeMeta);
+
+      mergedSameType[id] = res;
+      await hook(ctx, 'ResourceSpawned', res);
+    }
+    await makeResMtdTmoProxy('spawning', { impl: extendedIncubate })();
     if (dupeOf) {
       const ack = await dupeOf.mergeUpdate(res);
-      res.spawning.timeout.abandon();
       if (ack === dupeOf) {
         await hook(ctx, 'ResourceRespawned', dupeOf);
         return dupeOf;
       }
       throw new Error('Unmerged duplicate resource ID for ' + String(res));
     }
-
-    await res.prepareRelationsManagement();
-    installRelationFuncs.call(ctx, res, typeMeta);
-
-    res.spawning.timeout.abandon();
-    mgdSameType[id] = res;
-    await hook(ctx, 'ResourceSpawned', res);
     delete res.spawning;
 
     startHatching(res, props);
+    // ^-- Should be awaited by the top-level resource via res.hatchedPr.
     await res.finalizePlan();
     return res;
   }
