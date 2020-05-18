@@ -28,7 +28,7 @@ function nameLine(nameColor, cont, dest, ev) {
 async function describeRes(dest, ev) {
   const { notes } = ev;
   if (notes.wasExplained) {
-    nameLine('green', ', "isRef": true }', dest, ev);
+    // nameLine('green', ', "isRef": true }', dest, ev);
     return;
   }
   const { cycleSteps } = ev.ctx;

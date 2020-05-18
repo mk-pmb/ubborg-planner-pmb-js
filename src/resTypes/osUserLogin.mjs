@@ -5,7 +5,7 @@ import spRes from '../resUtil/simplePassiveResource';
 
 const recipe = {
   typeName: 'osUserLogin',
-  idProp: 'loginName',
+  idProps: ['loginName'],
   defaultProps: {
     createDefaultHomeDir: false,
     exists: true,
