@@ -37,7 +37,9 @@ function makeSpawner(recipe) {
   const recPop = objPop(recipe);
   recPop.nest = key => mustBe.nest(key, recPop(key));
   const typeName = recPop.nest('typeName');
-  const idProp = recPop('idProp');
+  const idProps = mustBe('nonEmpty ary', 'idProps for type ' + typeName)(
+    recPop('idProps'));
+
   const api = { ...apiBasics, ...recPop.ifHas('api') };
   const acceptProps = recPop.ifHas('acceptProps', {});
   function vanil(k) { return recPop.ifHas(k, vanillaRecipe[k]); }
@@ -45,7 +47,7 @@ function makeSpawner(recipe) {
   const makeSubCtx = vanil('makeSubContext');
   const typeMeta = {
     name: typeName,
-    idProp,
+    idProps,
     defaultProps: recPop.ifHas('defaultProps', {}),
     acceptProps,
     relationVerbs: vanil('relationVerbs'),
@@ -53,9 +55,9 @@ function makeSpawner(recipe) {
   };
   recPop.expectEmpty('Unsupported recipe feature(s)');
 
-  function normalizeProps(orig) {
-    if (is.obj(orig)) { return { ...orig }; }
-    if (is.str(idProp)) { return { [idProp]: orig }; }
+  function normalizeProps(p) {
+    if (is.obj(p)) { return { ...p }; }
+    if (is.str(p) && (idProps.length === 1)) { return { [idProps[0]]: p }; }
     throw new Error('Unsupported props format for ' + typeName);
   }
 
@@ -66,8 +68,9 @@ function makeSpawner(recipe) {
       throw new Error("A context shouldn't have a getTypeMeta.");
     }
     const normalizedProps = normalizeProps(origProps);
+    const id = idJoiner(idProps, normalizedProps);
+    if (idProps.length === 1) { delete normalizedProps[idProps]; }
     const mergedSameType = goak(ctx.getResourcesByTypeName(), typeName, '{}');
-    const id = idJoiner(idProp, normalizedProps);
     const dupeOf = mergedSameType[id];
 
     const res = {

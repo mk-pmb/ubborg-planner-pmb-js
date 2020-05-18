@@ -5,7 +5,7 @@ import spRes from '../resUtil/simplePassiveResource';
 
 const spawnCore = spRes.makeSpawner({
   typeName: 'file',
-  idProp: 'path',
+  idProps: ['path'],
   defaultProps: {
   },
   acceptProps: {

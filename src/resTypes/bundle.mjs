@@ -16,7 +16,7 @@ async function breedBundle() {
 
 const recipe = {
   typeName: 'bundle',
-  idProp: 'path',
+  idProps: ['path'],
   defaultProps: {
   },
   acceptProps: {
