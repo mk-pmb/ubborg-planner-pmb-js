@@ -11,6 +11,7 @@ const spawnCore = spRes.makeSpawner({
   },
   acceptProps: {
     grIdNum: true,
+    system: true,
   },
 });
 
