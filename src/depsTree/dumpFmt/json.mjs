@@ -11,7 +11,7 @@ function nameLine(nameColor, cont, dest, ev) {
   const res = ev.resPlan;
   dest.write(indent + clz(nameColor) + '{'
     + clz(dimColor) + ' "type": ' + clz(nameColor) + jsonify(res.typeName)
-    + clz(dimColor) + ' "id": ' + clz(nameColor) + jsonify(res.id)
+    + clz(dimColor) + ', "id": ' + clz(nameColor) + jsonify(res.id)
     + cont);
   dest.setPending(clz(dimColor) + ',' + clz() + '\n');
 }
