@@ -12,6 +12,7 @@ const recipe = {
   idProps: ['loginName'],
   defaultProps: {
     ...osUserLogin.recipe.defaultProps,
+    primaryGroupName: true,
   },
   acceptProps: {
     ...osUserLogin.recipe.acceptProps,
@@ -28,14 +29,22 @@ const spawnCore = spRes.makeSpawner(recipe);
 async function planOsUser(spec) {
   const { loginName } = spec;
   const res = await spawnCore(this, { loginName });
-  res.needs('osUserLogin', {
+  const login = {
     ...spec,
     groups: undefined,
     homonymousGroupIdNum: undefined,
-  });
+  };
 
-  const grIdNum = spec.homonymousGroupIdNum;
-  if (grIdNum) { res.needs('osUserGroup', { grName: loginName, grIdNum }); }
+  const prGrName = spec.primaryGroupName;
+  if (prGrName === true) { login.primaryGroupName = loginName; }
+
+  const homGrIdNum = spec.homonymousGroupIdNum;
+  if (homGrIdNum) {
+    res.needs('osUserGroup', { grName: loginName, homGrIdNum });
+    if (prGrName === undefined) { login.primaryGroupName = loginName; }
+  }
+
+  res.needs('osUserLogin', login);
 
   const { groups } = spec;
   if (groups) {
