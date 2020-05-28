@@ -18,6 +18,9 @@ const recipe = {
     groups: true,
     homonymousGroupIdNum: true,
   },
+  uniqueIndexProps: [
+    ...osUserLogin.recipe.uniqueIndexProps,
+  ],
 };
 
 const spawnCore = spRes.makeSpawner(recipe);

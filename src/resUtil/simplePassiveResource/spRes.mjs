@@ -15,6 +15,8 @@ import vanillaRecipe from './vanillaRecipe';
 
 
 function resToDictKey() { return `${this.typeName}[${this.id}]`; }
+function recPopMustBe(k, c, d) { return mustBe(c, k)(this.ifHas(k, d)); };
+
 
 function startHatching(res, ...hatchArgs) {
   // console.debug('startHatching', String(res), 'go!');
@@ -35,24 +37,27 @@ function startHatching(res, ...hatchArgs) {
 
 function makeSpawner(recipe) {
   const recPop = objPop(recipe);
-  recPop.nest = key => mustBe.nest(key, recPop(key));
-  const typeName = recPop.nest('typeName');
-  const idProps = mustBe('nonEmpty ary', 'idProps for type ' + typeName)(
-    recPop('idProps'));
+  recPop.mustBe = recPopMustBe;
+  const typeName = recPop.mustBe('typeName', 'nonEmpty str');
+  const idProps = recPop.mustBe('idProps', 'nonEmpty ary');
 
   const api = { ...apiBasics, ...recPop.ifHas('api') };
-  const acceptProps = recPop.ifHas('acceptProps', {});
   function vanil(k) { return recPop.ifHas(k, vanillaRecipe[k]); }
   const installRelationFuncs = vanil('installRelationFuncs');
   const makeSubCtx = vanil('makeSubContext');
-  const typeMeta = {
-    name: typeName,
-    idProps,
-    defaultProps: recPop.ifHas('defaultProps', {}),
-    acceptProps,
-    relationVerbs: vanil('relationVerbs'),
-    timeoutsSec: recipeTimeouts.copy(vanillaRecipe, vanil),
-  };
+  const typeMeta = (function compileTypeMeta() {
+    const tm = {
+      name: typeName,
+      idProps,
+      relationVerbs: vanil('relationVerbs'),
+      timeoutsSec: recipeTimeouts.copy(vanillaRecipe, vanil),
+    };
+    function cp(k, c, d) { tm[k] = recPop.mustBe(k, c, d); }
+    cp('defaultProps', 'obj', {});
+    cp('acceptProps', 'obj', {});
+    cp('uniqueIndexProps', 'ary', []);
+    return tm;
+  }());
   recPop.expectEmpty('Unsupported recipe feature(s)');
 
   function normalizeProps(p) {
@@ -79,6 +84,7 @@ function makeSpawner(recipe) {
       getTypeMeta() { return typeMeta; },
       toString: resToDictKey,
       toDictKey: resToDictKey,
+      ...ctx.resByUniqueIndexProp.makeTypeApi(typeName),
     };
     res.relations = String(res) + ' not ready for relations yet!';
 

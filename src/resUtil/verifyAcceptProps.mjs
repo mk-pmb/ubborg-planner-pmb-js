@@ -3,15 +3,15 @@
 import aMap from 'map-assoc-core';
 
 
-function verifyAcceptProps(typeMeta, props) {
-  const { acceptProps, defaultProps, idProp } = typeMeta;
-  if (acceptProps === true) { return true; }
-  const idPropsList = [].concat(idProp);
+function verifyAcceptProps(res, props) {
+  const typeMeta = res.getTypeMeta();
+  const { idProps, acceptProps, defaultProps } = typeMeta;
+  if (acceptProps !== true) { return; }
   const unsupp = [];
   // const inval = [];
   aMap(props, function checkProp(val, key) {
     if (val === undefined) { return; }
-    if (idPropsList.includes(key)) { return; }
+    if (idProps.includes(key)) { return; }
     const rule = acceptProps[key];
     if (rule === true) { return; }
     if (rule === undefined) {

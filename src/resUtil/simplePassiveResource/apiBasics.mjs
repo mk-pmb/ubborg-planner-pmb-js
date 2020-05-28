@@ -14,17 +14,23 @@ const apiBasics = {
 
   incubate(setProps) {
     const res = this;
-    const typeMeta = res.getTypeMeta();
-    verifyAcceptProps(typeMeta, setProps);
     if (res.props !== undefined) {
       throw new TypeError('Expected props to not be defined yet');
     }
+    verifyAcceptProps(res, setProps);
     const okProps = {};
     loMapKeys(setProps, function checkProp(val, key) {
       if (val === undefined) { return; }
       okProps[key] = val;
     });
     res.props = okProps;
+
+    (function registerUniqueIndexProps() {
+      const byUip = res.spawning.getContext().resByUniqueIndexProp;
+      const { name: typeName, uniqueIndexProps: uipNames } = res.getTypeMeta();
+      if (!uipNames) { return; }
+      uipNames.forEach(prop => byUip.registerUip(typeName, prop, res));
+    }());
   },
 
   mergeUpdate(dupeRes) {

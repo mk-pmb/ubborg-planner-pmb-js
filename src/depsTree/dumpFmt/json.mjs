@@ -48,8 +48,7 @@ const formatter = {
   },
 
   footer(job) {
-    const { state } = job;
-    state.outputDest.write('\n');
+    job.config.outputDest.write('\n');
   },
 };
 
