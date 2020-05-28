@@ -12,7 +12,6 @@ const recipe = {
   idProps: ['loginName'],
   defaultProps: {
     ...osUserLogin.recipe.defaultProps,
-    primaryGroupName: true,
   },
   acceptProps: {
     ...osUserLogin.recipe.acceptProps,
@@ -35,13 +34,12 @@ async function planOsUser(spec) {
     homonymousGroupIdNum: undefined,
   };
 
-  const prGrName = spec.primaryGroupName;
-  if (prGrName === true) { login.primaryGroupName = loginName; }
-
   const homGrIdNum = spec.homonymousGroupIdNum;
   if (homGrIdNum) {
-    res.needs('osUserGroup', { grName: loginName, homGrIdNum });
-    if (prGrName === undefined) { login.primaryGroupName = loginName; }
+    res.needs('osUserGroup', { grName: loginName, grIdNum: homGrIdNum });
+    if (login.primaryGroupName === undefined) {
+      login.primaryGroupName = loginName;
+    }
   }
 
   res.needs('osUserLogin', login);
