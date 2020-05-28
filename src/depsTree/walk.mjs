@@ -134,8 +134,9 @@ function walkDepsTree(opt) {
   if (!root) { throw new Error('root resPlan required'); }
   function orDefault(defaultVal, key) {
     const optVal = opt[key];
-    if (optVal === undefined) { return defaultVal; }
-    return optVal;
+    if (optVal !== undefined) { return optVal; }
+    if (defaultVal === Object) { return {}; }
+    return defaultVal;
   }
   const ctx = {
     knownRes: new Map(),
@@ -145,6 +146,7 @@ function walkDepsTree(opt) {
     foundRes,
     ...aMap(walkDepsTree.defaultOpts, orDefault),
   };
+  if (!ctx.state) { ctx.state = {}; }
   ctx.subInd = subIndent(ctx);
   return walkDepsTreeCore(ctx, root, null);
 }
@@ -153,10 +155,14 @@ walkDepsTree.defaultOpts = {
   toString: ctxSelfToString,
   maxDiveDepth: 64,
   forbidCyclicDive: true,
-  state: {},
   indent: '',
   indentPrefix: '',
   indentSuffix: '',
+
+  // some places for callback-specific mutable data
+  config: Object,
+  param: Object,
+  state: Object,
 };
 
 

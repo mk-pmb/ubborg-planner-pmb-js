@@ -5,12 +5,13 @@ import univeil from 'univeil';
 const { jsonify } = univeil;
 const dimColor = 'dimgrey';
 
+function jsonify2(x) { return jsonify(x, null, 2); }
 function mergeLines(s) { return s.replace(/\n\s*/g, ' '); }
 
 function renderProps(ev, clz) {
   const { nFacts } = ev;
   if (nFacts < 1) { return '{}'; }
-  const props = clz('teal') + jsonify(ev.factsDict, null, 2);
+  const props = clz('teal') + jsonify2(ev.factsDict);
   if (nFacts < 2) { return mergeLines(props); }
   return props.replace(/\n/g, clz() + '\n  ' + ev.ctx.indent + clz('teal'));
 }
@@ -60,13 +61,16 @@ const formatter = {
   },
 
   header(job) {
-    const meta = { format: formatter.fmtMeta };
-    const { state } = job;
-    state.outputDest.log('[ ' + mergeLines(jsonify(meta, null, 2)));
+    const { outputDest: { log: say }, getTopCtx } = job.config;
+    say('[ { "format":', mergeLines(jsonify2(formatter.fmtMeta)));
+    say('  , "uniqueIndexProps":',
+      jsonify2(getTopCtx().resByUniqueIndexProp.toJsonablePojo()
+      ).replace(/\n/g, '\n    '));
+    say('  }');
   },
   res: describeRes,
 
-  footer(job) { job.state.outputDest.log(']'); },
+  footer(job) { job.config.outputDest.log(']'); },
 };
 
 export default formatter;

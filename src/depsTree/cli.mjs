@@ -29,7 +29,7 @@ async function mapFactsDict(opt, iter) {
 
 
 async function foundRes(ev) {
-  const { outputDest, formatter: fmt } = ev.ctx.state;
+  const { outputDest, formatter: fmt } = ev.ctx.config;
   if (ev.nPrevEncounters && fmt.known) { return fmt.known(outputDest, ev); }
 
   const { resPlan, subRelVerbPrs } = ev;
@@ -92,9 +92,10 @@ async function runFromCli(...cliArgsOrig) {
     ...checkCyclicDeps(job, formatter),
     root: topRes,
     foundRes,
-    state: {
+    config: {
       outputDest,
       formatter,
+      getTopCtx() { return topCtx; },
     },
   };
 

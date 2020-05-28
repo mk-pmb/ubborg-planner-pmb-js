@@ -17,6 +17,9 @@ const recipe = {
     userIdNum: true,
     passwordHash: true,
   },
+  uniqueIndexProps: [
+    'userIdNum',
+  ],
 };
 
 const spawnCore = spRes.makeSpawner(recipe);
