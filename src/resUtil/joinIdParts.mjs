@@ -12,7 +12,7 @@ function joinIdParts(i, p) {
   }
   const v = (is.fun(p) ? p(i) : p[i]);
   if (is.fin(v) && is.int(v)) { return String(v); }
-  if (is.str(v) && v) { return v; }
+  if (is.str(v) && v) { return v.replace(/\S+/g, encodeURI); }
   const e = `Unsupported resource ID type ${describeType(v)} in prop ${i}`;
   throw new TypeError(e);
 }
