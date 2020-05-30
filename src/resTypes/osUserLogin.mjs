@@ -10,6 +10,7 @@ const recipe = {
     exists: true,
     preserveExistingPasswordHash: false,
     disablePasswordLogin: false,
+    interactive: false,
   },
   acceptProps: {
     userIdNum: true,

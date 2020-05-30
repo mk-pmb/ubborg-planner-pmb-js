@@ -21,7 +21,7 @@ async function hatchStage() {
 }
 
 
-function makeSubContext(origCtx, changes) {
+function forkLineageContext(origCtx, changes) {
   const stg = this;
   const upd = {
     ...changes,
@@ -31,7 +31,7 @@ function makeSubContext(origCtx, changes) {
       return hook(origCtx, 'onResourceSpawned', spawnedRes);
     },
   };
-  return relRes.recipe.makeSubContext.call(stg, origCtx, upd);
+  return relRes.recipe.forkLineageContext.call(stg, origCtx, upd);
 }
 
 
@@ -49,7 +49,7 @@ const recipe = {
     hatch: hatchStage,
   },
 
-  makeSubContext,
+  forkLineageContext,
 };
 
 const spawnCore = relRes.makeSpawner(recipe);

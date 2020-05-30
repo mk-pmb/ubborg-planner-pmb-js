@@ -20,11 +20,16 @@ function describeSpecShort(x) {
 
 
 function relateToMaybeSpawn(res, spawning, verb, relResType, relSpec) {
-  if (!(res.spawning || res.hatching)) {
-    const errMsg = `${res} cannot currently relate to any new resource`;
+  if (res.spawning) {
+    const errMsg = (String(res) + ' can not yet relate to any new resource.'
+      + ' It should do that while hatching.');
     throw new Error(errMsg);
   }
-  const { makeSubContext } = spawning;
+  if (!res.hatching) {
+    const errMsg = (String(res) + ' can no longer relate to any new resource.'
+      + ' It should have done that while hatching.');
+    throw new Error(errMsg);
+  }
   // console.debug('relateToMaybeSpawn:', typeof relResType, typeof relSpec);
   if (!relSpec) {
     if (is.obj(relResType)) {
@@ -38,13 +43,13 @@ function relateToMaybeSpawn(res, spawning, verb, relResType, relSpec) {
     }
     throw new Error('relSpec required to spawn a ' + relResType);
   }
-  const subCtx = makeSubContext({
-    relatedBy: res,
-    relationVerb: verb,
-  });
+  const subLin = vTry(
+    spawning.forkLineageContext,
+    'forkLineageContext of ' + res + ' because it ' + verb + ' a ' + relResType
+  )({ relationVerb: verb });
   // console.debug('relateTo: gonna spawn a new', String(relResType),
   //   String(relSpec), 'for', String(res));
-  const planPr = planResourceByTypeName(relResType, subCtx, relSpec);
+  const planPr = planResourceByTypeName(relResType, subLin, relSpec);
   return planPr;
 }
 
@@ -52,16 +57,15 @@ function relateToMaybeSpawn(res, spawning, verb, relResType, relSpec) {
 Object.assign(rela, {
 
   prepareRelationsManagement(res) {
-    const { spawning } = res;
-    const { dupeOf, getContext } = spawning;
-    if (dupeOf) {
+    const spw = res.spawning;
+    if (spw.dupeOf) {
       throw new Error("A transient dupe should't relate to anything!");
     }
 
     const active = {};    // e.g. requires
     const passive = {};   // e.g. requiredBy
 
-    const { relatedBy, relationVerb } = getContext();
+    const { relatedBy, relationVerb } = spw.getLineageContext();
     if (relatedBy) {
       const rDict = goak(passive, relationVerb, '{}');
       const rKey = relatedBy.toDictKey();
@@ -77,7 +81,8 @@ Object.assign(rela, {
     function relateTo(verb, relResType, relSpec) {
       const errTrace = `${String(res)}.${verb}(${
         String(relResType)}, ${describeSpecShort(relSpec)})`;
-      const planPr = vTry(relateToMaybeSpawn, errTrace)(res, spawning,
+      const planPr = vTry(relateToMaybeSpawn, errTrace)(res,
+        spw,  // pass our cached ref b/c .spawning is deleted before hatch
         verb, relResType, relSpec);
       goak.pushToKey(active, verb, planPr);
       return planPr;

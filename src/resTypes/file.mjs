@@ -3,12 +3,8 @@
 import spRes from '../resUtil/simplePassiveResource';
 
 
-const spawnCore = spRes.makeSpawner({
-  typeName: 'file',
-  idProps: ['path'],
-  defaultProps: {
-  },
-  acceptProps: {
+function acceptedPermsProps() {
+  return {
     weakGroup: true,
     weakModes: true,
     weakOwner: true,
@@ -16,6 +12,18 @@ const spawnCore = spRes.makeSpawner({
     forceGroup: true,
     forceModes: true,
     forceOwner: true,
+  };
+}
+
+
+const spawnCore = spRes.makeSpawner({
+  typeName: 'file',
+  idProps: ['path'],
+  defaultProps: {
+    exists: true,
+  },
+  acceptProps: {
+    ...acceptedPermsProps(),
 
     replace: true,
     backupDir: true,
@@ -33,5 +41,6 @@ async function planFile(spec) {
 
 
 export default {
+  acceptedPermsProps,
   plan: planFile,
 };

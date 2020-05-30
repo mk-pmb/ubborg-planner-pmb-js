@@ -5,6 +5,7 @@ import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 import goak from 'getoraddkey-simple';
 import vTry from 'vtry';
+import pImmediate from 'p-immediate';
 
 import joinIdParts from '../joinIdParts';
 import recipeTimeouts from '../recipeTimeouts';
@@ -21,6 +22,13 @@ function recPopMustBe(k, c, d) { return mustBe(c, k)(this.ifHas(k, d)); };
 function startHatching(res, ...hatchArgs) {
   // console.debug('startHatching', String(res), 'go!');
   async function waitUntilHatched() {
+    // Promising funcs are executed immediately, to save overhead in cases
+    // where they don't need to wait for anything. The "always defer" rule
+    // only applies to chaining (.then). Thus, our first action is to
+    // explicitly suspend, to ensure that .hatch will have .hatchedPr
+    // available in case it needs it.
+    await pImmediate();
+    if (!res.hatchedPr) { throw new Error('Still no .hatchedPr?!'); }
     await res.hatch(...hatchArgs);
     await res.relations.waitForAllSubPlanning();
     res.hatching = false;
@@ -44,7 +52,7 @@ function makeSpawner(recipe) {
   const api = { ...apiBasics, ...recPop.ifHas('api') };
   function vanil(k) { return recPop.ifHas(k, vanillaRecipe[k]); }
   const installRelationFuncs = vanil('installRelationFuncs');
-  const makeSubCtx = vanil('makeSubContext');
+  const forkLinCtxImpl = vanil('forkLineageContext');
   const typeMeta = (function compileTypeMeta() {
     const tm = {
       name: typeName,
@@ -68,59 +76,66 @@ function makeSpawner(recipe) {
 
   const idJoiner = vTry(joinIdParts, 'construct ID for ' + typeName);
 
-  async function spawn(ctx, origProps) {
-    if (ctx.getTypeMeta) {
-      throw new Error("A context shouldn't have a getTypeMeta.");
+  async function spawn(lineageCtx, origProps, spawnOpt) {
+    if (lineageCtx.getTypeMeta) {
+      throw new Error("An lineage context shouldn't have a getTypeMeta.");
     }
     const normalizedProps = normalizeProps(origProps);
-    const id = idJoiner(idProps, normalizedProps);
+    const id = idJoiner(idProps, {
+      ...typeMeta.defaultProps,
+      ...normalizedProps,
+    });
     if (idProps.length === 1) { delete normalizedProps[idProps]; }
-    const mergedSameType = goak(ctx.getResourcesByTypeName(), typeName, '{}');
-    const dupeOf = mergedSameType[id];
-
     const res = {
       typeName,
       id,
       getTypeMeta() { return typeMeta; },
       toString: resToDictKey,
       toDictKey: resToDictKey,
-      ...ctx.resByUniqueIndexProp.makeTypeApi(typeName),
+      ...lineageCtx.resByUniqueIndexProp.makeTypeApi(typeName),
+      spawning: 'really soon now',
     };
-    res.relations = String(res) + ' not ready for relations yet!';
 
-    const makeResMtdTmoProxy = recipeTimeouts.makeResMtdTimeoutProxifier(res);
-    Object.assign(res, makeResMtdTmoProxy.mapFuncs(api));
+    const sameTypePlans = goak(lineageCtx.getResourcesByTypeName(),
+      typeName, '{}');
+    const dupeOf = sameTypePlans[id];
+    if (!dupeOf) { sameTypePlans[id] = res; }
 
-    res.spawning = {
+    const initExtras = {
       dupeOf,
-      getContext() { return ctx; },
-      makeSubContext(changes) { return makeSubCtx.call(res, ctx, changes); },
+      getLineageContext() { return lineageCtx; },
+      forkLineageContext: forkLinCtxImpl.bind(res, lineageCtx),
+      props: normalizedProps,
+      origProps,
+      spawnOpt: (spawnOpt || false),
     };
+    const makeResMtdTmoProxy = recipeTimeouts.makeResMtdTimeoutProxifier(res);
+    Object.assign(res, makeResMtdTmoProxy.mapFuncs(api), {
+      relations: String(res) + ' not ready for relations yet!',
+      spawning: initExtras,
+    });
 
     async function extendedIncubate() {
       await res.incubate(normalizedProps);
       if (dupeOf) { return; }
-
       await res.prepareRelationsManagement();
-      installRelationFuncs.call(ctx, res, typeMeta);
-
-      mergedSameType[id] = res;
-      await hook(ctx, 'ResourceSpawned', res);
+      installRelationFuncs.call(lineageCtx, res, typeMeta);
+      await hook(lineageCtx, 'ResourceSpawned', res);
     }
     await makeResMtdTmoProxy('spawning', { impl: extendedIncubate })();
     if (dupeOf) {
       const ack = await dupeOf.mergeUpdate(res);
       if (ack === dupeOf) {
-        await hook(ctx, 'ResourceRespawned', dupeOf);
+        await hook(lineageCtx, 'ResourceRespawned', dupeOf);
         return dupeOf;
       }
       throw new Error('Unmerged duplicate resource ID for ' + String(res));
     }
     delete res.spawning;
 
-    startHatching(res, normalizedProps);
+    startHatching(res, initExtras);
     // ^-- Should be awaited by the top-level resource via res.hatchedPr.
-    await res.finalizePlan();
+    await res.finalizePlan(initExtras);
     return res;
   }
 

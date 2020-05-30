@@ -26,7 +26,7 @@ const apiBasics = {
     res.props = okProps;
 
     (function registerUniqueIndexProps() {
-      const byUip = res.spawning.getContext().resByUniqueIndexProp;
+      const byUip = res.spawning.getLineageContext().resByUniqueIndexProp;
       const { name: typeName, uniqueIndexProps: uipNames } = res.getTypeMeta();
       if (!uipNames) { return; }
       uipNames.forEach(prop => byUip.registerUip(typeName, prop, res));
