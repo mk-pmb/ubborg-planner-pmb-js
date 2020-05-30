@@ -8,10 +8,10 @@ const spawnCore = spRes.makeSpawner({
   idProps: ['grName'],
   defaultProps: {
     exists: true,
+    interactive: false,
   },
   acceptProps: {
     grIdNum: true,
-    system: true,
   },
   uniqueIndexProps: [
     'grIdNum',
