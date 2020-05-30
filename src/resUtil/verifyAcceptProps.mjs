@@ -6,7 +6,7 @@ import aMap from 'map-assoc-core';
 function verifyAcceptProps(res, props) {
   const typeMeta = res.getTypeMeta();
   const { idProps, acceptProps, defaultProps } = typeMeta;
-  if (acceptProps !== true) { return; }
+  if (acceptProps === true) { return; }
   const unsupp = [];
   // const inval = [];
   aMap(props, function checkProp(val, key) {

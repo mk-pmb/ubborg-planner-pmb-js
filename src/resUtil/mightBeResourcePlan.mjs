@@ -12,11 +12,14 @@ mbrp.whyNot = function whyNotResourcePlan(x) {
   if (!rela) { return 'unrelated'; }
   if (!is.fun(rela.relateTo)) { return 'unrelatable'; }
   if (!is.fun(rela.waitForAllSubPlanning)) { return 'cannot plan deeply'; }
+
   const spw = (x.spawning || false);
-  if (!spw.getContext) {
-    // test features only available after hatching has started
-    if (!x.hatchedPr) { return 'no hatched promise'; }
+  if (spw) {
+    if (!spw.getLineageContext) { return 'spawning w/o getLineageContext'; }
+    return '';
   }
+
+  if (!x.hatchedPr) { return 'no hatched promise'; }
   return '';
 };
 

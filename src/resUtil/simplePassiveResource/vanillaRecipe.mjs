@@ -16,18 +16,23 @@ const vanillaRecipe = {
     'conflictsWith',
   ],
 
-  makeSubContext(origCtx, changes) {
-    const { relatedBy, relationVerb } = changes;
+  forkLineageContext(origLin, changes) {
+    const { relationVerb } = changes;
     mustBe.nest('relationVerb', relationVerb);
-    if (!mightBeResourcePlan(relatedBy)) {
-      console.debug('Bad parent:', relatedBy);
-      throw new Error('Bad parent: ' + relatedBy);
+    const relatedBy = this;
+    // ^- with an active relationVerb like "needs", relatedBy would be the
+    //    dependent resource. The target (resource "needed") might not even
+    //    have been planned yet.
+    const badParent = mightBeResourcePlan.whyNot(relatedBy);
+    if (badParent) {
+      throw new Error('Bad parent: ' + badParent + ': ' + relatedBy);
     }
     const parentReason = String(relatedBy) + '.' + relationVerb;
-    const parStk = origCtx.traceParents().concat(parentReason);
+    const parStk = origLin.traceParents().concat(parentReason);
     const subCtx = {
-      ...origCtx,
+      ...origLin,
       ...changes,
+      relatedBy,
       traceParents() { return parStk; },
     };
     return subCtx;
