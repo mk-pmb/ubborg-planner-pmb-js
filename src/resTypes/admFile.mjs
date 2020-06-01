@@ -5,9 +5,9 @@ import file from './file';
 
 function planAdmFile(spec) {
   return file.plan.call(this, {
-    weakOwner: 'root',
-    weakGroup: 'adm',
-    weakModes: '0664',
+    enforcedOwner: 'root',
+    enforcedGroup: 'adm',
+    enforcedModes: 'a=r,ug+w',
     ...spec,
   });
 }
