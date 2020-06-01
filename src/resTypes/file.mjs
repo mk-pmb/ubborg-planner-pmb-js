@@ -3,21 +3,31 @@
 import spRes from '../resUtil/simplePassiveResource';
 
 
+const mimeTypeAliases = {
+  blk:  'inode/blockdevice',
+  char: 'inode/chardevice',
+  dir:  'inode/directory',
+  fifo: 'inode/fifo',
+  sock: 'inode/socket',
+  sym:  'inode/symlink',  // only for broken ones. see the "symlink" resType.
+  b64:  'application/octet-stream;base64',
+};
+
+
 const spawnCore = spRes.makeSpawner({
   typeName: 'file',
   idProps: ['path'],
   defaultProps: {
-    exists: true,
-    followSymlink: true,
+    mimeType: '*/*',  // null = no such file should exist. NB aliases above.
   },
   acceptProps: {
     replace: true,
     backupDir: true,
 
     // If the file is to be created:
-    createForOwner: true,
-    createForGroup: true,
-    createWithModes: true,
+    createdOwner: true,
+    createdGroup: true,
+    createdModes: true,
 
     // In case the file existed already:
     enforcedOwner: true,
@@ -29,9 +39,16 @@ const spawnCore = spRes.makeSpawner({
 });
 
 
+function plan(spec) {
+  const ovr = {};
+  const mta = mimeTypeAliases[spec.mimeType];
+  if (mta) { ovr.mimeType = mta; }
+  // :TODO: .needs(parent directories to exist)
+  return spawnCore(this, { ...spec, ...ovr });
+}
 
 
 
 export default {
-  plan(spec) { return spawnCore(this, spec); },
+  plan,
 };
