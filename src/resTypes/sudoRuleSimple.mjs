@@ -15,9 +15,9 @@ async function hatch(initExtras) {
     path: '/etc/sudoers.d/' + (originator.startsWith('%')
       ? 'group_' + originator.slice(1)
       : 'user_' + originator),
-    forceOwner: 'root',
-    forceGroup: 'root',
-    forceModes: 'a=,ug+r',
+    enforcedOwner: 'root',
+    enforcedGroup: 'root',
+    enforcedModes: 'a=,ug+r',
     content: [
       originator,
       facts.hosts,
