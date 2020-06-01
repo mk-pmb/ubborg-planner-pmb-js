@@ -1,19 +1,21 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import pProps from 'p-props';
+// import mustBe from 'typechecks-pmb/must-be';
 
 import spRes from '../resUtil/simplePassiveResource';
 
 
 async function hatch(initExtras) {
   const res = this;
-  const { path, fileOpts, sections } = initExtras.spawnOpt.spec;
+  const path = res.id;
+  const { fileOpts, sections } = initExtras.spawnOpt.spec;
 
   await res.needs('file', {
     ...fileOpts,
     path,
     // Ensure conflict with anything that wants the same file to not exist:
-    exists: true,
+    mimeType: 'text/plain',
   });
 
   await (sections && pProps(sections, async function addSect(pairs, sect) {

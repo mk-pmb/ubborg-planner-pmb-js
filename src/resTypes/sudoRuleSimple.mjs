@@ -6,15 +6,16 @@ import spRes from '../resUtil/simplePassiveResource';
 async function hatch(initExtras) {
   const res = this;
   const originator = res.id;
+  const path = ('/etc/sudoers.d/' + (originator.startsWith('%')
+    ? 'group_' + originator.slice(1)
+    : 'user_' + originator));
   const facts = {
     ...res.getTypeMeta().defaultProps,
     ...initExtras.props,
   };
   await res.needs('file', {
-    exists: true,
-    path: '/etc/sudoers.d/' + (originator.startsWith('%')
-      ? 'group_' + originator.slice(1)
-      : 'user_' + originator),
+    path,
+    mimeType: 'text/plain',
     enforcedOwner: 'root',
     enforcedGroup: 'root',
     enforcedModes: 'a=,ug+r',
@@ -50,14 +51,10 @@ const recipe = {
 
 const spawnCore = spRes.makeSpawner(recipe);
 
-async function planOsUser(spec) {
-  const res = await spawnCore(this, spec);
-  return res;
-}
 
 
 
 export default {
   recipe,
-  plan: planOsUser,
+  plan(spec) { return spawnCore(this, spec); },
 };
