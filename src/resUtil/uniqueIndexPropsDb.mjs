@@ -29,7 +29,7 @@ function resByProp(db, sameTypeName, propName, otherTypeName) {
 
 function registerUip(typeName, propName, res) {
   // console.debug('regUip:', { typeName, propName, res });
-  const val = res.props[propName];
+  const val = res.customProps[propName];
   if (val === undefined) { return; }
   const db = this;
   const dict = resByProp(db, typeName, propName);

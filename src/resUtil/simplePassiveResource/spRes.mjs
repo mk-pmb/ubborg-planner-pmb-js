@@ -90,6 +90,7 @@ function makeSpawner(recipe) {
       typeName,
       id,
       getTypeMeta() { return typeMeta; },
+      customProps: null, // res.incubate() will overwrite this.
       toString: resToDictKey,
       toDictKey: resToDictKey,
       ...lineageCtx.resByUniqueIndexProp.makeTypeApi(typeName),
@@ -105,7 +106,6 @@ function makeSpawner(recipe) {
       dupeOf,
       getLineageContext() { return lineageCtx; },
       forkLineageContext: forkLinCtxImpl.bind(res, lineageCtx),
-      props: normalizedProps,
       origProps,
       spawnOpt: (spawnOpt || false),
     };
