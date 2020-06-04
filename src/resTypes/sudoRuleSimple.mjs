@@ -3,16 +3,13 @@
 import spRes from '../resUtil/simplePassiveResource';
 
 
-async function hatch(initExtras) {
+async function hatch() {
   const res = this;
   const originator = res.id;
   const path = ('/etc/sudoers.d/' + (originator.startsWith('%')
     ? 'group_' + originator.slice(1)
     : 'user_' + originator));
-  const facts = {
-    ...res.getTypeMeta().defaultProps,
-    ...initExtras.props,
-  };
+  const facts = await res.toFactsDict({ acceptPreliminary: true });
   await res.needs('file', {
     path,
     mimeType: 'text/plain',
