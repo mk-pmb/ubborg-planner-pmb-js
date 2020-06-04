@@ -25,7 +25,7 @@ function makeSpawner(recipe) {
     api: {
       ...origApi,
       finalizePlan(...args) {
-        this.props.basedir = findBaseDir(this.id);
+        this.customProps.basedir = findBaseDir(this.id);
         return origFin.apply(this, args);
       },
     },
@@ -37,7 +37,7 @@ function makeSpawner(recipe) {
     if (parent) {
       parentMustBeObj(parent);
       const parentBaseDir = mustBe.nest(typeName + ' parent basedir',
-        parent.props.basedir);
+        parent.customProps.basedir);
       path = normJoinPath(parentBaseDir, path);
     }
     return baseSpawner(ctx, { path });

@@ -14,8 +14,9 @@ const apiBasics = {
 
   incubate(setProps) {
     const res = this;
-    if (res.props !== undefined) {
-      throw new TypeError('Expected props to not be defined yet');
+    const oldProps = res.customProps;
+    if (oldProps !== null) {
+      throw new TypeError('Expected .customProps to still be null');
     }
     verifyAcceptProps(res, setProps);
     const okProps = {};
@@ -23,7 +24,7 @@ const apiBasics = {
       if (val === undefined) { return; }
       okProps[key] = val;
     });
-    res.props = okProps;
+    res.customProps = okProps;
 
     (function registerUniqueIndexProps() {
       const byUip = res.spawning.getLineageContext().resByUniqueIndexProp;
@@ -36,7 +37,7 @@ const apiBasics = {
   mergeUpdate(dupeRes) {
     const origRes = this;
     try {
-      trivialDictMergeInplace(origRes.props, dupeRes.props);
+      trivialDictMergeInplace(origRes.customProps, dupeRes.customProps);
     } catch (caught) {
       if (caught.name === 'trivialDictMergeError') {
         const dunno = `No idea how to merge unequal ${
@@ -53,10 +54,10 @@ const apiBasics = {
   },
 
   async customizedFactsToDict() {
-    const { hatchedPr, props } = this;
-    if (!hatchedPr) { throw new Error('Facts not ready yet'); }
-    await hatchedPr;
-    return props;
+    const res = this;
+    if (!res.hatchedPr) { throw new Error('Facts not ready yet'); }
+    await res.hatchedPr;
+    return res.customProps;
   },
 
   async toFactsDict() {
