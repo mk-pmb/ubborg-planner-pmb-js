@@ -9,6 +9,8 @@ import basicRelation from '../basicRelation';
 
 function doNothing() {}
 
+function orf(x) { return (x || false); }
+
 
 const apiBasics = {
 
@@ -53,15 +55,19 @@ const apiBasics = {
     return basicRelation.prepareRelationsManagement(this);
   },
 
-  async customizedFactsToDict() {
+  async customizedFactsToDict(opt) {
     const res = this;
-    if (!res.hatchedPr) { throw new Error('Facts not ready yet'); }
-    await res.hatchedPr;
+    if (res.hatching) {
+      if (orf(opt).acceptPreliminary) { return res.customProps; }
+      // We can't just await res.hatchedPr; or node.js v8.x will just exit
+      // in case we get cyclic await from calling cFTD inside hatch().
+      throw new Error('Facts not ready yet, wait until hatched!');
+    }
     return res.customProps;
   },
 
-  async toFactsDict() {
-    const custom = await this.customizedFactsToDict();
+  async toFactsDict(opt) {
+    const custom = await this.customizedFactsToDict(opt);
     const dflt = this.getTypeMeta().defaultProps;
     return { ...dflt, ...custom };
   },
