@@ -1,5 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import mustBe from 'typechecks-pmb/must-be';
+
 import spRes from '../resUtil/simplePassiveResource';
 
 
@@ -25,9 +27,7 @@ const simpleStates = [
 
 async function plan(spec) {
   const { state } = spec;
-  if (!simpleStates.includes(state)) {
-    throw new Error('state must be one of ' + simpleStates.join(', '));
-  }
+  mustBe(['undef', '|', ['oneOf', simpleStates]], 'state')(state);
   const res = await spawnCore(this, spec);
   return res;
 }
