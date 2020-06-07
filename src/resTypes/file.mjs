@@ -1,5 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import pathLib from 'path';
+
 import spRes from '../resUtil/simplePassiveResource';
 
 
@@ -39,12 +41,18 @@ const spawnCore = spRes.makeSpawner({
 });
 
 
-function plan(spec) {
+async function plan(spec) {
   const ovr = {};
   const mta = mimeTypeAliases[spec.mimeType];
   if (mta) { ovr.mimeType = mta; }
-  // :TODO: .needs(parent directories to exist)
-  return spawnCore(this, { ...spec, ...ovr });
+  const res = await spawnCore(this, { ...spec, ...ovr });
+
+  const parentDir = pathLib.dirname(spec.path);
+  if (parentDir && (parentDir !== '/')) {
+    await res.needs('file', { path: parentDir, mimeType: 'dir' });
+  }
+
+  return res;
 }
 
 
