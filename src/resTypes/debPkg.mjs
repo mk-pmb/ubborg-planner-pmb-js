@@ -10,9 +10,11 @@ const recipe = {
   idProps: ['name'],
   defaultProps: {
     state: 'installed',
+    defer: true,  // defer actual apt action to end of stage
   },
   acceptProps: {
     presenceMarker: true,
+    // ^-- Almost never needed on Ubuntu. The default is amazingly accurate.
   },
 };
 
@@ -26,13 +28,26 @@ const simpleStates = [
 
 
 async function plan(spec) {
-  const { state } = spec;
-  mustBe(['undef', '|', ['oneOf', simpleStates]], 'state')(state);
-  const res = await spawnCore(this, spec);
+  const { state, presenceMarker: origPresMark } = spec;
+  mustBe([['oneOf', [undefined, ...simpleStates]]], 'state')(state);
+  const [name, arrowPresMark, ...morePresMarks] = spec.name.split(/\s+=>\s+/);
+  if (arrowPresMark !== undefined) {
+    mustBe.nest('presenceMarker (via arrow notation in name)', arrowPresMark);
+    if (origPresMark) { morePresMarks.push(origPresMark); }
+  }
+  if (morePresMarks.length > 1) {
+    throw new Error("Multiple presence markers aren't supported yet");
+  }
+  const res = await spawnCore(this, {
+    presenceMarker: arrowPresMark,
+    ...spec,
+    name,
+  });
   return res;
 }
 
 
 export default {
   plan,
+  recipe,
 };
