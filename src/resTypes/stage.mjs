@@ -6,8 +6,8 @@ import bundle from './bundle';
 import hook from '../hook';
 
 
-const bunRep = bundle.recipe;
-const hatchBundle = bunRep.api.hatch;
+const bunRec = bundle.recipe;
+const hatchBundle = bunRec.api.hatch;
 
 
 async function hatchStage() {
@@ -36,7 +36,7 @@ function forkLineageContext(origCtx, changes) {
 
 
 const recipe = {
-  ...bunRep,
+  ...bunRec,
   typeName: 'stage',
 
   relationVerbs: [
@@ -45,7 +45,7 @@ const recipe = {
   ],
 
   api: {
-    ...bunRep.api,
+    ...bunRec.api,
     hatch: hatchStage,
   },
 
