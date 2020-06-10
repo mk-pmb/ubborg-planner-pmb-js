@@ -78,7 +78,7 @@ function makeSpawner(recipe) {
 
   async function spawn(lineageCtx, origProps, spawnOpt) {
     if (lineageCtx.getTypeMeta) {
-      throw new Error("An lineage context shouldn't have a getTypeMeta.");
+      throw new Error("A lineage context shouldn't have a getTypeMeta.");
     }
     const normalizedProps = normalizeProps(origProps);
     const id = idJoiner(idProps, {
