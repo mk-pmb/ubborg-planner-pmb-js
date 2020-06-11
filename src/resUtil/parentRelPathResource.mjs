@@ -13,11 +13,11 @@ function findBaseDir(path) {
 
 function makeSpawner(recipe) {
   const { typeName } = recipe;
-  const parentMustBeObj = mustBe('obj', typeName + ' parent');
+  const parentMustBeObj = mustBe('dictObj', typeName + ' parent');
   const origApi = recipe.api;
   const origFin = (origApi || false).finalizePlan;
   if (!origFin) {
-    console.log(recipe);
+    // console.debug(recipe);
     throw new Error('no origFin!');
   }
   const baseSpawner = spRes.makeSpawner({
