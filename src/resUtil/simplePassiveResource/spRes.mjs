@@ -85,7 +85,7 @@ function makeSpawner(recipe) {
       ...typeMeta.defaultProps,
       ...normalizedProps,
     });
-    if (idProps.length === 1) { delete normalizedProps[idProps]; }
+    if (idProps.length === 1) { delete normalizedProps[idProps[0]]; }
     const res = {
       typeName,
       id,
