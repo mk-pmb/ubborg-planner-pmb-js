@@ -1,9 +1,9 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import relRes from '../resUtil/parentRelPathResource';
-import bundle from './bundle';
+import relRes from '../../resUtil/parentRelPathResource';
+import bundle from '../bundle';
 
-import hook from '../hook';
+import hook from '../../hook';
 
 
 const bunRec = bundle.recipe;
@@ -54,8 +54,6 @@ const recipe = {
 
 const spawnCore = relRes.makeSpawner(recipe);
 
+function plan(spec) { return spawnCore(this, spec); };
 
-export default {
-  recipe,
-  plan(spec) { return spawnCore(this, spec); },
-};
+export default plan;
