@@ -36,8 +36,6 @@ function startHatching(res, ...hatchArgs) {
     return res;
   }
   res.hatching = true;
-  // ^- Gotta set this first to avoid a time of undefined state: Even if we
-  //    called wait…() first, it would be deferred as per promise spec.
   res.hatchedPr = waitUntilHatched();
   return res;
 }
