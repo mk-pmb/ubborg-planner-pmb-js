@@ -68,6 +68,15 @@ const apiBasics = {
     return basicRelation.prepareRelationsManagement(this);
   },
 
+  hasHatched() { return (Boolean(this.hatchedPr) && (!this.hatching)); },
+
+  mustHaveHatched(intentDescr) {
+    if (this.hasHatched()) { return true; }
+    throw new Error('Wait for .hatchedPr before you ' + String(intentDescr)
+      + ". If this occurrs while .hatch()ing, do your work in"
+      + ' .finalizePlan instead.');
+  },
+
   async customizedFactsToDict(opt) {
     const res = this;
     if (res.hatching) {
