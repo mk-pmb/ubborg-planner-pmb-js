@@ -1,26 +1,35 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import aMap from 'map-assoc-core';
+
 import relRes from '../../resUtil/parentRelPathResource';
 import basicRelation from '../../resUtil/basicRelation';
 import bundle from '../bundle';
-
 import hook from '../../hook';
+
+import reportDeferredDebPkg from './reportDeferredDebPkg';
 
 
 const bunRec = bundle.recipe;
 const hatchBundle = bunRec.api.hatch;
 
 
+function lengthOrVal(x) { return ((x || false).length || x); }
+
+
 async function hatchStage() {
   const stg = this;
-  // console.debug(String(stg), 'hatching my bundle');
-  await (hatchBundle && hatchBundle.call(stg));
-  // console.debug(String(stg), 'collecting my spawn list');
+  await hatchBundle.call(stg);
+  await stg.relations.waitForAllSubPlanning();
 
   await basicRelation.exposeRelationListsOnVerbs(stg, [
     'spawns',
   ]);
-  // console.debug(String(stg), 'fully hatched');
+
+  const defferedDebPkgs = await reportDeferredDebPkg(stg.spawns.list);
+  stg.declareFacts({
+    defferedDebPkgs: aMap(defferedDebPkgs, lengthOrVal),
+  });
 }
 
 

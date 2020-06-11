@@ -45,6 +45,7 @@ async function plan(spec) {
     ...spec,
     name,
   });
+  // res.getLineageContext().currentStage.declareFacts();
   return res;
 }
 
