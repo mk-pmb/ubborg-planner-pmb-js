@@ -69,18 +69,18 @@ function makeSpawner(recipe) {
   recPop.expectEmpty('Unsupported recipe feature(s)');
 
   function normalizeProps(p) {
-    if (is.obj(p)) { return { ...p }; }
+    if (is.dictObj(p)) { return { ...p }; }
     if (is.str(p) && (idProps.length === 1)) { return { [idProps[0]]: p }; }
     throw new Error('Unsupported props format for ' + typeName);
   }
 
   const idJoiner = vTry(joinIdParts, 'construct ID for ' + typeName);
 
-  async function spawn(lineageCtx, origProps, spawnOpt) {
+  async function spawn(lineageCtx, origPropSpec, spawnOpt) {
     if (lineageCtx.getTypeMeta) {
       throw new Error("A lineage context shouldn't have a getTypeMeta.");
     }
-    const normalizedProps = normalizeProps(origProps);
+    const normalizedProps = normalizeProps(origPropSpec);
     const id = idJoiner(idProps, {
       ...typeMeta.defaultProps,
       ...normalizedProps,
@@ -106,7 +106,7 @@ function makeSpawner(recipe) {
       dupeOf,
       getLineageContext() { return lineageCtx; },
       forkLineageContext: forkLinCtxImpl.bind(res, lineageCtx),
-      origProps,
+      origPropSpec,
       spawnOpt: (spawnOpt || false),
     };
     const makeResMtdTmoProxy = recipeTimeouts.makeResMtdTimeoutProxifier(res);
