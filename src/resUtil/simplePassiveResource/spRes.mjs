@@ -35,7 +35,7 @@ function startHatching(res, ...hatchArgs) {
     // console.debug('startHatching', String(res), 'done.');
     return res;
   }
-  res.hatching = true;
+  res.hatching = true;  // see also: .hasHatched() in API
   res.hatchedPr = waitUntilHatched();
   return res;
 }

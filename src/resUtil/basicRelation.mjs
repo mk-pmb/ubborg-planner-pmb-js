@@ -115,6 +115,7 @@ Object.assign(rela, {
 
 
   async exposeRelationListsOnVerbs(res, verbs) {
+    res.mustHaveHatched('.exposeRelationListsOnVerbs()');
     const relPrLists = await res.relations.getRelatedPlanPromises();
     await Promise.all(verbs.map(async function makeList(verb) {
       const mtd = res[verb];
@@ -124,6 +125,7 @@ Object.assign(rela, {
 
 
   async waitForAllSubPlanningImpl(res, opt) {
+    res.mustHaveHatched('.waitForAllSubPlanningImpl()');
     const disPath = (opt || false).discoveryPath;
     const subDisPath = listConcatOrNew(disPath, res);
     const subOpt = { ...opt, discoveryPath: subDisPath };
