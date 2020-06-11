@@ -114,6 +114,15 @@ Object.assign(rela, {
   },
 
 
+  async exposeRelationListsOnVerbs(res, verbs) {
+    const relPrLists = await res.relations.getRelatedPlanPromises();
+    await Promise.all(verbs.map(async function makeList(verb) {
+      const mtd = res[verb];
+      mtd.list = await Promise.all(relPrLists[verb] || []);
+    }));
+  },
+
+
   async waitForAllSubPlanningImpl(res, opt) {
     const disPath = (opt || false).discoveryPath;
     const subDisPath = listConcatOrNew(disPath, res);

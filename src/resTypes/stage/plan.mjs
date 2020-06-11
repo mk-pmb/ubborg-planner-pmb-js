@@ -1,6 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import relRes from '../../resUtil/parentRelPathResource';
+import basicRelation from '../../resUtil/basicRelation';
 import bundle from '../bundle';
 
 import hook from '../../hook';
@@ -15,8 +16,10 @@ async function hatchStage() {
   // console.debug(String(stg), 'hatching my bundle');
   await (hatchBundle && hatchBundle.call(stg));
   // console.debug(String(stg), 'collecting my spawn list');
-  const spawnsPrList = stg.relations.getRelatedPlanPromises().spawns;
-  stg.spawns.list = await Promise.all(spawnsPrList || []);
+
+  await basicRelation.exposeRelationListsOnVerbs(stg, [
+    'spawns',
+  ]);
   // console.debug(String(stg), 'fully hatched');
 }
 
