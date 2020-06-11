@@ -79,6 +79,9 @@ Object.assign(rela, {
     }
 
     function relateTo(verb, relResType, relSpec) {
+      if (Array.isArray(relSpec)) {
+        return relSpec.map(sp => relateTo(verb, relResType, sp));
+      }
       const errTrace = `${String(res)}.${verb}(${
         String(relResType)}, ${describeSpecShort(relSpec)})`;
       const planPr = vTry(relateToMaybeSpawn, errTrace)(res,
@@ -94,7 +97,7 @@ Object.assign(rela, {
       getRelatingPlans() { return passive; },
       relateTo,
       ...makeResMtdTmoProxy.mapFuncs({
-        waitForAllSubPlanning: rela.waitForAllSubPlanning.bind(null, res),
+        waitForAllSubPlanning: rela.waitForAllSubPlanningImpl.bind(null, res),
       }),
     };
     res.relations = api; // eslint-disable-line no-param-reassign
@@ -103,14 +106,15 @@ Object.assign(rela, {
 
   installRelationFuncs(res, verbs) {
     const rt = res.relations.relateTo;
-    verbs.forEach(function installOneRelationFunc(verb) {
+    function installOneRelationFunc(verb) {
       function verbedRelateTo(...args) { return rt(verb, ...args); };
       res[verb] = verbedRelateTo; // eslint-disable-line no-param-reassign
-    });
+    }
+    verbs.forEach(installOneRelationFunc);
   },
 
 
-  async waitForAllSubPlanning(res, opt) {
+  async waitForAllSubPlanningImpl(res, opt) {
     const disPath = (opt || false).discoveryPath;
     const subDisPath = listConcatOrNew(disPath, res);
     const subOpt = { ...opt, discoveryPath: subDisPath };
