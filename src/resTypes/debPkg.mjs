@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 
 import spRes from '../resUtil/simplePassiveResource';
@@ -28,6 +29,7 @@ const simpleStates = [
 
 
 async function plan(spec) {
+  if (is.str(spec)) { return plan.call(this, { name: spec }); }
   const { state, presenceMarker: origPresMark } = spec;
   mustBe([['oneOf', [undefined, ...simpleStates]]], 'state')(state);
   const [name, arrowPresMark, ...morePresMarks] = spec.name.split(/\s+=>\s+/);
