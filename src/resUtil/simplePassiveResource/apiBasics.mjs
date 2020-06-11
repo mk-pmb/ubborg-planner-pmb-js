@@ -42,9 +42,22 @@ const apiBasics = {
       trivialDictMergeInplace(origRes.customProps, dupeRes.customProps);
     } catch (caught) {
       if (caught.name === 'trivialDictMergeError') {
-        const dunno = `No idea how to merge unequal ${
-          String(origRes)} property "${caught.dictKey}": `;
-        caught.message = dunno + caught.message;
+        caught.message = `No idea how to merge unequal ${
+          String(origRes)} property "${caught.dictKey}": ${caught.message}`;
+      }
+      throw caught;
+    }
+    return origRes;
+  },
+
+  declareFacts(claims) {
+    const origRes = this;
+    try {
+      trivialDictMergeInplace(origRes.customProps, claims);
+    } catch (caught) {
+      if (caught.name === 'trivialDictMergeError') {
+        caught.message = `Unresolved contradiction to established property "${
+          caught.dictKey}" of ${String(origRes)}: ${caught.message}`;
       }
       throw caught;
     }
