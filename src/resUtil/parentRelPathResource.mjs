@@ -14,7 +14,7 @@ function findBaseDir(path) {
 function makeSpawner(recipe) {
   const { typeName } = recipe;
   const parentMustBeObj = mustBe('dictObj', typeName + ' parent');
-  const origApi = recipe.api;
+  const origApi = recipe.promisingApi;
   const origFin = (origApi || false).finalizePlan;
   if (!origFin) {
     // console.debug(recipe);
@@ -22,7 +22,7 @@ function makeSpawner(recipe) {
   }
   const baseSpawner = spRes.makeSpawner({
     ...recipe,
-    api: {
+    promisingApi: {
       ...origApi,
       finalizePlan(...args) {
         this.customProps.basedir = findBaseDir(this.id);

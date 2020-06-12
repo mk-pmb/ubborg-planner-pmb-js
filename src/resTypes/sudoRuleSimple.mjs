@@ -40,7 +40,7 @@ const recipe = {
   },
   acceptProps: {
   },
-  api: {
+  promisingApi: {
     hatch,
     finalizePlan() { return this.hatchedPr; },
   },

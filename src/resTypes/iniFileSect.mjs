@@ -14,7 +14,7 @@ const recipe = {
     //    finalizePlan) would create a cyclic dependency between iniFileOpt
     //    and iniFileSect. Instead, use iniFile's "sections" feature.
   },
-  api: {
+  promisingApi: {
     async hatch(props) {
       const res = this;
       const { path, exists } = props;

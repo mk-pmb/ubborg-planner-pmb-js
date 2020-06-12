@@ -11,6 +11,7 @@ import recipeTimeouts from './recipeTimeouts';
 
 const rela = {};
 
+function orf(x) { return (x || false); }
 function listConcatOrNew(a, b) { return (a ? [...a, b] : [b]); }
 
 function describeSpecShort(x) {
@@ -125,14 +126,21 @@ Object.assign(rela, {
 
 
   async waitForAllSubPlanningImpl(res, opt) {
-    res.mustHaveHatched('.waitForAllSubPlanningImpl()');
-    const disPath = (opt || false).discoveryPath;
+    if (!orf(opt).ignoreStillHatching) {
+      res.mustHaveHatched('.waitForAllSubPlanning()');
+    }
+    const disPath = orf(opt).discoveryPath;
     const subDisPath = listConcatOrNew(disPath, res);
-    const subOpt = { ...opt, discoveryPath: subDisPath };
+    const subOpt = {
+      ...opt,
+      discoveryPath: subDisPath,
+      ignoreStillHatching: false,
+    };
     async function waitForOneSubPlan(plan) {
       const subPlan = await plan;
       if (subPlan === res) { return subPlan; }
       if (disPath && disPath.includes(res)) { return subPlan; }
+      await subPlan.hatchedPr;
       await subPlan.relations.waitForAllSubPlanning(subOpt);
       return subPlan;
     }

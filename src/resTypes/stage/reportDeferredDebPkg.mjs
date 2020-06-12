@@ -19,7 +19,7 @@ function valuesToArrayOr0(ctnr) {
 
 
 async function reportDeferredDebPkg(subResList) {
-  if (!(subResList || false).length) { return; }
+  if (!(subResList || false).length) { return false; }
   const found = {
     modifies: new Set(),
     installs: new Set(),

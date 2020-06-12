@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import aMap from 'map-assoc-core';
 import objPop from 'objpop';
 import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
@@ -11,11 +12,10 @@ import joinIdParts from '../joinIdParts';
 import recipeTimeouts from '../recipeTimeouts';
 import hook from '../../hook';
 
-import apiBasics from './apiBasics';
 import vanillaRecipe from './vanillaRecipe';
+import vanillaApi from './vanillaApi';
 
 
-function resToDictKey() { return `${this.typeName}[${this.id}]`; }
 function recPopMustBe(k, c, d) { return mustBe(c, k)(this.ifHas(k, d)); };
 
 
@@ -30,7 +30,7 @@ function startHatching(res, ...hatchArgs) {
     await pImmediate();
     if (!res.hatchedPr) { throw new Error('Still no .hatchedPr?!'); }
     await res.hatch(...hatchArgs);
-    await res.relations.waitForAllSubPlanning();
+    await res.relations.waitForAllSubPlanning({ ignoreStillHatching: true });
     res.hatching = false;
     // console.debug('startHatching', String(res), 'done.');
     return res;
@@ -47,7 +47,9 @@ function makeSpawner(recipe) {
   const typeName = recPop.mustBe('typeName', 'nonEmpty str');
   const idProps = recPop.mustBe('idProps', 'nonEmpty ary');
 
-  const api = { ...apiBasics, ...recPop.ifHas('api') };
+  const api = aMap(vanillaApi, function mergeApi(vani, categ) {
+    return { ...vani, ...recPop.ifHas(categ + 'Api') };
+  });
   function vanil(k) { return recPop.ifHas(k, vanillaRecipe[k]); }
   const installRelationFuncs = vanil('installRelationFuncs');
   const forkLinCtxImpl = vanil('forkLineageContext');
@@ -89,8 +91,7 @@ function makeSpawner(recipe) {
       id,
       getTypeMeta() { return typeMeta; },
       customProps: null, // res.incubate() will overwrite this.
-      toString: resToDictKey,
-      toDictKey: resToDictKey,
+      ...api.direct,
       ...lineageCtx.resByUniqueIndexProp.makeTypeApi(typeName),
       spawning: 'really soon now',
     };
@@ -105,10 +106,11 @@ function makeSpawner(recipe) {
       getLineageContext() { return lineageCtx; },
       forkLineageContext: forkLinCtxImpl.bind(res, lineageCtx),
       origPropSpec,
+      normalizedProps,
       spawnOpt: (spawnOpt || false),
     };
     const makeResMtdTmoProxy = recipeTimeouts.makeResMtdTimeoutProxifier(res);
-    Object.assign(res, makeResMtdTmoProxy.mapFuncs(api), {
+    Object.assign(res, makeResMtdTmoProxy.mapFuncs(api.promising), {
       relations: String(res) + ' not ready for relations yet!',
       spawning: initExtras,
     });
@@ -144,7 +146,6 @@ function makeSpawner(recipe) {
 
 
 export default {
-  apiBasics,
   makeSpawner,
   recipe: vanillaRecipe,
 };

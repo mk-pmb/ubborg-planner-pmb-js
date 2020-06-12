@@ -6,16 +6,41 @@ import mustBe from 'typechecks-pmb/must-be';
 import spRes from '../resUtil/simplePassiveResource';
 
 
+const defaultPolicy = {
+  tryPreserveOldConfig: true,
+  conflict: 'flinch',       // fixable by removing other stuff
+  incompatible: 'flinch',   // not auto-fixable
+};
+
+
+async function finalizePlan(initExtras) {
+  const res = this;
+  await res.hatchedPr;
+  const facts = await res.toFactsDict();
+  if (facts.defer) {
+    const { policy } = facts;
+    // Use resolved effective policy (including defaults), because
+    // indifference might silently accept really destructive options.
+    const stg = initExtras.getLineageContext().currentStage;
+    await stg.declareFacts({ deferredDebPkgs: { policy } });
+  }
+}
+
+
 const recipe = {
   typeName: 'debPkg',
   idProps: ['name'],
   defaultProps: {
     state: 'installed',
     defer: true,  // defer actual apt action to end of stage
+    policy: defaultPolicy,
   },
   acceptProps: {
     presenceMarker: true,
     // ^-- Almost never needed on Ubuntu. The default is amazingly accurate.
+  },
+  promisingApi: {
+    finalizePlan,
   },
 };
 
@@ -45,7 +70,6 @@ async function plan(spec) {
     ...spec,
     name,
   });
-  // res.getLineageContext().currentStage.declareFacts();
   return res;
 }
 
