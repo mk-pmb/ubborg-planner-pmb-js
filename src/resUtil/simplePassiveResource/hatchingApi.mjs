@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import loMapKeys from 'lodash.mapkeys';
+import aMap from 'map-assoc-core';
 
 import verifyAcceptProps from '../verifyAcceptProps';
 import trivialDictMergeInplace from '../../trivialDictMergeInplace';
@@ -9,10 +9,8 @@ import basicRelation from '../basicRelation';
 
 function doNothing() {}
 
-function orf(x) { return (x || false); }
 
-
-const apiBasics = {
+const promising = {
 
   incubate(setProps) {
     const res = this;
@@ -22,7 +20,7 @@ const apiBasics = {
     }
     verifyAcceptProps(res, setProps);
     const okProps = {};
-    loMapKeys(setProps, function checkProp(val, key) {
+    aMap(setProps, function checkProp(val, key) {
       if (val === undefined) { return; }
       okProps[key] = val;
     });
@@ -50,48 +48,8 @@ const apiBasics = {
     return origRes;
   },
 
-  declareFacts(claims) {
-    const origRes = this;
-    try {
-      trivialDictMergeInplace(origRes.customProps, claims);
-    } catch (caught) {
-      if (caught.name === 'trivialDictMergeError') {
-        caught.message = `Unresolved contradiction to established property "${
-          caught.dictKey}" of ${String(origRes)}: ${caught.message}`;
-      }
-      throw caught;
-    }
-    return origRes;
-  },
-
   prepareRelationsManagement() {
     return basicRelation.prepareRelationsManagement(this);
-  },
-
-  hasHatched() { return (Boolean(this.hatchedPr) && (!this.hatching)); },
-
-  mustHaveHatched(intentDescr) {
-    if (this.hasHatched()) { return true; }
-    throw new Error('Wait for .hatchedPr before you ' + String(intentDescr)
-      + ". If this occurrs while .hatch()ing, do your work in"
-      + ' .finalizePlan instead.');
-  },
-
-  async customizedFactsToDict(opt) {
-    const res = this;
-    if (res.hatching) {
-      if (orf(opt).acceptPreliminary) { return res.customProps; }
-      // We can't just await res.hatchedPr; or node.js v8.x will just exit
-      // in case we get cyclic await from calling cFTD inside hatch().
-      throw new Error('Facts not ready yet, wait until hatched!');
-    }
-    return res.customProps;
-  },
-
-  async toFactsDict(opt) {
-    const custom = await this.customizedFactsToDict(opt);
-    const dflt = this.getTypeMeta().defaultProps;
-    return { ...dflt, ...custom };
   },
 
   // The reasons for naming this resType "simple passive":
@@ -100,4 +58,18 @@ const apiBasics = {
 };
 
 
-export default apiBasics;
+const direct = {
+
+  hasHatched() { return (Boolean(this.hatchedPr) && (!this.hatching)); },
+
+  mustHaveHatched(intentDescr) {
+    if (this.hasHatched()) { return true; }
+    throw new Error('Wait for ' + String(this) + '.hatchedPr before you '
+      + String(intentDescr) + '. If this occurrs while .hatch()ing, '
+      + 'consider doing your work in .finalizePlan instead.');
+  },
+
+};
+
+
+export default { direct, promising };

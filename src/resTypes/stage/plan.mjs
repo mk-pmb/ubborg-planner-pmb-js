@@ -1,35 +1,53 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import aMap from 'map-assoc-core';
+import mergeOptions from 'merge-options';
 
 import relRes from '../../resUtil/parentRelPathResource';
 import basicRelation from '../../resUtil/basicRelation';
-import bundle from '../bundle';
 import hook from '../../hook';
+
+import bundle from '../bundle';
+import debPkg from '../debPkg';
 
 import reportDeferredDebPkg from './reportDeferredDebPkg';
 
 
 const bunRec = bundle.recipe;
-const hatchBundle = bunRec.api.hatch;
+const hatchBundle = bunRec.promisingApi.hatch;
 
 
-function lengthOrVal(x) { return ((x || false).length || x); }
+const recipe = {
+  ...bunRec,
+  typeName: 'stage',
+};
+
+
+const defaultPropsIfDebPkg = { deferredDebPkgs: {
+  policy: debPkg.recipe.defaultProps.policy,
+} };
 
 
 async function hatchStage() {
   const stg = this;
   await hatchBundle.call(stg);
+}
+
+
+async function finalizeStage() {
+  const stg = this;
+  await stg.hatchedPr;
   await stg.relations.waitForAllSubPlanning();
+  await basicRelation.exposeRelationListsOnVerbs(stg, recipe.relationVerbs);
 
-  await basicRelation.exposeRelationListsOnVerbs(stg, [
-    'spawns',
-  ]);
-
-  const defferedDebPkgs = await reportDeferredDebPkg(stg.spawns.list);
-  stg.declareFacts({
-    defferedDebPkgs: aMap(defferedDebPkgs, lengthOrVal),
-  });
+  const spawnList = stg.spawns.list;
+  const dfrDebs = await reportDeferredDebPkg(spawnList);
+  if (dfrDebs.modifies) {
+    stg.customProps = mergeOptions(defaultPropsIfDebPkg, stg.customProps);
+    await stg.declareFacts({ deferredDebPkgs: {
+      ...dfrDebs,
+      modifies: (dfrDebs.modifies.length || 0),
+    } });
+  }
 }
 
 
@@ -37,6 +55,7 @@ function forkLineageContext(origCtx, changes) {
   const stg = this;
   const upd = {
     ...changes,
+    currentStage: stg,
     async onResourceSpawned(spawnedRes) {
       // console.log(String(stg), 'seems to spawn', String(spawnedRes));
       await stg.spawns(spawnedRes);
@@ -47,22 +66,27 @@ function forkLineageContext(origCtx, changes) {
 }
 
 
-const recipe = {
-  ...bunRec,
-  typeName: 'stage',
+Object.assign(recipe, {
+
+  acceptProps: {
+    ...bunRec.acceptProps,
+    deferredDebPkgs: true,
+  },
 
   relationVerbs: [
     ...relRes.recipe.relationVerbs,
     'spawns',
   ],
 
-  api: {
-    ...bunRec.api,
+  promisingApi: {
+    ...bunRec.promisingApi,
     hatch: hatchStage,
+    finalizePlan: finalizeStage,
   },
 
   forkLineageContext,
-};
+
+});
 
 const spawnCore = relRes.makeSpawner(recipe);
 

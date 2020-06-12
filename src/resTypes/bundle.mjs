@@ -21,7 +21,7 @@ const recipe = {
   },
   acceptProps: {
   },
-  api: {
+  promisingApi: {
     hatch: breedBundle,
     finalizePlan() { return this.hatchedPr; },
   },

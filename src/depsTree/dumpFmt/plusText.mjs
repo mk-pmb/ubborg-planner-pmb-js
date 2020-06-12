@@ -21,7 +21,7 @@ const formatter = {
     nameLine('yellow', '+', dest, ev);
     const { subInd } = ev.ctx;
     await ev.mapFactsDict(function printFact(val, key) {
-      dest.clog('teal', subInd, '= ' + jsonify(key) + ': ' + jsonify(val));
+      dest.clog('teal', subInd, '= ' + jsonify(key) + ': ' + jsonify(val, -1));
     });
     await ev.diveVerbsSeries();
     dest.clog('brown', subInd, '-', ev.resName);

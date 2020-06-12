@@ -35,7 +35,7 @@ const recipe = {
     fileOpts: true,
     sections: true,
   },
-  api: {
+  promisingApi: {
     hatch,
     finalizePlan() { return this.hatchedPr; },
   },
