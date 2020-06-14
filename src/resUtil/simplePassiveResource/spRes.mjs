@@ -98,6 +98,7 @@ function makeSpawner(recipe) {
     if (!dupeOf) { sameTypePlans[id] = res; }
 
     const initExtras = {
+      getRes() { return res; }, // in cases where "this" is inconvenient
       dupeOf,
       getLineageContext() { return lineageCtx; },
       forkLineageContext: forkLinCtxImpl.bind(res, lineageCtx),

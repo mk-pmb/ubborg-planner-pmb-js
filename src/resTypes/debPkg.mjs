@@ -5,6 +5,8 @@ import mustBe from 'typechecks-pmb/must-be';
 
 import spRes from '../resUtil/simplePassiveResource';
 
+import claimStageFacts from './stage/claimStageFacts';
+
 
 const defaultPolicy = {
   tryPreserveOldConfig: true,
@@ -14,16 +16,13 @@ const defaultPolicy = {
 
 
 async function finalizePlan(initExtras) {
-  const res = this;
-  await res.hatchedPr;
-  const facts = await res.toFactsDict();
-  if (facts.defer) {
+  await claimStageFacts(initExtras, function claims(facts) {
+    if (!facts.defer) { return; }
     const { policy } = facts;
     // Use resolved effective policy (including defaults), because
     // indifference might silently accept really destructive options.
-    const stg = initExtras.getLineageContext().currentStage;
-    await stg.declareFacts({ deferredDebPkgs: { policy } });
-  }
+    return { deferredDebPkgs: { policy } };
+  });
 }
 
 
