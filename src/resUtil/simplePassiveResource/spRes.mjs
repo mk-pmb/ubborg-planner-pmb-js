@@ -16,9 +16,6 @@ import vanillaRecipe from './vanillaRecipe';
 import vanillaApi from './vanillaApi';
 
 
-function recPopMustBe(k, c, d) { return mustBe(c, k)(this.ifHas(k, d)); };
-
-
 function startHatching(res, ...hatchArgs) {
   // console.debug('startHatching', String(res), 'go!');
   async function waitUntilHatched() {
@@ -42,10 +39,9 @@ function startHatching(res, ...hatchArgs) {
 
 
 function makeSpawner(recipe) {
-  const recPop = objPop(recipe);
-  recPop.mustBe = recPopMustBe;
-  const typeName = recPop.mustBe('typeName', 'nonEmpty str');
-  const idProps = recPop.mustBe('idProps', 'nonEmpty ary');
+  const recPop = objPop(recipe, { mustBe });
+  const typeName = recPop.mustBe('nonEmpty str', 'typeName');
+  const idProps = recPop.mustBe('nonEmpty ary', 'idProps');
 
   const api = aMap(vanillaApi, function mergeApi(vani, categ) {
     return { ...vani, ...recPop.ifHas(categ + 'Api') };
@@ -60,7 +56,7 @@ function makeSpawner(recipe) {
       relationVerbs: vanil('relationVerbs'),
       timeoutsSec: recipeTimeouts.copy(vanillaRecipe, vanil),
     };
-    function cp(k, c, d) { tm[k] = recPop.mustBe(k, c, d); }
+    function cp(k, c, d) { tm[k] = recPop.mustBe(c, k, d); }
     cp('defaultProps', 'obj', {});
     cp('acceptProps', 'obj', {});
     cp('uniqueIndexProps', 'ary', []);
