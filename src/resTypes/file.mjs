@@ -16,7 +16,17 @@ const mimeTypeAliases = {
 };
 
 
-const spawnCore = spRes.makeSpawner({
+async function hatch() {
+  const res = this;
+  const path = res.id;
+  const parentDir = pathLib.dirname(path);
+  if (parentDir && (parentDir !== '/')) {
+    await res.needs('file', { path: parentDir, mimeType: 'dir' });
+  }
+}
+
+
+const recipe = {
   typeName: 'file',
   idProps: ['path'],
   defaultProps: {
@@ -38,21 +48,20 @@ const spawnCore = spRes.makeSpawner({
 
     content: true,
   },
-});
+  promisingApi: {
+    hatch,
+    finalizePlan() { return this.hatchedPr; },
+  },
+};
+
+const spawnCore = spRes.makeSpawner(recipe);
 
 
 async function plan(spec) {
   const ovr = {};
   const mta = mimeTypeAliases[spec.mimeType];
   if (mta) { ovr.mimeType = mta; }
-  const res = await spawnCore(this, { ...spec, ...ovr });
-
-  const parentDir = pathLib.dirname(spec.path);
-  if (parentDir && (parentDir !== '/')) {
-    await res.needs('file', { path: parentDir, mimeType: 'dir' });
-  }
-
-  return res;
+  return spawnCore(this, { ...spec, ...ovr });
 }
 
 
