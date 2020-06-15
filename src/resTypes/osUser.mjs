@@ -2,6 +2,7 @@
 
 import pProps from 'p-props';
 import is from 'typechecks-pmb';
+import rPad from 'lodash.padend';
 
 import spRes from '../resUtil/simplePassiveResource';
 import parseUserGroupsList from '../parseUserGroupsList';
@@ -9,22 +10,28 @@ import parseUserGroupsList from '../parseUserGroupsList';
 import osUserLogin from './osUserLogin';
 
 
-async function setupSshAuthKeys(res) {
-  const facts = await res.toFactsDict({ acceptPreliminary: true });
+function reformatSshKey(orig) {
+  if (!orig) { return []; }
+  const [typeName, , keyData, ...comment] = orig.split(/(\s+)/);
+  return [...(rPad(typeName, 11) + ' ' + keyData).split(/([\S\s]{128})/),
+    (comment.join('') + '\n')].filter(Boolean);
+}
+
+async function setupSshAuthKeys(res, homeDirPath, spec) {
   const loginName = res.id;
-  const { homeDirPath } = facts;
-  let keys = facts.sshAuthKeys;
+  let keys = spec.sshAuthKeys;
   if (!is.str(keys)) {
     if (!keys) { return; }
     if (is.dictObj(keys)) {
-      keys = keys.map(([k, v]) => (k && v && `${v} ${k}`));
+      keys = Object.entries(keys).map(([k, v]) => (k && v && `${v} ${k}`));
     }
-    if (is.ary(keys)) { keys = keys.filter(Boolean).map(k => k + '\n'); }
   }
   if (!homeDirPath) {
     throw new Error('homeDirPath is required to set up SSH authorized_keys!');
   }
 
+  if (!is.ary(keys)) { keys = String(keys).split(/\n/); }
+  keys = [].concat(...keys.map(reformatSshKey));
   function homeSubDir(sub, props) {
     return res.needs('file', {
       path: homeDirPath + sub,
@@ -50,12 +57,11 @@ async function hatch(initExtras) {
   const res = this;
   const loginName = res.id;
   const { spec } = initExtras.spawnOpt;
+  const facts = await res.toFactsDict({ acceptPreliminary: true });
 
   const osLogin = {
-    ...spec,
-    groups: undefined,
-    homonymousGroupIdNum: undefined,
-    sshAuthKeys: undefined,
+    loginName,
+    ...facts,
   };
 
   const homGrIdNum = spec.homonymousGroupIdNum;
@@ -77,7 +83,7 @@ async function hatch(initExtras) {
     });
   }
 
-  await setupSshAuthKeys(res);
+  await setupSshAuthKeys(res, facts.homeDirPath, spec);
 }
 
 
@@ -93,9 +99,7 @@ const recipe = {
     homonymousGroupIdNum: true,
     sshAuthKeys: true,
   },
-  uniqueIndexProps: [
-    ...osUserLogin.recipe.uniqueIndexProps,
-  ],
+  uniqueIndexProps: [],
   promisingApi: {
     hatch,
     finalizePlan() { return this.hatchedPr; },
@@ -104,12 +108,14 @@ const recipe = {
 
 const spawnCore = spRes.makeSpawner(recipe);
 
-async function planOsUser(spec) {
-  const { loginName } = spec;
-  return spawnCore(this, { loginName }, { spec });
+function planOsUser(spec) {
+  return spawnCore(this, {
+    ...spec,
+    groups: undefined,
+    homonymousGroupIdNum: undefined,
+    sshAuthKeys: undefined,
+  }, { spec });
 }
-
-
 
 export default {
   recipe,
