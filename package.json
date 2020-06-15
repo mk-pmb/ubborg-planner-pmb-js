@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "borg",
@@ -39,6 +39,7 @@
     "load-first-avail-module": "^0.1.1",
     "lodash.camelcase": "^4.3.0",
     "lodash.mapkeys": "^4.6.0",
+    "lodash.padend": "^4.6.1",
     "map-assoc-core": "^0.1.3",
     "merge-options": "^1.0.1",
     "minimist": "^1.2.5",
