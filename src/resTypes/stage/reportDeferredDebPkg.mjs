@@ -33,7 +33,7 @@ async function reportDeferredDebPkg(subResList) {
     const defer = mustBe('bool', String(res) + '.defer')(facts.defer);
     if (!defer) { return; }
     found.modifies.add(id);
-    const { state } = await res.toFactsDict();
+    const { state } = facts;
     const categ = getOwn(stateToCateg, state);
     if (categ) { return found[categ].add(id); }
     throw new Error('Unsupported state for ' + String(res) + ': ' + state);
