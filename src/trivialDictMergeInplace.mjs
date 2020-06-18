@@ -7,6 +7,10 @@ import is from 'typechecks-pmb';
 
 
 function mergeSubDict(destDict, pathSteps, updDict) {
+  if (!updDict) {
+    // Avoid constructing the mergeEntries closure in vain.
+    return destDict;
+  }
   aMap(updDict, function mergeEntries(updVal, key) {
     if (updVal === undefined) { return; }
     const oldVal = destDict[key];
