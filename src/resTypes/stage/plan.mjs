@@ -55,6 +55,7 @@ function forkLineageContext(origCtx, changes) {
   const stg = this;
   const upd = {
     ...changes,
+    parentStage: origCtx.currentStage,
     currentStage: stg,
     async onResourceSpawned(spawnedRes) {
       // console.log(String(stg), 'seems to spawn', String(spawnedRes));
