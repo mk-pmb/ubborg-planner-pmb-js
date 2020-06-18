@@ -3,6 +3,8 @@
 import relRes from '../resUtil/parentRelPathResource';
 import slashableImport from '../slashableImport';
 
+const { makeSpawner } = relRes;
+
 
 async function breedBundle() {
   const bun = this;
@@ -27,10 +29,11 @@ const recipe = {
   },
 };
 
-const spawnCore = relRes.makeSpawner(recipe);
+const spawnCore = makeSpawner(recipe);
 
 
 export default {
   recipe,
+  makeSpawner,
   plan(spec) { return spawnCore(this, spec); },
 };

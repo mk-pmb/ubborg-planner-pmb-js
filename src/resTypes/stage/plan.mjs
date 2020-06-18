@@ -2,7 +2,6 @@
 
 import mergeOptions from 'merge-options';
 
-import relRes from '../../resUtil/parentRelPathResource';
 import basicRelation from '../../resUtil/basicRelation';
 import hook from '../../hook';
 
@@ -63,7 +62,7 @@ function forkLineageContext(origCtx, changes) {
       return hook(origCtx, 'onResourceSpawned', spawnedRes);
     },
   };
-  return relRes.recipe.forkLineageContext.call(stg, origCtx, upd);
+  return bunRec.forkLineageContext.call(stg, origCtx, upd);
 }
 
 
@@ -75,7 +74,7 @@ Object.assign(recipe, {
   },
 
   relationVerbs: [
-    ...relRes.recipe.relationVerbs,
+    ...bunRec.relationVerbs,
     'spawns',
   ],
 
@@ -89,7 +88,7 @@ Object.assign(recipe, {
 
 });
 
-const spawnCore = relRes.makeSpawner(recipe);
+const spawnCore = bundle.makeSpawner(recipe);
 
 function plan(spec) { return spawnCore(this, spec); };
 
