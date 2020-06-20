@@ -12,14 +12,17 @@ function findBaseDir(path) {
 
 
 function makeSpawner(recipe) {
-  const { typeName } = recipe;
+  const { typeName, idProps } = recipe;
+  if ((idProps.length !== 1) || (idProps[0] !== 'path')) {
+    const err = ('For "' + typeName + ' to be a parentRelPathResource, '
+      + 'its recipe must have exactly one idProp, called "path".');
+    throw new Error(err);
+  }
+
   const parentMustBeObj = mustBe('dictObj', typeName + ' parent');
   const origApi = recipe.promisingApi;
-  const origFin = (origApi || false).finalizePlan;
-  if (!origFin) {
-    // console.debug(recipe);
-    throw new Error('no origFin!');
-  }
+  const origFin = mustBe.fun("The base type's finalizePlan function",
+    (origApi || false).finalizePlan);
   const baseSpawner = spRes.makeSpawner({
     ...recipe,
     promisingApi: {
@@ -31,8 +34,11 @@ function makeSpawner(recipe) {
     },
   });
 
-  async function spawn(ctx, origSpec) {
-    let path = mustBe.nest(typeName + ' spec', origSpec);
+  const { normalizeProps } = baseSpawner.typeMeta;
+
+  async function spawn(ctx, origSpec, spawnOpt) {
+    const normSpec = normalizeProps(origSpec);
+    let path = mustBe.nest(typeName + ' spec', normSpec.path);
     const parent = ctx.relatedBy;
     if (parent) {
       parentMustBeObj(parent);
@@ -40,7 +46,7 @@ function makeSpawner(recipe) {
         parent.customProps.basedir);
       path = normJoinPath(parentBaseDir, path);
     }
-    return baseSpawner(ctx, { path });
+    return baseSpawner(ctx, { ...normSpec, path }, spawnOpt);
   }
   return spawn;
 }
