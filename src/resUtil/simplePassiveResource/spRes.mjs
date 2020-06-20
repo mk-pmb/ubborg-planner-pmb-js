@@ -49,10 +49,21 @@ function makeSpawner(recipe) {
   function vanil(k) { return recPop.ifHas(k, vanillaRecipe[k]); }
   const installRelationFuncs = vanil('installRelationFuncs');
   const forkLinCtxImpl = vanil('forkLineageContext');
+
+  function normalizeProps(p) {
+    // We can't handle arrays of specs here, because spawn() is expected
+    // to return a promise for exactly one resource.
+    // Thus, the array convenience is reserved for relationVerb functions.
+    if (is.dictObj(p)) { return { ...p }; }
+    if (is.str(p) && (idProps.length === 1)) { return { [idProps[0]]: p }; }
+    throw new Error('Unsupported props format for ' + typeName);
+  }
+
   const typeMeta = (function compileTypeMeta() {
     const tm = {
       name: typeName,
       idProps,
+      normalizeProps,
       relationVerbs: vanil('relationVerbs'),
       timeoutsSec: recipeTimeouts.copy(vanillaRecipe, vanil),
     };
@@ -63,12 +74,6 @@ function makeSpawner(recipe) {
     return tm;
   }());
   recPop.expectEmpty('Unsupported recipe feature(s)');
-
-  function normalizeProps(p) {
-    if (is.dictObj(p)) { return { ...p }; }
-    if (is.str(p) && (idProps.length === 1)) { return { [idProps[0]]: p }; }
-    throw new Error('Unsupported props format for ' + typeName);
-  }
 
   const idJoiner = vTry(joinIdParts, 'construct ID for ' + typeName);
 
