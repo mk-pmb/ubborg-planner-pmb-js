@@ -16,7 +16,7 @@ const vanillaRecipe = {
     'conflictsWith',
   ],
 
-  forkLineageContext(origLin, changes) {
+  forkLineageContext(ourLinCtx, changes) {
     const { relationVerb } = changes;
     mustBe.nest('relationVerb', relationVerb);
     const relatedBy = this;
@@ -28,9 +28,9 @@ const vanillaRecipe = {
       throw new Error('Bad parent: ' + badParent + ': ' + relatedBy);
     }
     const parentReason = String(relatedBy) + '.' + relationVerb;
-    const parStk = origLin.traceParents().concat(parentReason);
+    const parStk = ourLinCtx.traceParents().concat(parentReason);
     const subCtx = {
-      ...origLin,
+      ...ourLinCtx,
       ...changes,
       relatedBy,
       traceParents() { return parStk; },

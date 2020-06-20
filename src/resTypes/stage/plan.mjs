@@ -50,19 +50,18 @@ async function finalizeStage() {
 }
 
 
-function forkLineageContext(origCtx, changes) {
+function forkLineageContext(ourLinCtx, changes) {
   const stg = this;
   const upd = {
     ...changes,
-    parentStage: origCtx.currentStage,
-    currentStage: stg,
+    parentStage: stg,
     async onResourceSpawned(spawnedRes) {
       // console.log(String(stg), 'seems to spawn', String(spawnedRes));
       await stg.spawns(spawnedRes);
-      return hook(origCtx, 'onResourceSpawned', spawnedRes);
+      return hook(ourLinCtx, 'onResourceSpawned', spawnedRes);
     },
   };
-  return bunRec.forkLineageContext.call(stg, origCtx, upd);
+  return bunRec.forkLineageContext.call(stg, ourLinCtx, upd);
 }
 
 
