@@ -12,7 +12,6 @@ import reportDeferredDebPkg from './reportDeferredDebPkg';
 
 
 const bunRec = bundle.recipe;
-const hatchBundle = bunRec.promisingApi.hatch;
 
 
 const recipe = {
@@ -26,14 +25,10 @@ const defaultPropsIfDebPkg = { deferredDebPkgs: {
 } };
 
 
-async function hatchStage() {
+async function finalizePlan(initExtras) {
   const stg = this;
-  await hatchBundle.call(stg);
-}
+  await bunRec.promisingApi.finalizePlan.call(stg, initExtras);
 
-
-async function finalizeStage() {
-  const stg = this;
   await stg.hatchedPr;
   await stg.relations.waitForAllSubPlanning();
   await basicRelation.exposeRelationListsOnVerbs(stg, recipe.relationVerbs);
@@ -66,6 +61,7 @@ function forkLineageContext(ourLinCtx, changes) {
 
 
 Object.assign(recipe, {
+  ...bunRec,
 
   acceptProps: {
     ...bunRec.acceptProps,
@@ -79,8 +75,7 @@ Object.assign(recipe, {
 
   promisingApi: {
     ...bunRec.promisingApi,
-    hatch: hatchStage,
-    finalizePlan: finalizeStage,
+    finalizePlan,
   },
 
   forkLineageContext,
