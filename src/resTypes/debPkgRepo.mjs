@@ -3,10 +3,10 @@
 import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 
-import spRes from '../resUtil/simplePassiveResource';
 import nodeModuleMeta from '../../package.json';
+import spRes from '../resUtil/simplePassiveResource';
+import claimStageFacts from '../resUtil/bundle/claimStageFacts';
 
-import claimStageFacts from './stage/claimStageFacts';
 
 
 const deferUpdProp = 'deferPkgListUpdate';

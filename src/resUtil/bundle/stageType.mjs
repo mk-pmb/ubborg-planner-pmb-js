@@ -2,11 +2,11 @@
 
 import mergeOptions from 'merge-options';
 
-import basicRelation from '../../resUtil/basicRelation';
+import basicRelation from '../basicRelation';
 import hook from '../../hook';
 
-import bundle from '../bundle';
-import debPkg from '../debPkg';
+import bundle from './bundleType';
+import debPkg from '../../resTypes/debPkg';
 
 import reportDeferredDebPkg from './reportDeferredDebPkg';
 
@@ -86,4 +86,6 @@ const spawnCore = bundle.makeSpawner(recipe);
 
 function plan(spec) { return spawnCore(this, spec); };
 
-export default plan;
+export default {
+  plan,
+};

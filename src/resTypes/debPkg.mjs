@@ -4,8 +4,7 @@ import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 
 import spRes from '../resUtil/simplePassiveResource';
-
-import claimStageFacts from './stage/claimStageFacts';
+import claimStageFacts from '../resUtil/bundle/claimStageFacts';
 
 
 const defaultPolicy = {
