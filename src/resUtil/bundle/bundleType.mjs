@@ -6,9 +6,9 @@ import mustBe from 'typechecks-pmb/must-be';
 import aMap from 'map-assoc-core';
 import getOwn from 'getown';
 
-import relRes from '../resUtil/parentRelPathResource';
-import slashableImport from '../slashableImport';
-import trivialDictMergeInplace from '../trivialDictMergeInplace';
+import relRes from '../parentRelUrlResource';
+import slashableImport from '../../slashableImport';
+import trivialDictMergeInplace from '../../trivialDictMergeInplace';
 
 const { makeSpawner } = relRes;
 const inhOP = 'inheritOtherParams';
