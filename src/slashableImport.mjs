@@ -2,26 +2,20 @@
 
 import pathLib from 'path';
 
-
-async function relImport(spec) {
-  const path = pathLib.resolve(spec);
-  return (await import(path)).default;
-}
-
+async function impDf(spec) { return (await import(spec)).default; }
 
 async function slashableImport(spec) {
   let origErr;
-  try { return await relImport(spec); } catch (err) { origErr = err; }
+  try { return await impDf(spec); } catch (err) { origErr = err; }
   if (spec.endsWith('/')) {
     try {
-      return await relImport(pathLib.join(spec, '__main__'));
+      return await impDf(pathLib.join(spec, '__main__'));
     } catch (ignore) { /* ignore */ }
     try {
-      return await relImport(pathLib.join(spec, pathLib.basename(spec)));
+      return await impDf(pathLib.join(spec, pathLib.basename(spec)));
     } catch (ignore) { /* ignore */ }
   }
   throw origErr;
 }
-
 
 export default slashableImport;
