@@ -1,57 +1,13 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import pProps from 'p-props';
-import is from 'typechecks-pmb';
-import rPad from 'lodash.padend';
 
 import spRes from '../resUtil/simplePassiveResource';
 import parseUserGroupsList from '../parseUserGroupsList';
 
 import osUserLogin from './osUserLogin';
+import sshAuthKeys from '../resUtil/osUser/sshAuthKeys';
 
-
-function reformatSshKey(orig) {
-  if (!orig) { return []; }
-  const [typeName, , keyData, ...comment] = orig.split(/(\s+)/);
-  return [...(rPad(typeName, 11) + ' ' + keyData).split(/([\S\s]{128})/),
-    (comment.join('') + '\n')].filter(Boolean);
-}
-
-async function setupSshAuthKeys(res, homeDirPath, spec) {
-  const loginName = res.id;
-  let keys = spec.sshAuthKeys;
-  if (!is.str(keys)) {
-    if (!keys) { return; }
-    if (is.dictObj(keys)) {
-      keys = Object.entries(keys).map(([k, v]) => (k && v && `${v} ${k}`));
-    }
-  }
-  if (!homeDirPath) {
-    throw new Error('homeDirPath is required to set up SSH authorized_keys!');
-  }
-
-  if (!is.ary(keys)) { keys = String(keys).split(/\n/); }
-  keys = [].concat(...keys.map(reformatSshKey));
-  function homeSubDir(sub, props) {
-    return res.needs('file', {
-      path: homeDirPath + sub,
-      mimeType: 'dir',
-      enforcedOwner: loginName,
-      enforcedGroup: loginName,
-      enforcedModes: 'a=rx,ug+w',
-      ...props,
-    });
-  };
-  await homeSubDir('');
-  await homeSubDir('/.config');
-  await homeSubDir('/.config/ssh');
-  await homeSubDir('/.ssh', { mimeType: 'sym', content: '.config/ssh' });
-  await homeSubDir('/.config/ssh/authorized_keys', {
-    mimeType: 'text/plain',
-    enforcedModes: 'a=,u+rw',
-    content: keys,
-  });
-}
 
 async function hatch(initExtras) {
   const res = this;
@@ -83,7 +39,12 @@ async function hatch(initExtras) {
     });
   }
 
-  await setupSshAuthKeys(res, facts.homeDirPath, spec);
+  await sshAuthKeys.mixin(res, {
+    ownerLoginName: loginName,
+    ownerGroupName: osLogin.primaryGroupName,
+    ...facts,
+    ...spec,
+  });
 }
 
 
