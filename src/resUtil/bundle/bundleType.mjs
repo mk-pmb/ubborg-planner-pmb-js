@@ -56,11 +56,14 @@ async function prepareRunImpl(bun, how) {
     mergeParams(upd) { trivialDictMergeInplace(param, upd); },
   });
 
-  bun.mergeParamDefaults(impl.paramDefaults);
   bun.mergeParamOverrides(impl.paramOverrides);
   bun.mergeParamOverrides(facts.overrideParam);
   bun.mergeParams(impl.param);
   bun.mergeParams(facts.param);
+
+  // Merge params last: Otherwise the more assertive param sources may detect
+  // conflict with existing default values.
+  bun.mergeParamDefaults(impl.paramDefaults);
 };
 
 
