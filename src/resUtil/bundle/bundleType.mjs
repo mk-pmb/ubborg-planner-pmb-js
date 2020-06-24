@@ -5,7 +5,7 @@ import objPop from 'objpop';
 import mustBe from 'typechecks-pmb/must-be';
 import aMap from 'map-assoc-core';
 import getOwn from 'getown';
-import bundleUrlUtil from 'ubborg-bundleurl-util-pmb';
+import bunUrls from 'ubborg-bundleurl-util-pmb';
 
 import relRes from '../parentRelUrlResource';
 import slashableImport from '../../slashableImport';
@@ -69,8 +69,11 @@ async function prepareRunImpl(bun, how) {
 
 async function hatch(initExtras) {
   const bun = this;
-  const fullUrl = bundleUrlUtil.href(bun.id);
-  const modSpec = bundleUrlUtil.toModuleId(fullUrl);
+  const fullUrl = bunUrls.href(bun.id);
+  Object.assign(bun, {
+    shortRelUrl(href) { return bunUrls.shorten(bunUrls.href(fullUrl, href)); },
+  });
+  const modSpec = bunUrls.toModuleId(fullUrl);
   const impl = await slashableImport(modSpec);
   await prepareRunImpl(bun, { initExtras, impl });
   await impl(bun);
