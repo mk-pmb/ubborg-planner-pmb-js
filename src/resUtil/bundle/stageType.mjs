@@ -61,8 +61,6 @@ function forkLineageContext(ourLinCtx, changes) {
 
 
 Object.assign(recipe, {
-  ...bunRec,
-
   acceptProps: {
     ...bunRec.acceptProps,
     deferredDebPkgs: true,
