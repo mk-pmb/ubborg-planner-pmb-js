@@ -77,6 +77,16 @@ async function walkDepsTreeCore(ourCtx, resPr, relVerb) {
   const resPlan = await resPr;
   await resPlan.hatchedPr;
   const resName = String(resPlan);
+  let resNameParentIdPrefixEllipse = resName;
+
+  if (ourCtx.depth >= 1) {
+    const parId = ourCtx.parentPlans.slice(-1)[0].id;
+    const fullId = resPlan.id;
+    if (fullId.startsWith(parId)) {
+      const id = '…' + fullId.slice(parId.length);
+      resNameParentIdPrefixEllipse = resPlan.toString.call({ ...resPlan, id });
+    }
+  }
 
   const subCtx = {
     ...ourCtx,
@@ -109,6 +119,7 @@ async function walkDepsTreeCore(ourCtx, resPr, relVerb) {
     nPrevEncounters,
     relVerb,
     resName,
+    resNameParentIdPrefixEllipse,
     resPlan,
     subRelVerbPrs: { ...(await resPlan.relations.getRelatedPlanPromises()) },
   };

@@ -6,7 +6,8 @@ import univeil from 'univeil';
 const { jsonify } = univeil;
 
 function nameLine(color, symb, dest, ev) {
-  dest.clog(color, ev.ourCtx.indent, symb + ' ' + ev.resName);
+  dest.clog(color, ev.ourCtx.indent, symb + ' '
+    + ev.resNameParentIdPrefixEllipse);
 }
 
 const rxSimpleId = /^[\w\-]+$/s;
@@ -33,7 +34,7 @@ const formatter = {
         + ': ' + jsonify(val, -1));
     });
     await ev.diveVerbsSeries();
-    dest.clog('brown', subInd, '-', ev.resName);
+    dest.clog('brown', subInd, '-', ev.resNameParentIdPrefixEllipse);
   },
 
 };
