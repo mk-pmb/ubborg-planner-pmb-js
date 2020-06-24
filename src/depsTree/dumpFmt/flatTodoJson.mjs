@@ -13,13 +13,13 @@ function renderProps(ev, clz) {
   if (nFacts < 1) { return '{}'; }
   const props = clz('teal') + jsonify2(ev.factsDict);
   if (nFacts < 2) { return mergeLines(props); }
-  return props.replace(/\n/g, clz() + '\n  ' + ev.ctx.indent + clz('teal'));
+  return props.replace(/\n/g, clz() + '\n  ' + ev.ourCtx.indent + clz('teal'));
 }
 
 function nameLine(nameColor, cont, dest, ev) {
   const clz = dest.colorize;
   const res = ev.resPlan;
-  dest.clog(dimColor, ev.ctx.indent + ', ', clz(nameColor) + '{'
+  dest.clog(dimColor, ev.ourCtx.indent + ', ', clz(nameColor) + '{'
     + clz(dimColor) + ' "type": ' + clz(nameColor) + jsonify(res.typeName)
     + clz(dimColor) + ', "id": ' + clz(nameColor) + jsonify(res.id)
     + cont);
@@ -32,7 +32,7 @@ async function describeRes(dest, ev) {
     // nameLine('green', ', "isRef": true }', dest, ev);
     return;
   }
-  const { cycleSteps } = ev.ctx;
+  const { cycleSteps } = ev.ourCtx;
   if (cycleSteps) {
     nameLine('brred', ', "cyclic": ' + cycleSteps + ' }', dest, ev);
     return;

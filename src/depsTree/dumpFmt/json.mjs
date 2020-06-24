@@ -6,7 +6,7 @@ const { jsonify } = univeil;
 const dimColor = 'dimgrey';
 
 function nameLine(nameColor, cont, dest, ev) {
-  const { indent } = ev.ctx;
+  const { indent } = ev.ourCtx;
   const clz = dest.colorize;
   const res = ev.resPlan;
   dest.write(indent + clz(nameColor) + '{'
@@ -27,7 +27,7 @@ const formatter = {
 
   async branch(dest, ev) {
     nameLine('yellow', '', dest, ev);
-    const { indent } = ev.ctx;
+    const { indent } = ev.ourCtx;
     const clz = dest.colorize;
     let props = jsonify(ev.factsDict, null, 2);
     props = (ev.nFacts > 1
