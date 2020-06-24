@@ -54,14 +54,15 @@ const recipe = {
   },
 };
 
-const spawnCore = spRes.makeSpawner(recipe);
+const baseSpawner = spRes.makeSpawner(recipe);
+const { normalizeProps } = baseSpawner.typeMeta;
 
 
-async function plan(spec) {
-  const ovr = {};
+async function plan(origSpec) {
+  const spec = normalizeProps(origSpec);
   const mta = mimeTypeAliases[spec.mimeType];
-  if (mta) { ovr.mimeType = mta; }
-  return spawnCore(this, { ...spec, ...ovr });
+  if (mta) { spec.mimeType = mta; }
+  return baseSpawner(this, spec);
 }
 
 
