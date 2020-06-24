@@ -6,7 +6,7 @@ import univeil from 'univeil';
 const { jsonify } = univeil;
 
 function nameLine(color, symb, dest, ev) {
-  dest.clog(color, ev.ctx.indent, symb + ' ' + ev.resName);
+  dest.clog(color, ev.ourCtx.indent, symb + ' ' + ev.resName);
 }
 
 const rxSimpleId = /^[\w\-]+$/s;
@@ -27,7 +27,7 @@ const formatter = {
 
   async branch(dest, ev) {
     nameLine('yellow', '+', dest, ev);
-    const { subInd } = ev.ctx;
+    const { subInd } = ev.ourCtx;
     await ev.mapFactsDict(function printFact(val, key) {
       dest.clog('teal', subInd, '= ' + jsonifyUnlessSimpleId(key)
         + ': ' + jsonify(val, -1));

@@ -15,7 +15,7 @@ function updateStacks(origCtx, relVerb, resPlan) {
     stack: {},
   };
   if (!origCtx) {
-    // Creating empty stacks for a fresh new ctx.
+    // Creating empty stacks for a fresh new top-level context.
     if (relVerb || resPlan) {
       throw new Error('Cannot push resource details without a parent context');
     }
@@ -58,7 +58,7 @@ async function diveVerbsSeriesCore(ev, diver) {
     if (!planPrs) { return; }
     const plans = await Promise.all(planPrs);
     function diveIntoDep(subPr) {
-      return diver(ev.ctx, subPr, verb);
+      return diver(ev.subCtx, subPr, verb);
     }
     await pEachSeries(plans, diveIntoDep);
   }
@@ -66,39 +66,34 @@ async function diveVerbsSeriesCore(ev, diver) {
 }
 
 
-function forkState() {
-  const { ctx } = this;
-  const orig = ctx.inheritedState;
-  if (ctx.state === orig) { ctx.state = { ...orig }; }
-  return ctx.state;
+function forkSubCtxState() {
+  const { ourCtx, subCtx } = this;
+  if (subCtx.state === ourCtx.state) { subCtx.state = { ...ourCtx.state }; }
+  return subCtx.state;
 }
 
 
-async function walkDepsTreeCore(inheritedCtx, resPr, relVerb) {
+async function walkDepsTreeCore(ourCtx, resPr, relVerb) {
   const resPlan = await resPr;
   await resPlan.hatchedPr;
   const resName = String(resPlan);
 
-  const ctx = {
-    ...inheritedCtx,
-    ...updateStacks(inheritedCtx, relVerb, resPlan),
-    inheritedState: inheritedCtx.state,
+  const subCtx = {
+    ...ourCtx,
+    ...updateStacks(ourCtx, relVerb, resPlan),
+    indent: ourCtx.subInd,
   };
+  subCtx.subInd = subIndent(subCtx);
 
-  if (ctx.depth > 0) {
-    ctx.indent = ctx.subInd;
-    ctx.subInd = subIndent(ctx);
-  }
-
-  const { knownRes, resNotes } = ctx;
+  const { knownRes, resNotes } = subCtx;
   if (!knownRes.has(resName)) { knownRes.set(resName, resPlan); }
   const notes = (resNotes.get(resName) || {});
   const nPrevEncounters = (notes.encounterNo || 0);
   notes.encounterNo = nPrevEncounters + 1;
   if (!nPrevEncounters) {
     resNotes.set(resName, notes);
-    ctx.nDiscovered += 1;
-    notes.nthDiscovered = ctx.nDiscovered;
+    subCtx.nDiscovered += 1;
+    notes.nthDiscovered = subCtx.nDiscovered;
   }
 
   function diveVerbsSeries(diver) {
@@ -106,9 +101,10 @@ async function walkDepsTreeCore(inheritedCtx, resPr, relVerb) {
   }
 
   const ev = {
-    ctx,
+    ourCtx,
+    subCtx,
     diveVerbsSeries,
-    forkState,
+    forkSubCtxState,
     notes,
     nPrevEncounters,
     relVerb,
@@ -116,7 +112,7 @@ async function walkDepsTreeCore(inheritedCtx, resPr, relVerb) {
     resPlan,
     subRelVerbPrs: { ...(await resPlan.relations.getRelatedPlanPromises()) },
   };
-  await ctx.foundRes(ev);
+  await subCtx.foundRes(ev);
 };
 
 
@@ -138,7 +134,7 @@ function walkDepsTree(opt) {
     if (defaultVal === Object) { return {}; }
     return defaultVal;
   }
-  const ctx = {
+  const topCtx = {
     knownRes: new Map(),
     resNotes: new Map(),
     nDiscovered: 0,
@@ -146,9 +142,9 @@ function walkDepsTree(opt) {
     foundRes,
     ...aMap(walkDepsTree.defaultOpts, orDefault),
   };
-  if (!ctx.state) { ctx.state = {}; }
-  ctx.subInd = subIndent(ctx);
-  return walkDepsTreeCore(ctx, root, null);
+  if (!topCtx.state) { topCtx.state = {}; }
+  topCtx.subInd = subIndent(topCtx);
+  return walkDepsTreeCore(topCtx, root, null);
 }
 
 walkDepsTree.defaultOpts = {
