@@ -2,9 +2,13 @@
 
 import pathLib from 'path';
 
+import bunUrls from 'ubborg-bundleurl-util-pmb';
+
+
 async function impDf(spec) { return (await import(spec)).default; }
 
-async function slashableImport(spec) {
+
+const slim = async function slashableImport(spec) {
   let origErr;
   try { return await impDf(spec); } catch (err) { origErr = err; }
   if (spec.endsWith('/')) {
@@ -16,6 +20,12 @@ async function slashableImport(spec) {
     } catch (ignore) { /* ignore */ }
   }
   throw origErr;
-}
+};
 
-export default slashableImport;
+Object.assign(slim, {
+
+  fromBundleUrl(url) { return slim(bunUrls.toModuleId(bunUrls.href(url))); },
+
+});
+
+export default slim;
