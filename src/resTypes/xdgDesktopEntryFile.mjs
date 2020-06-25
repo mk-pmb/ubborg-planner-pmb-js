@@ -42,7 +42,22 @@ async function plan(spec) {
 }
 
 
+function inDir(basedir) {
+  function planInBaseDir(spec) {
+    const { bfn } = spec;
+    mustBe.nest('bfn (base filename) prop', bfn);
+    return plan.call(this, {
+      ...spec,
+      bfn: undefined,
+      path: `${basedir}/${bfn}.desktop`,
+    });
+  }
+  return planInBaseDir;
+}
+
+
 
 export default {
+  inDir,
   plan,
 };
