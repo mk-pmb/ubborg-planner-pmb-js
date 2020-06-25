@@ -1,6 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import pathLib from 'path';
+import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
 
 import spRes from '../resUtil/simplePassiveResource';
 
@@ -60,9 +61,13 @@ const { normalizeProps } = baseSpawner.typeMeta;
 
 
 async function plan(origSpec) {
+  const ourCtx = this;
   const spec = normalizeProps(origSpec);
   const mta = mimeTypeAliases[spec.mimeType];
   if (mta) { spec.mimeType = mta; }
+  if (spec.enforcedOwner && spec.path.startsWith('~')) {
+    spec.path = await homeDirTilde(ourCtx, spec.path, spec.enforcedOwner);
+  }
   return baseSpawner(this, spec);
 }
 
