@@ -19,6 +19,7 @@ const mimeTypeAliases = {
 async function hatch() {
   const res = this;
   const path = res.id;
+  if (!path.startsWith('/')) { throw new Error('Path must be absolute!'); }
   const parentDir = pathLib.dirname(path);
   if (parentDir && (parentDir !== '/')) {
     await res.needs('file', { path: parentDir, mimeType: 'dir' });
