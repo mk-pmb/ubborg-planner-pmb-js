@@ -2,15 +2,18 @@
 
 import objPop from 'objpop';
 import mustBe from 'typechecks-pmb/must-be';
+import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
 
 import iniFile from './iniFile';
 
-function plan(spec) {
+async function plan(spec) {
+  const ourCtx = this;
   const remain = { ...spec };
   const mustPop = objPop.d(remain, { mustBe }).mustBe;
 
   const owner = mustPop('undef | nonEmpty str', 'owner');
-  const exec = mustPop('false | nonEmpty str', 'title');
+  const path = mustPop('nonEmpty str', 'path');
+  const exec = mustPop('fal | nonEmpty str', 'exec');
   const entry = {
     ...(exec && {
       Encoding: 'UTF-8',
@@ -26,11 +29,14 @@ function plan(spec) {
   };
 
   return iniFile.plan.call(this, {
-    path: mustPop('nonEmpty str', 'path'),
-    enforcedOwner: owner,
-    enforcedGroup: owner,
-    enforcedModes: 'a=rx,ug+w',
+    path: await homeDirTilde(ourCtx, path, owner),
     ...remain,
+    fileOpts: {
+      enforcedOwner: owner,
+      enforcedGroup: owner,
+      enforcedModes: 'a=rx,ug+w',
+      ...remain.fileOpts,
+    },
     sections: { 'Desktop Entry': entry },
   });
 }
