@@ -32,6 +32,8 @@ $ ubborg-planner-pmb depsTree --format=json plan
 Known issues
 ------------
 
+* Parameterized bundles are a very poor stopgap for proper support of
+  user-supplied resource types, because they retain their singleton nature.
 * Needs more/better tests and docs.
 
 
