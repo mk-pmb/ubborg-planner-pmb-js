@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "borg",
@@ -32,6 +32,7 @@
 
   "dependencies": {
     "@instaffogmbh/promise-timeout-with-warning": "^0.1.14",
+    "dict-of-dicts-to-ini-lines-pmb": "^1.0.0",
     "equal-pmb": "^0.1.20",
     "getoraddkey-simple": "^0.1.5",
     "getown": "^0.1.0",
