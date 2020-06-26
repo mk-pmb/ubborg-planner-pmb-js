@@ -5,16 +5,8 @@ import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
 
 import spRes from '../resUtil/simplePassiveResource';
 
-
-const mimeTypeAliases = {
-  blk:  'inode/blockdevice',
-  char: 'inode/chardevice',
-  dir:  'inode/directory',
-  fifo: 'inode/fifo',
-  sock: 'inode/socket',
-  sym:  'inode/symlink',  // only for broken ones. see the "symlink" resType.
-  b64:  'application/octet-stream;base64',
-};
+import mimeTypeAliases from '../resUtil/file/mimeAlias';
+import mimeTypeFx from '../resUtil/file/mimeFx';
 
 
 async function hatch() {
@@ -63,11 +55,17 @@ const { normalizeProps } = baseSpawner.typeMeta;
 async function plan(origSpec) {
   const ourCtx = this;
   const spec = normalizeProps(origSpec);
+
+  const mtFx = mimeTypeFx[spec.mimeType];
+  if (mtFx) { Object.assign(spec, await mtFx.call(this, spec)); }
+
   const mta = mimeTypeAliases[spec.mimeType];
   if (mta) { spec.mimeType = mta; }
+
   if (spec.enforcedOwner && spec.path.startsWith('~')) {
     spec.path = await homeDirTilde(ourCtx, spec.path, spec.enforcedOwner);
   }
+
   return baseSpawner(this, spec);
 }
 
