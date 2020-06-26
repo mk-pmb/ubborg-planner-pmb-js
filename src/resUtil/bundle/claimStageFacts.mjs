@@ -1,7 +1,5 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import mightBeResourcePlan from '../mightBeResourcePlan';
-
 async function claimStageFacts(initExtras, makeClaims) {
   const res = initExtras.getRes();
   await res.hatchedPr;
