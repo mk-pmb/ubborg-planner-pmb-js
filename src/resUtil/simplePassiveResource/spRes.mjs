@@ -16,6 +16,18 @@ import vanillaRecipe from './vanillaRecipe';
 import vanillaApi from './vanillaApi';
 
 
+const typeMetaDictNames = [
+  'acceptProps',
+  'defaultProps',
+  recipeTimeouts.recipeTmoKey,
+];
+const typeMetaListNames = [
+  'relationVerbs',
+  'uniqueIndexProps',
+];
+function typeMetaToString() { return `resTypeMeta[${this.name}]`; }
+
+
 function startHatching(res, ...hatchArgs) {
   // console.debug('startHatching', String(res), 'go!');
   async function waitUntilHatched() {
@@ -46,9 +58,9 @@ function makeSpawner(recipe) {
   const api = aMap(vanillaApi, function mergeApi(vani, categ) {
     return { ...vani, ...recPop.ifHas(categ + 'Api') };
   });
-  function vanil(k) { return recPop.ifHas(k, vanillaRecipe[k]); }
-  const installRelationFuncs = vanil('installRelationFuncs');
-  const forkLinCtxImpl = vanil('forkLineageContext');
+  function mustVanil(c, k) { return recPop.mustBe(c, k, vanillaRecipe[k]); }
+  const installRelationFuncs = mustVanil('fun', 'installRelationFuncs');
+  const forkLinCtxImpl = mustVanil('fun', 'forkLineageContext');
 
   function normalizeProps(p) {
     // We can't handle arrays of specs here, because spawn() is expected
@@ -63,14 +75,12 @@ function makeSpawner(recipe) {
     const tm = {
       name: typeName,
       idProps,
+      toString: typeMetaToString,
       normalizeProps,
-      relationVerbs: vanil('relationVerbs'),
-      timeoutsSec: recipeTimeouts.copy(vanillaRecipe, vanil),
     };
-    function cp(k, c, d) { tm[k] = recPop.mustBe(c, k, d); }
-    cp('defaultProps', 'obj', {});
-    cp('acceptProps', 'obj', {});
-    cp('uniqueIndexProps', 'ary', []);
+    function cp(l, c) { l.forEach((k) => { tm[k] = mustVanil(c, k); }); };
+    cp(typeMetaListNames, 'ary');
+    cp(typeMetaDictNames, 'dictObj');
     return tm;
   }());
   recPop.expectEmpty('Unsupported recipe feature(s)');

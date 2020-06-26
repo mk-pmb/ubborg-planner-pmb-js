@@ -16,6 +16,16 @@ const { makeSpawner } = relRes;
 const inhOP = 'inheritOtherParams';
 
 
+const apiTimeoutsSec = (function compile() {
+  const waitSub = 30;
+  return {
+    waitForAllSubPlanning: waitSub,
+    hatch: waitSub + 1,
+    finalizePlan: waitSub + 2,
+  };
+}());
+
+
 function copyInheritedParams(parentBundle, explicit, others) {
   if (!parentBundle) { return {}; }
   const parentParams = parentBundle.getParams();
@@ -114,6 +124,7 @@ const recipe = {
     finalizePlan() { return this.hatchedPr; },
   },
   forkLineageContext,
+  apiTimeoutsSec,
 };
 
 const spawnCore = makeSpawner(recipe);

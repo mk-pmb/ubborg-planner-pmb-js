@@ -5,17 +5,28 @@ import mustBe from 'typechecks-pmb/must-be';
 import mightBeResourcePlan from '../mightBeResourcePlan';
 import basicRelation from '../basicRelation';
 
+const apiTimeoutsSec = (function compile() {
+  const spawn = 2;
+  const waitSub = spawn * 2;
+  return {
+    spawn,
+    waitForAllSubPlanning: waitSub,
+    finalizePlan: waitSub,
+  };
+}());
+
 
 const vanillaRecipe = {
 
-  spawnTimeoutSec: 5,
-  finalizePlanTimeoutSec: (+process.env.UBBORG_PLAN_TMOSEC || 30),
+  apiTimeoutsSec,
 
   relationVerbs: [
     'needs',
     'suggests',
     'conflictsWith',
   ],
+
+  uniqueIndexProps: [],
 
   forkLineageContext(ourLinCtx, changes) {
     const { relationVerb } = changes;
