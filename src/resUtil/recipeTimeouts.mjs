@@ -5,38 +5,27 @@ import isFun from 'is-fn';
 import mustBe from 'typechecks-pmb/must-be';
 import prTimeoutWarn from '@instaffogmbh/promise-timeout-with-warning';
 
-const mustBePosNum = mustBe('pos num');
-const tmoKeyRgx = /^\S+(?=TimeoutSec$)/;
+const globalTimeoutFactor = (+process.env.UBBORG_TIMEOUT_FACTOR || 1);
 
-function tmoKeyTaskName(key) {
-  const m = tmoKeyRgx.exec(key);
-  return (m && { key, taskName: m[0] });
-}
-
-
-function copyRecipeTimeouts(vanillaRecipe, popper) {
-  const vnlTimeoutTaskNames = Object.keys(vanillaRecipe)
-    .map(tmoKeyTaskName).filter(Boolean);
-  const accum = {};
-  function copy(m) { accum[m.taskName] = mustBePosNum(m.key, popper(m.key)); }
-  vnlTimeoutTaskNames.forEach(copy);
-  return accum;
-}
-
+const recipeTmoKey = 'apiTimeoutsSec';
 
 function makeResMtdTimeoutProxifier(res) {
+  const subj = String(res);
+  const apiTmo = mustBe.prop(res.getTypeMeta(), 'dictObj', recipeTmoKey);
   const customPtww = prTimeoutWarn.cfg({
-    subj: String(res),
+    subj,
     vErr: true,
     warn: false,
     fail: '10 sec',
-  }, res.getTypeMeta().timeouts);
+  });
 
   function makeTimeoutProxy(mtdName, opt) {
     if (!opt) { return makeTimeoutProxy(mtdName, true); }
     const impl = (opt.impl || res[mtdName]);
+    const tmo = (+apiTmo[mtdName] || 0);
+    const ovr = ((tmo > 0) && { fail: `${tmo * globalTimeoutFactor} sec` });
     function timeoutProxy(...args) {
-      return customPtww(impl.apply(res, args), mtdName);
+      return customPtww(impl.apply(res, args), mtdName, ovr);
     }
     return timeoutProxy;
   }
@@ -60,6 +49,7 @@ function makeResMtdTimeoutProxifier(res) {
 
 
 export default {
-  copy: copyRecipeTimeouts,
+  recipeTmoKey,
+  globalTimeoutFactor,
   makeResMtdTimeoutProxifier,
 };
