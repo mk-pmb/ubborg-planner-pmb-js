@@ -9,6 +9,7 @@ import basicRelation from '../basicRelation';
 const vanillaRecipe = {
 
   spawnTimeoutSec: 5,
+  finalizePlanTimeoutSec: (+process.env.UBBORG_PLAN_TMOSEC || 30),
 
   relationVerbs: [
     'needs',
