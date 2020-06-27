@@ -7,13 +7,17 @@ import aMap from 'map-assoc-core';
 import getOwn from 'getown';
 import bunUrls from 'ubborg-bundleurl-util-pmb';
 import loPick from 'lodash.pick';
+import vTry from 'vtry';
 
 import relRes from '../parentRelUrlResource';
 import slashableImport from '../../slashableImport';
 import trivialDictMergeInplace from '../../trivialDictMergeInplace';
 
 const { makeSpawner } = relRes;
+const inhPExpl = 'inheritParam';
 const inhOP = 'inheritOtherParams';
+const mbBoolOrUndef = mustBe('undef | bool');
+const objHas = Object.prototype.hasOwnProperty;
 
 
 const apiTimeoutsSec = (function compile() {
@@ -26,14 +30,17 @@ const apiTimeoutsSec = (function compile() {
 }());
 
 
-function copyInheritedParams(parentBundle, explicit, others) {
+function copyInheritedParams(parentBundle, dfParam, explicit, others) {
+  mustBe.bool(inhOP, others);
   if (!parentBundle) { return {}; }
   const parentParams = parentBundle.getParams();
-  if (!explicit) { return (others ? mergeOpt(parentParams) : {}); }
   const bequest = {};
   aMap(parentParams, function maybeCopy(v, k) {
-    const descr = inhOP + JSON.stringify([k]);
-    if (mustBe.bool(descr, explicit[k], others)) { bequest[k] = v; }
+    const expl = mbBoolOrUndef(inhPExpl + '.' + k, getOwn(explicit, k));
+    if (expl === false) { return; }
+    const copy = (expl || others || (dfParam && objHas.call(dfParam, k)));
+    // console.debug('maybeCopy', { k, expl, others, copy });
+    if (copy) { bequest[k] = v; }
   });
   const shallowCopy = mergeOpt(bequest);
   return shallowCopy;
@@ -44,37 +51,46 @@ async function prepareRunImpl(bun, how) {
   const { typeName } = bun; // may differ in derived types.
   const { initExtras, impl } = how;
   mustBe.fun('bundle implementation', impl);
+  const mustImpl = objPop.d({
+    toString() { return 'implementation of ' + String(bun); },
+    paramDefaults: {},
+    ...impl,
+  }, { mustBe }).mustBe;
+  function implDict(k) { return mustImpl('undef | nul | dictObj', k); }
+  const dfParam = implDict('paramDefaults');
 
-  if (impl.precheckFacts) { await impl.precheckFacts(bun); }
+  await mustImpl('fun', 'precheckFacts', Boolean)(bun);
   const facts = await bun.toFactsDict({ acceptPreliminary: true });
   const mustFact = mustBe.prop(facts);
 
   const linCtx = initExtras.getLineageContext();
   const { parentBundle } = linCtx;
-  let param = copyInheritedParams(parentBundle,
-    mustFact('undef | nul | dictObj', 'inheritParam', impl.inheritParam),
-    mustFact('undef | bool', inhOP, getOwn(impl, inhOP, true)));
+  let curParam = copyInheritedParams(parentBundle, dfParam,
+    implDict(inhPExpl), mustImpl('bool', inhOP, true));
 
-  const paramPopOpt = {
+  const popOpt = {
     mustBe,
     leftoversMsg: `Unsupported ${typeName} param(s)`,
   };
   Object.assign(bun, {
-    getParams() { return param; },
-    makeParamPopper(opt) { return objPop(param, { ...paramPopOpt, ...opt }); },
-    mergeParamDefaults(df) { param = mergeOpt(df, param); },
-    mergeParamOverrides(ovr) { mergeOpt.call(param, ovr); },
-    mergeParams(upd) { trivialDictMergeInplace(param, upd); },
+    getParams() { return curParam; },
+    makeParamPopper(opt) { return objPop(curParam, { ...popOpt, ...opt }); },
+    mergeParamDefaults(df) { curParam = mergeOpt(df, curParam); },
+    mergeParamOverrides(ovr) { mergeOpt.call(curParam, ovr); },
+    mergeParams(upd) { trivialDictMergeInplace(curParam, upd); },
   });
 
-  bun.mergeParamOverrides(impl.paramOverrides);
-  bun.mergeParamOverrides(facts.overrideParam);
-  bun.mergeParams(impl.param);
-  bun.mergeParams(facts.param);
+  bun.mergeParamOverrides(implDict('paramOverrides'));
+  bun.mergeParamOverrides(mustFact('undef | dictObj', 'overrideParam'));
+  bun.mergeParams(implDict('param'));
+  bun.mergeParams(mustFact('undef | dictObj', 'param'));
 
   // Merge params last: Otherwise the more assertive param sources may detect
   // conflict with existing default values.
-  bun.mergeParamDefaults(impl.paramDefaults);
+  bun.mergeParamDefaults(dfParam);
+
+  mustImpl('fun', 'toString');
+  mustImpl.expectEmpty('Unsupported bundle features');
 };
 
 
@@ -93,7 +109,8 @@ async function hatch(initExtras) {
   const simplifiedLinCtx = loPick(linCtx, [
     'getResourcesByTypeName',
   ]);
-  await impl.call(simplifiedLinCtx, bun);
+  await vTry.pr(impl.bind(simplifiedLinCtx, bun),
+    'While running the custom bundle implementation')();
 }
 
 
@@ -115,7 +132,7 @@ const recipe = {
   },
   acceptProps: {
     param: true,
-    inheritParam: true,
+    [inhPExpl]: true,
     [inhOP]: true,
     overrideParam: true,
   },
