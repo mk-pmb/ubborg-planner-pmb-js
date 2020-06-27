@@ -3,6 +3,19 @@
 import spRes from '../resUtil/simplePassiveResource';
 
 
+async function hatch() {
+  const res = this;
+  const facts = await res.toFactsDict({ acceptPreliminary: true });
+  const { path, sect, val } = facts;
+  if (val === undefined) {
+    const err = 'Value must not be ' + val + '. Use null to remove the key.';
+    throw new Error(err);
+  }
+  if (val !== null) {
+    await res.needs('iniFileSect', { path, sect, exists: true });
+  }
+}
+
 const recipe = {
   typeName: 'iniFileOpt',
   idProps: [
@@ -11,28 +24,18 @@ const recipe = {
     'key',
   ],
   defaultProps: {
-    val: null,  // null = remove
   },
   acceptProps: {
+    val: true,
   },
+  promisingApi: { hatch },
 };
 const spawnCore = spRes.makeSpawner(recipe);
 
 
-async function plan(spec) {
-  const { path, sect, val } = spec;
-  if (val === undefined) {
-    throw new Error('A value is required. Use null to remove the key.');
-  }
-  const res = await spawnCore(this, spec);
-  if (val !== null) {
-    await res.needs('iniFileSect', { path, sect, exists: true });
-  }
-  return res;
-}
 
 
 export default {
   recipe,
-  plan,
+  async plan(spec) { return spawnCore(this, spec); },
 };
