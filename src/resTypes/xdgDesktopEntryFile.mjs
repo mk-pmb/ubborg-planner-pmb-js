@@ -4,7 +4,7 @@ import objPop from 'objpop';
 import mustBe from 'typechecks-pmb/must-be';
 import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
 
-import iniFile from './iniFile';
+import admFile from './admFile';
 
 async function plan(spec) {
   const ourCtx = this;
@@ -13,31 +13,30 @@ async function plan(spec) {
 
   const owner = mustPop('undef | nonEmpty str', 'owner');
   const path = mustPop('nonEmpty str', 'path');
-  const exec = mustPop('fal | nonEmpty str', 'exec');
+  const Exec = mustPop('fal | nonEmpty str', 'exec');
   const entry = {
-    ...(exec && {
+    ...(Exec && {
       Encoding: 'UTF-8',
       Version: '0.9.4',
       Type: 'Application',
       Name: mustPop('nonEmpty str', 'title'),
       Comment: mustPop('str', 'descr', ''),
+      Exec,
       StartupNotify: false,
       Terminal: false,
     }),
-    Hidden: String(!exec),
+    Hidden: String(!Exec),
     ...mustPop('undef | dictObj', 'entry'),
   };
 
-  return iniFile.plan.call(this, {
+  return admFile.plan.call(this, {
     path: await homeDirTilde(ourCtx, path, owner),
+    enforcedOwner: owner,
+    enforcedGroup: owner,
+    enforcedModes: 'a=rx,ug+w',
+    mimeType: 'static_ini',
     ...remain,
-    fileOpts: {
-      enforcedOwner: owner,
-      enforcedGroup: owner,
-      enforcedModes: 'a=rx,ug+w',
-      ...remain.fileOpts,
-    },
-    sections: { 'Desktop Entry': entry },
+    content: { 'Desktop Entry': entry },
   });
 }
 
