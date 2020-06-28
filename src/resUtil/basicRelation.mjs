@@ -140,8 +140,14 @@ Object.assign(rela, {
       const subPlan = await plan;
       if (subPlan === res) { return subPlan; }
       if (disPath && disPath.includes(res)) { return subPlan; }
-      await subPlan.hatchedPr;
-      await subPlan.relations.waitForAllSubPlanning(subOpt);
+      const hasHatched = await subPlan.hatchedPr;
+      const waitSub = (subPlan.relations || false).waitForAllSubPlanning;
+      if (!subPlan.relations) {
+        const err = `Subplan ${String(subPlan)} (hatched = ${hasHatched}) of ${
+          String(plan)} does not (yet?) implement waitForAllSubPlanning.`;
+        throw new Error(err);
+      }
+      await waitSub(subOpt);
       return subPlan;
     }
     async function collectOneVerb(relsPr) {

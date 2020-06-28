@@ -2,4 +2,9 @@
 
 import deFile from './xdgDesktopEntryFile';
 
-export default { plan: deFile.inDir('~/.config/autostart') };
+function plan(spec) {
+  const baseDir = (spec.owner ? '~/.config' : '/etc/xdg') + '/autostart';
+  return deFile.inDir(baseDir).call(this, spec);
+}
+
+export default { plan };
