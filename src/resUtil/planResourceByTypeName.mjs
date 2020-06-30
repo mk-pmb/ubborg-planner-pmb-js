@@ -22,15 +22,16 @@ async function loadResourceProviderByTypeName(typeName) {
 }
 
 
-async function planResourceByTypeName(typeName, ctx, details) {
+async function planResourceByTypeName(typeName, ctx, detailsPr) {
   mustBe.nest('resource type', typeName);
   const prov = await loadResourceProviderByTypeName(typeName);
   const plannerFunc = (prov || false).plan;
   if (!is.fun(plannerFunc)) {
     throw new TypeError('Unsupported resource type: ' + typeName);
   }
-  const resPlan = await vTry.pr(plannerFunc,
-    'While planning a resource of type ' + typeName).call(ctx, details);
+  const details = await detailsPr;
+  const descr = 'While planning a resource of type ' + typeName;
+  const resPlan = await vTry.pr(plannerFunc, descr).call(ctx, details);
   return resPlan;
 }
 
