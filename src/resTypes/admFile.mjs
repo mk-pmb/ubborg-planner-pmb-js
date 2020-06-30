@@ -6,7 +6,7 @@ function plan(spec) {
   return file.plan.call(this, {
     enforcedOwner: 'root',
     enforcedGroup: 'adm',
-    enforcedModes: 'a=r,ug+w',
+    enforcedModes: 'a-x,a=rX,ug+w', // a-x ensures X only matches directories
     ...spec,
   });
 }
