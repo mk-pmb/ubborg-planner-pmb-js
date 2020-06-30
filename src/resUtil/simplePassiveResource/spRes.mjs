@@ -39,7 +39,6 @@ function startHatching(res, ...hatchArgs) {
     await pImmediate();
     if (!res.hatchedPr) { throw new Error('Still no .hatchedPr?!'); }
     await res.hatch(...hatchArgs);
-    await res.relations.waitForAllSubPlanning({ ignoreStillHatching: true });
     res.hatching = false;
     // console.debug('startHatching', String(res), 'done.');
     return res;

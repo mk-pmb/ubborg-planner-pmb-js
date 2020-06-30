@@ -18,6 +18,7 @@ const inhPExpl = 'inheritParam';
 const inhOP = 'inheritOtherParams';
 const mbBoolOrUndef = mustBe('undef | bool');
 const objHas = Object.prototype.hasOwnProperty;
+const blameBundleImpl = 'While running the custom bundle implementation';
 
 
 const apiTimeoutsSec = (function compile() {
@@ -109,8 +110,8 @@ async function hatch(initExtras) {
   const simplifiedLinCtx = loPick(linCtx, [
     'getResourcesByTypeName',
   ]);
-  await vTry.pr(impl.bind(simplifiedLinCtx, bun),
-    'While running the custom bundle implementation')();
+  await vTry.pr(impl.bind(simplifiedLinCtx, bun), blameBundleImpl)();
+  await bun.relations.waitForAllSubPlanning({ ignoreStillHatching: true });
 }
 
 
