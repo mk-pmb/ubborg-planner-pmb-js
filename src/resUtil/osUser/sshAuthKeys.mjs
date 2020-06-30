@@ -4,6 +4,7 @@ import mustBe from 'typechecks-pmb/must-be';
 import objPop from 'objpop';
 import pMap from 'p-map';
 import rPad from 'lodash.padend';
+import mapMerge from 'map-merge-defaults-pmb';
 
 import vTry from 'vtry';
 import slashableImport from '../../slashableImport';
@@ -24,32 +25,23 @@ const sak = {
 
   async mixin(res, opt) {
     const mustOpt = mustBe.prop(opt);
-    const homeDirPath = mustOpt('nonEmpty str', 'homeDirPath');
-    const ownerName = mustOpt('nonEmpty str', 'ownerLoginName');
-    const ownerGroup = (mustOpt('undef | nonEmpty str', 'ownerGroupName')
-      || ownerName);
+    const home = mustOpt('nonEmpty str', 'homeDirPath');
+    // ^- We cannot use the ~/ autodetection because it would await the
+    //    osUser plan and thus cause a loop of promises.
+    const owner = mustOpt('nonEmpty str', 'ownerLoginName');
     const keys = await sak.combineKeySpecs(opt.sshAuthKeys);
-    if (!keys) { return; }
-
-    function homeSubDir(sub, props) {
-      return res.needs('file', {
-        path: homeDirPath + sub,
-        mimeType: 'dir',
-        enforcedOwner: ownerName,
-        enforcedGroup: ownerGroup,
-        enforcedModes: 'a=rx,ug+w',
-        ...props,
-      });
-    };
-    await homeSubDir('');
-    await homeSubDir('/.config');
-    await homeSubDir('/.config/ssh');
-    await homeSubDir('/.ssh', { mimeType: 'sym', content: '.config/ssh' });
-    await homeSubDir('/.config/ssh/authorized_keys', {
-      mimeType: 'text/plain',
-      enforcedModes: 'a=,u+rw',
-      content: keys,
-    });
+    await (keys && mapMerge.pr({ owner, mimeType: 'dir' }, 'path', [
+      home,
+      home + '/.config',
+      home + '/.config/ssh',
+      { path: home + '/.ssh', mimeType: 'sym', content: '.config/ssh' },
+      {
+        path: home + '/.config/ssh/authorized_keys',
+        mimeType: 'text/plain',
+        enforcedModes: 'a=,u+r',
+        content: keys,
+      },
+    ], res.needs.bind(res, 'userFile')));
   },
 
 
