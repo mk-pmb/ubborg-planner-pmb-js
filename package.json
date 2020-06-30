@@ -32,10 +32,11 @@
 
   "dependencies": {
     "@instaffogmbh/promise-timeout-with-warning": "^0.1.14",
-    "dict-of-dicts-to-ini-lines-pmb": "^1.0.0",
+    "concise-value-preview-pmb": "^0.1.1",
+    "dict-of-dicts-to-ini-lines-pmb": "^1.0.1",
     "equal-pmb": "^0.1.20",
     "getoraddkey-simple": "^0.1.5",
-    "getown": "^0.1.0",
+    "getown": "^1.0.0",
     "is-fn": "^2.0.0",
     "load-first-avail-module": "^0.1.1",
     "lodash.camelcase": "^4.3.0",
@@ -55,6 +56,7 @@
     "terminal-color-numbers-pmb": "^0.1.1",
     "typechecks-pmb": "^0.200620.0",
     "ubborg-bundleurl-util-pmb": "^0.1.0",
+    "ubborg-lineage-find-common-ancestor-pmb": "^1.0.1",
     "ubborg-resolve-homedir-tilde-by-user-plan-pmb": "^0.1.0",
     "univeil": "^0.1.17",
     "usnam-pmb": "^0.2.4",

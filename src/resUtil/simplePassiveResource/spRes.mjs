@@ -101,6 +101,7 @@ function makeSpawner(recipe) {
       typeName,
       id,
       getTypeMeta() { return typeMeta; },
+      traceParents: lineageCtx.traceParents,
       customProps: null, // res.incubate() will overwrite this.
       ...api.direct,
       ...lineageCtx.resByUniqueIndexProp.makeTypeApi(typeName),

@@ -1,6 +1,8 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import aMap from 'map-assoc-core';
+import findCommonAncestor from 'ubborg-lineage-find-common-ancestor-pmb';
+import preview from 'concise-value-preview-pmb';
 
 import verifyAcceptProps from '../verifyAcceptProps';
 import trivialDictMergeInplace from '../../trivialDictMergeInplace';
@@ -8,6 +10,20 @@ import basicRelation from '../basicRelation';
 
 
 function doNothing() {}
+
+
+function describeMergeConflict(origRes, dupeRes, err) {
+  const anc = findCommonAncestor(origRes, dupeRes);
+  const dp = findCommonAncestor.arrowJoin(err.dictPath.map(preview));
+  return [
+    'No idea how to merge',
+    'unequal property ' + (dp || '(empty path)'),
+    'of new ' + (String(anc.subB) || '(common ancestor)'),
+    'into   ' + (String(anc.subA) || '(common ancestor)'),
+    'common ancestry ' + (String(anc.common) || '(none)') + ':',
+    err.message,
+  ];
+}
 
 
 const promising = {
@@ -40,8 +56,8 @@ const promising = {
       trivialDictMergeInplace(origRes.customProps, dupeRes.customProps);
     } catch (caught) {
       if (caught.name === 'trivialDictMergeError') {
-        caught.message = `No idea how to merge unequal ${
-          String(origRes)} property "${caught.dictKey}": ${caught.message}`;
+        caught.message = describeMergeConflict(origRes, dupeRes,
+          caught).join('\n\t');
       }
       throw caught;
     }
@@ -72,4 +88,8 @@ const direct = {
 };
 
 
-export default { direct, promising };
+export default {
+  direct,
+  promising,
+  describeMergeConflict,
+};
