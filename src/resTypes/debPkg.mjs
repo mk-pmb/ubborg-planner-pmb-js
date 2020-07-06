@@ -1,6 +1,5 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 
 import spRes from '../resUtil/simplePassiveResource';
@@ -42,7 +41,8 @@ const recipe = {
   },
 };
 
-const spawnCore = spRes.makeSpawner(recipe);
+const baseSpawner = spRes.makeSpawner(recipe);
+const { normalizeProps } = baseSpawner.typeMeta;
 
 const simpleStates = [
   recipe.defaultProps.state,
@@ -51,8 +51,8 @@ const simpleStates = [
 ];
 
 
-async function plan(spec) {
-  if (is.str(spec)) { return plan.call(this, { name: spec }); }
+async function plan(origSpec) {
+  const spec = normalizeProps(origSpec);
   const { state, presenceMarker: origPresMark } = spec;
   mustBe([['oneOf', [undefined, ...simpleStates]]], 'state')(state);
   const [name, arrowPresMark, ...morePresMarks] = spec.name.split(/\s+=>\s+/);
@@ -63,7 +63,7 @@ async function plan(spec) {
   if (morePresMarks.length > 1) {
     throw new Error("Multiple presence markers aren't supported yet");
   }
-  const res = await spawnCore(this, {
+  const res = await baseSpawner(this, {
     presenceMarker: arrowPresMark,
     ...spec,
     name,
@@ -73,6 +73,7 @@ async function plan(spec) {
 
 
 export default {
+  normalizeProps,
   plan,
   recipe,
 };
