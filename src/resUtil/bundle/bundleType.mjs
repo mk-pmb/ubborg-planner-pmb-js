@@ -62,7 +62,7 @@ async function prepareRunImpl(bun, how) {
 
   await mustImpl('fun', 'precheckFacts', Boolean)(bun);
   const facts = await bun.toFactsDict({ acceptPreliminary: true });
-  const mustFact = mustBe.prop(facts);
+  const mustFact = mustBe.tProp('bundle facts', facts);
 
   const linCtx = initExtras.getLineageContext();
   const { parentBundle } = linCtx;
