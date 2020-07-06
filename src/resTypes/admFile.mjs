@@ -7,7 +7,7 @@ function plan(spec) {
     enforcedOwner: 'root',
     enforcedGroup: 'adm',
     enforcedModes: 'a-x,a=rX,ug+w', // a-x ensures X only matches directories
-    ...spec,
+    ...file.normalizeProps(spec),
   });
 }
 
