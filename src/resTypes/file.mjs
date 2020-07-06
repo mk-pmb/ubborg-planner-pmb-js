@@ -9,13 +9,19 @@ import mimeTypeAliases from '../resUtil/file/mimeAlias';
 import mimeTypeFx from '../resUtil/file/mimeFx';
 
 
-async function hatch() {
+async function hatch(initExtras) {
   const res = this;
   const path = res.id;
   if (!path.startsWith('/')) { throw new Error('Path must be absolute!'); }
   const parentDir = pathLib.dirname(path);
   if (parentDir && (parentDir !== '/')) {
     await res.needs('file', { path: parentDir, mimeType: 'dir' });
+  }
+
+  const facts = await res.toFactsDict({ acceptPreliminary: true });
+  const { targetMimeType } = initExtras.spawnOpt.spec;
+  if (targetMimeType) {
+    await res.needs('file', { path: facts.content, mimeType: targetMimeType });
   }
 }
 
@@ -66,11 +72,15 @@ async function plan(origSpec) {
     spec.path = await homeDirTilde(ourCtx, spec.path, spec.enforcedOwner);
   }
 
-  return baseSpawner(this, spec);
+  return baseSpawner(this, {
+    ...spec,
+    targetMimeType: undefined,
+  }, { spec });
 }
 
 
 
 export default {
+  normalizeProps,
   plan,
 };
