@@ -54,12 +54,22 @@ async function hatch(initExtras) {
     });
   });
 
-  const path = '/etc/apt/sources.list.d/ubborg.' + res.id + '.list';
   await res.needs('admFile', {
-    path,
+    path: `/etc/apt/sources.list.d/ubborg.${res.id}.list`,
     mimeType: 'text/plain',
     content: debLines,
   });
+
+  const keyRingName = mustFact('undef | nonEmpty str',
+    'trustedLocalAptKeyRingName');
+  if (keyRingName) {
+    const path = `/etc/apt/trusted.gpg.d/${keyRingName}.gpg`;
+    await res.needs('admFile', {
+      path,
+      mimeType: 'blob',
+      uploadFromLocalPath: true,
+    });
+  }
 }
 
 
@@ -87,8 +97,7 @@ const recipe = {
     primaryKeyId: true,
 
     trustedLocalAptKeyRingName: true,
-    // ^- Provide a repo key using a pre-made, already-converted
-    //    `/etc/apt/trusted.gpg.d/${keyRingName}.gpg` that we can just copy.
+    // ^- Provide a repo key as a pre-made, already-converted key ring file.
     keyUrl: true,
     keyVerify: true,
   },

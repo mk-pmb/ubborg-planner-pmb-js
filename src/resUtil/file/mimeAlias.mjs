@@ -7,6 +7,7 @@ const mta = {
   fifo: 'inode/fifo',
   sock: 'inode/socket',
   sym:  'inode/symlink',  // only for broken ones. see the "symlink" resType.
+  blob: 'application/octet-stream',
   b64:  'application/octet-stream;base64',
 };
 
