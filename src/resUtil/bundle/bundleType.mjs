@@ -128,7 +128,6 @@ function forkLineageContext(ourLinCtx, changes) {
 const recipe = {
   ...relRes.recipe,
   typeName: 'bundle',
-  idProps: ['url'],
   defaultProps: {
   },
   acceptProps: {
@@ -152,5 +151,5 @@ export default {
   recipe,
   makeSpawner,
   prepareRunImpl,
-  plan(spec) { return spawnCore(this, spec); },
+  plan(...args) { return spawnCore(this, ...args); },
 };

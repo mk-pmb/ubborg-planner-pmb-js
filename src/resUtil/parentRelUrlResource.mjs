@@ -1,9 +1,15 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import mustBe from 'typechecks-pmb/must-be';
-import bundleUrlUtil from 'ubborg-bundleurl-util-pmb';
+import buu from 'ubborg-bundleurl-util-pmb';
 
 import spRes from './simplePassiveResource';
+
+
+const recipe = {
+  ...spRes.recipe,
+  idProps: ['url'],
+};
 
 
 function makeSpawner(recipe) {
@@ -17,13 +23,21 @@ function makeSpawner(recipe) {
   const baseSpawner = spRes.makeSpawner(recipe);
   const { normalizeProps } = baseSpawner.typeMeta;
 
-  async function spawn(ctx, origSpec, spawnOpt) {
+  async function spawn(ctx, origSpec, origSpawnOpt) {
     const normSpec = normalizeProps(origSpec);
     const parent = (mustBe('undef | eeq:false | dictObj',
       typeName + ' parent')(ctx.relatedBy) || false);
-    const shortAbsUrl = bundleUrlUtil.shorten(bundleUrlUtil.href(parent.id,
-      mustBe.nest(typeName + ' spec', normSpec.url)));
-    return baseSpawner(ctx, { ...normSpec, url: shortAbsUrl }, spawnOpt);
+    const subHref = mustBe.nest(typeName + ' url', normSpec.url);
+    let spawnOpt = origSpawnOpt;
+    let baseUrl = buu.href(parent.id);
+    const trail = (spawnOpt || false).ensureParentUrlTrail;
+    if (trail) {
+      spawnOpt = { ...origSpawnOpt };
+      delete spawnOpt.ensureParentUrlTrail;
+      if (!baseUrl.endsWith(trail)) { baseUrl += trail; }
+    }
+    const shortAbsSubUrl = buu.shorten(buu.href(baseUrl, subHref));
+    return baseSpawner(ctx, { ...normSpec, url: shortAbsSubUrl }, spawnOpt);
   }
   return spawn;
 }
@@ -31,5 +45,6 @@ function makeSpawner(recipe) {
 
 export default {
   ...spRes,
+  recipe,
   makeSpawner,
 };
