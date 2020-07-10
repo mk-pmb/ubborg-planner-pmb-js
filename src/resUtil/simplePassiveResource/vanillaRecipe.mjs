@@ -18,6 +18,9 @@ const apiTimeoutsSec = (function compile() {
 
 const vanillaRecipe = {
 
+  acceptProps: {},
+  defaultProps: {},
+
   apiTimeoutsSec,
 
   relationVerbs: [
