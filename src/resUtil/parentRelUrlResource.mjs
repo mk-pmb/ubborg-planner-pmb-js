@@ -6,12 +6,6 @@ import buu from 'ubborg-bundleurl-util-pmb';
 import spRes from './simplePassiveResource';
 
 
-const recipe = {
-  ...spRes.recipe,
-  idProps: ['url'],
-};
-
-
 function makeSpawner(recipe) {
   const { typeName, idProps } = recipe;
   if ((idProps.length !== 1) || (idProps[0] !== 'url')) {
@@ -24,9 +18,9 @@ function makeSpawner(recipe) {
   const { normalizeProps } = baseSpawner.typeMeta;
 
   async function spawn(ctx, origSpec, origSpawnOpt) {
-    const normSpec = normalizeProps(origSpec);
     const parent = (mustBe('undef | eeq:false | dictObj',
       typeName + ' parent')(ctx.relatedBy) || false);
+    const normSpec = normalizeProps(origSpec);
     const subHref = mustBe.nest(typeName + ' url', normSpec.url);
     let spawnOpt = origSpawnOpt;
     let baseUrl = buu.href(parent.id);
@@ -45,6 +39,9 @@ function makeSpawner(recipe) {
 
 export default {
   ...spRes,
-  recipe,
+  recipe: {
+    ...spRes.recipe,
+    idProps: ['url'],
+  },
   makeSpawner,
 };
