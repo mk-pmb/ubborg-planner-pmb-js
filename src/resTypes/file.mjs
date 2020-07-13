@@ -47,6 +47,7 @@ const recipe = {
     enforcedModes: true,
 
     content: true,
+    verifyContent: true,
     uploadFromLocalPath: true,  // absolute, or "true" = same as "path" prop
     downloadUrls: true,
   },
