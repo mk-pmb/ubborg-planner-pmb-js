@@ -3,6 +3,7 @@
 import objPop from 'objpop';
 import mustBe from 'typechecks-pmb/must-be';
 import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
+import toSnakeCase from 'lodash.snakecase';
 
 import admFile from './admFile';
 
@@ -43,8 +44,13 @@ async function plan(spec) {
 
 function inDir(basedir) {
   function planInBaseDir(spec) {
-    const { bfn } = spec;
-    mustBe.nest('bfn (base filename) prop', bfn);
+    let { bfn } = spec;
+    if (bfn === undefined) {
+      const { title } = spec;
+      mustBe.nest('At least one of props "title" and "bfn"', title);
+      bfn = toSnakeCase(title);
+    }
+    mustBe.nest('bfn (base filename) prop, if given', bfn);
     return plan.call(this, {
       ...spec,
       bfn: undefined,
