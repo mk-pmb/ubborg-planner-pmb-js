@@ -71,12 +71,15 @@ async function plan(origSpec) {
   const mta = mimeTypeAliases[spec.mimeType];
   if (mta) { spec.mimeType = mta; }
 
-  if (spec.enforcedOwner && spec.path.startsWith('~')) {
-    spec.path = await homeDirTilde(ourCtx, spec.path, spec.enforcedOwner);
+  let { path } = spec;
+  if (spec.enforcedOwner && path.startsWith('~')) {
+    path = await homeDirTilde(ourCtx, path, spec.enforcedOwner);
   }
+  if (path.endsWith('/')) { path = path.slice(0, -1); }
 
   return baseSpawner(this, {
     ...spec,
+    path,
     targetMimeType: undefined,
   }, { spec });
 }
