@@ -13,6 +13,8 @@ import relRes from '../parentRelUrlResource';
 import slashableImport from '../../slashableImport';
 import trivialDictMergeInplace from '../../trivialDictMergeInplace';
 
+import makeParamPopperImpl from './makeParamPopper';
+
 const { makeSpawner } = relRes;
 const inhPExpl = 'inheritParam';
 const inhOP = 'inheritOtherParams';
@@ -49,7 +51,6 @@ function copyInheritedParams(parentBundle, dfParam, explicit, others) {
 
 
 async function prepareRunImpl(bun, how) {
-  const { typeName } = bun; // may differ in derived types.
   const { initExtras, impl } = how;
   mustBe.fun('bundle implementation', impl);
   const mustImpl = objPop.d({
@@ -69,13 +70,9 @@ async function prepareRunImpl(bun, how) {
   let curParam = copyInheritedParams(parentBundle, dfParam,
     implDict(inhPExpl), mustImpl('bool', inhOP, true));
 
-  const popOpt = {
-    mustBe,
-    leftoversMsg: `Unsupported ${typeName} param(s)`,
-  };
   Object.assign(bun, {
     getParams() { return curParam; },
-    makeParamPopper(opt) { return objPop(curParam, { ...popOpt, ...opt }); },
+    makeParamPopper(opt) { return makeParamPopperImpl(bun, opt); },
     mergeParamDefaults(df) { curParam = mergeOpt(df, curParam); },
     mergeParamOverrides(ovr) { mergeOpt.call(curParam, ovr); },
     mergeParams(upd) { trivialDictMergeInplace(curParam, upd); },
