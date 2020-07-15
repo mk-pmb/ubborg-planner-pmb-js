@@ -29,10 +29,10 @@ function rewriteUrlProtos(origUrl) {
 
 async function hatch(initExtras) {
   const parBun = initExtras.getLineageContext().parentBundle;
-  const bundleParamMustBe = parBun.makeParamPopper().mustBe;
   const renderOVT = (function compile() {
     const b = 'osVersion';
-    const d = bundleParamMustBe('fal | dictObj', b, false);
+    const d = getOwn(parBun.getParams(), b, false);
+    mustBe('fal | dictObj', 'bundle param ' + b)(d);
     const r = /%\{([\w\-]+)\}/g;
     function w(m, k) { return m && mustBe.nest(`${b}.${k}`, getOwn(d, k)); }
     return function renderOsVersionTemplate(s) { return s.replace(r, w); };
