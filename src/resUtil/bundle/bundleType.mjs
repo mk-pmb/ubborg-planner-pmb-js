@@ -13,7 +13,7 @@ import relRes from '../parentRelUrlResource';
 import slashableImport from '../../slashableImport';
 import trivialDictMergeInplace from '../../trivialDictMergeInplace';
 
-import makeParamPopperImpl from './makeParamPopper';
+import makeParamPopperImpl from '../makeParamPopper';
 
 const { makeSpawner } = relRes;
 const inhPExpl = 'inheritParam';
@@ -72,7 +72,7 @@ async function prepareRunImpl(bun, how) {
 
   Object.assign(bun, {
     getParams() { return curParam; },
-    makeParamPopper(opt) { return makeParamPopperImpl(bun, opt); },
+    makeParamPopper(opt) { return makeParamPopperImpl(bun, curParam, opt); },
     mergeParamDefaults(df) { curParam = mergeOpt(df, curParam); },
     mergeParamOverrides(ovr) { mergeOpt.call(curParam, ovr); },
     mergeParams(upd) { trivialDictMergeInplace(curParam, upd); },
