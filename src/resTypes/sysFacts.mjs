@@ -34,7 +34,7 @@ const recipe = {
     declareFacts(facts) {
       trivialDictMergeInplace(this[resPropsProp][dataProp], facts);
     },
-    makeParamPopper(opt) {
+    makeFactPopper(opt) {
       return makeParamPopperImpl(this.typeName + ' facts',
         this[resPropsProp][dataProp], opt);
     },
