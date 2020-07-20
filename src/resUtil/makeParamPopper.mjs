@@ -7,12 +7,12 @@ import mustBe from 'typechecks-pmb/must-be';
 function dictDive(d, k) { return (d || false)[k]; }
 
 
-function makeParamPopper(bun, origOpt) {
-  const { typeName } = bun; // may differ in derived types.
+function makeParamPopper(contextNameOrBundle, paramsDict, origOpt) {
   const opt = { ...origOpt };
+  const contextName = (contextNameOrBundle.typeName || contextNameOrBundle);
 
-  let leftoversMsg = `Unsupported ${typeName} param(s)`;
-  let dict = bun.getParams();
+  let leftoversMsg = `Unsupported ${contextName} param(s)`;
+  let dict = paramsDict;
   const { dive } = opt;
   if (dive && dive.length) {
     mustBe.ary('dive option', dive);
