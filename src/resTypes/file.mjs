@@ -64,6 +64,7 @@ const { normalizeProps } = baseSpawner.typeMeta;
 async function plan(origSpec) {
   const ourCtx = this;
   const spec = normalizeProps(origSpec);
+  const suggest = {};
 
   const mtFx = mimeTypeFx[spec.mimeType];
   if (mtFx) { Object.assign(spec, await mtFx.call(this, spec)); }
@@ -71,19 +72,26 @@ async function plan(origSpec) {
   const mta = mimeTypeAliases[spec.mimeType];
   if (mta) { spec.mimeType = mta; }
 
-  let { path } = spec;
+  let path = (spec.pathPre || '') + spec.path + (spec.pathSuf || '');
   if (spec.enforcedOwner && path.startsWith('~')) {
     path = await homeDirTilde(ourCtx, path, spec.enforcedOwner);
   }
-  if (path.endsWith('/')) { path = path.slice(0, -1); }
+  if (path.endsWith('/')) {
+    path = path.slice(0, -1);
+    suggest.mimeType = 'dir';
+  }
+
+  if (spec.targetMimeType) { suggest.mimeType = 'sym'; }
 
   return baseSpawner(this, {
+    ...suggest,
     ...spec,
     path,
     targetMimeType: undefined,
+    pathPre: undefined,
+    pathSuf: undefined,
   }, { spec });
 }
-
 
 
 export default {
