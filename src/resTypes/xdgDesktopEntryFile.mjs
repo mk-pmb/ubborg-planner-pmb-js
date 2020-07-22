@@ -5,7 +5,7 @@ import mustBe from 'typechecks-pmb/must-be';
 import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
 import toSnakeCase from 'lodash.snakecase';
 
-import admFile from './admFile';
+import file from './file';
 
 async function plan(spec) {
   const ourCtx = this;
@@ -30,7 +30,7 @@ async function plan(spec) {
     ...mustPop('undef | dictObj', 'entry'),
   };
 
-  return admFile.plan.call(this, {
+  return file.plan.call(this, {
     path: await homeDirTilde(ourCtx, path, owner),
     enforcedOwner: owner,
     enforcedGroup: owner,

@@ -1,6 +1,5 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 import getOwn from 'getown';
 import sysFactsHelper from 'ubborg-sysfacts-helper-pmb';
@@ -106,7 +105,8 @@ const recipe = {
   },
 };
 
-const spawnCore = spRes.makeSpawner(recipe);
+const baseSpawner = spRes.makeSpawner(recipe);
+const { normalizeProps } = baseSpawner.typeMeta;
 
 const simpleStates = [
   recipe.defaultProps.state,
@@ -114,16 +114,19 @@ const simpleStates = [
 ];
 
 
-async function plan(spec) {
-  if (is.str(spec)) { return plan.call(this, { name: spec }); }
+
+
+async function plan(origSpec) {
+  const spec = normalizeProps(origSpec);
   const { state } = spec;
   mustBe([['oneOf', [undefined, ...simpleStates]]], 'state')(state);
-  const res = await spawnCore(this, spec);
+  const res = await baseSpawner(this, spec);
   return res;
 }
 
 
 export default {
+  normalizeProps,
   plan,
   recipe,
 };
