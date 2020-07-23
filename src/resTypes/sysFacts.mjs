@@ -24,17 +24,17 @@ const recipe = {
   acceptProps: { [dataProp]: true },
   directApi: {
     ...spRes.directApi,
-    getFacts() { return this[resPropsProp][dataProp]; },
-    suggestFacts(sug) {
+    getSysFacts() { return this[resPropsProp][dataProp]; },
+    suggestSysFacts(sug) {
       if (!sug) { return; }
       if (sug === true) { return; }
       const props = this[resPropsProp];
       props[dataProp] = mergeOpt(sug, props[dataProp]);
     },
-    declareFacts(facts) {
+    declareSysFacts(facts) {
       trivialDictMergeInplace(this[resPropsProp][dataProp], facts);
     },
-    makeFactPopper(opt) {
+    makeSysFactPopper(opt) {
       return makeParamPopperImpl(this.typeName + ' facts',
         this[resPropsProp][dataProp], opt);
     },
