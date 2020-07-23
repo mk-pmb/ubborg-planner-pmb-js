@@ -66,7 +66,7 @@ async function plan(origSpec) {
   const spec = normalizeProps(origSpec);
   const suggest = {};
 
-  const mtFx = mimeTypeFx[spec.mimeType];
+  const mtFx = mimeTypeFx[spec.mimeType.split(/;/)[0]];
   if (mtFx) { Object.assign(spec, await mtFx.call(this, spec)); }
 
   const mta = mimeTypeAliases[spec.mimeType];
