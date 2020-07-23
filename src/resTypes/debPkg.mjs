@@ -53,6 +53,10 @@ const simpleStates = [
 
 async function plan(origSpec) {
   const spec = normalizeProps(origSpec);
+  if (spec.name.endsWith('¬')) {
+    spec.name = spec.name.slice(0, -1);
+    spec.state = 'absent';
+  }
   const { state, presenceMarker: origPresMark } = spec;
   mustBe([['oneOf', [undefined, ...simpleStates]]], 'state')(state);
   const [name, arrowPresMark, ...morePresMarks] = spec.name.split(/\s+=>\s+/);
