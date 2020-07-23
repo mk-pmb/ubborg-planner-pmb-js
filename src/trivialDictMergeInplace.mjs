@@ -3,6 +3,7 @@
 import aMap from 'map-assoc-core';
 import equalPmb from 'equal-pmb';
 import is from 'typechecks-pmb';
+import getOwn from 'getown';
 
 
 
@@ -13,7 +14,7 @@ function mergeSubDict(destDict, pathSteps, updDict) {
   }
   aMap(updDict, function mergeEntries(updVal, key) {
     if (updVal === undefined) { return; }
-    const oldVal = destDict[key];
+    const oldVal = getOwn(destDict, key);
     if (oldVal === undefined) {
       destDict[key] = updVal; // eslint-disable-line no-param-reassign
       return;
