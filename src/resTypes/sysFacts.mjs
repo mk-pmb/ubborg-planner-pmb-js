@@ -31,8 +31,14 @@ const recipe = {
       const props = this[resPropsProp];
       props[dataProp] = mergeOpt(sug, props[dataProp]);
     },
-    declareSysFacts(facts) {
-      trivialDictMergeInplace(this[resPropsProp][dataProp], facts);
+    declareSysFacts(upd) {
+      const facts = this[resPropsProp];
+      const topic = facts[dataProp];
+      if (topic === undefined) {
+        facts[dataProp] = upd;
+      } else {
+        trivialDictMergeInplace(topic, upd);
+      }
     },
     makeSysFactPopper(opt) {
       return makeParamPopperImpl(this.typeName + ' facts',
