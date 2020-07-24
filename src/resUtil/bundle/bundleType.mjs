@@ -74,7 +74,7 @@ async function prepareRunImpl(bun, how) {
     getParams() { return curParam; },
     makeParamPopper(opt) { return makeParamPopperImpl(bun, curParam, opt); },
     mergeParamDefaults(df) { curParam = mergeOpt(df, curParam); },
-    mergeParamOverrides(ovr) { mergeOpt.call(curParam, ovr); },
+    mergeParamOverrides(ovr) { curParam = mergeOpt(curParam, ovr); },
     mergeParams(upd) { trivialDictMergeInplace(curParam, upd); },
   });
 
