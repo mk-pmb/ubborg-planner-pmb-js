@@ -21,7 +21,7 @@ const mtFx = {
 
   lines(spec) {
     return {
-      mimeType: 'text/plain; charset=utf-8',
+      mimeType: 'text/plain; charset=UTF-8',
       content: spec.content.map(ln => ln + '\n'),
     };
   },
