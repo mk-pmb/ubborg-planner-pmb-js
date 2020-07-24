@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import mergeOptions from 'merge-options';
+import mergeOpt from 'merge-options';
 
 import basicRelation from '../basicRelation';
 import hook from '../../hook';
@@ -36,7 +36,7 @@ async function finalizePlan(initExtras) {
   const spawnList = stg.spawns.list;
   const dfrDebs = await reportDeferredDebPkg(spawnList);
   if (dfrDebs.modifies) {
-    stg.customProps = mergeOptions(defaultPropsIfDebPkg, stg.customProps);
+    stg.customProps = mergeOpt(defaultPropsIfDebPkg, stg.customProps);
     await stg.declareFacts({ deferredDebPkgs: {
       ...dfrDebs,
       modifies: (dfrDebs.modifies.length || 0),

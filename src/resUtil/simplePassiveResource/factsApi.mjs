@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import mergeOptions from 'merge-options';
+import mergeOpt from 'merge-options';
 
 import verifyAcceptProps from '../verifyAcceptProps';
 import trivialDictMergeInplace from '../../trivialDictMergeInplace';
@@ -49,7 +49,7 @@ const promising = {
     const res = this;
     const custom = await res.customizedFactsToDict(opt);
     const dflt = res.getTypeMeta().defaultProps;
-    return mergeOptions(dflt, custom);
+    return mergeOpt(dflt, custom);
   },
 
 };
