@@ -111,6 +111,7 @@ async function plan(origSpec) {
     path = path.slice(0, -1);
     suggest.mimeType = 'inode/directory';
   }
+  path = pathLib.normalize(path);
 
   if (spec.targetMimeType) { suggest.mimeType = 'inode/symlink'; }
 
