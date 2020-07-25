@@ -4,11 +4,14 @@ import 'usnam-pmb';
 import minimist from 'minimist';
 import pMap from 'p-map';
 import makeFirstAvailModLoader from 'load-first-avail-module';
+import objPop from 'objpop';
 
 import walkDepsTree from './walk';
+import resHook from './resHook/__main__';
 import makeToplevelContext from '../resUtil/makeToplevelContext';
 import planResourceByTypeName from '../resUtil/planResourceByTypeName';
 import makeColorfulLogDest from '../makeColorfulLogDest';
+import makeAptPkgNamesChecker from './makeAptPkgNamesChecker';
 
 const importFirstAvailableModule = makeFirstAvailModLoader(id => import(id));
 
@@ -36,8 +39,8 @@ async function foundRes(ev) {
   delete subRelVerbPrs.spawns;
 
   const factsDict = await resPlan.toFactsDict();
-  const tn = resPlan.typeName;
-  if (tn === 'stage') { delete factsDict.basedir; }
+  Object.assign(factsDict, await resHook(resPlan.typeName,
+    'foundResCheckFacts', { ...ev, factsDict }));
 
   const nFacts = keyCnt(factsDict);
   const nVerbs = keyCnt(subRelVerbPrs);
@@ -54,9 +57,9 @@ async function foundRes(ev) {
 }
 
 
-function checkCyclicDeps(job, formatter) {
+function checkCyclicDeps(popCliArg, formatter) {
   const optName = 'allowCyclicDeps';
-  const optVal = job[optName];
+  const optVal = popCliArg(optName);
   if (!optVal) { return; }
   if (optVal !== true) {
     throw new Error('Unsupported value for option ' + optName);
@@ -73,29 +76,34 @@ function callIf(func, ...args) { return (func && func(...args)); }
 
 
 async function runFromCli(...cliArgsOrig) {
-  const job = minimist(cliArgsOrig);
-  const [topBundleFile] = job._;
+  const popCliArg = objPop(minimist(cliArgsOrig));
+  const [topBundleFile] = popCliArg('_');
   const topCtx = makeToplevelContext();
   const topRes = await planResourceByTypeName('stage', topCtx, topBundleFile);
 
-  const fmtName = (job.format || 'plusText');
+  const fmtName = (popCliArg('format') || 'plusText');
   const mkFmt = (await importFirstAvailableModule([
     `../depsTree/dumpFmt/${fmtName}`,
     fmtName,
   ])).default;
   if (!mkFmt) { throw new Error('Unsupported output format'); }
-  const formatter = await (mkFmt.call ? mkFmt(job) : mkFmt);
-  const outputDest = makeColorfulLogDest(job);
+  const formatter = await (mkFmt.call ? mkFmt(popCliArg) : mkFmt);
+  const outputDest = makeColorfulLogDest(popCliArg);
+
+  const aptPkgNamesChecker = await makeAptPkgNamesChecker(popCliArg);
+
+  popCliArg.expectEmpty('Unsupported CLI option(s)');
 
   const wdtJob = {
     ...formatter.walkOpts,
-    ...checkCyclicDeps(job, formatter),
+    ...checkCyclicDeps(popCliArg, formatter),
     root: topRes,
     foundRes,
     config: {
       outputDest,
       formatter,
       getTopCtx() { return topCtx; },
+      aptPkgNamesChecker,
     },
   };
 
