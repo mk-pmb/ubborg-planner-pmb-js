@@ -9,19 +9,40 @@ import mimeTypeAliases from '../resUtil/file/mimeAlias';
 import mimeTypeFx from '../resUtil/file/mimeFx';
 
 
+function listHas(l, x) { return l && l.includes(x); }
+function concatIf(a, b) { return (a ? a.concat(b) : b); }
+
+
 async function hatch(initExtras) {
   const res = this;
   const path = res.id;
   if (!path.startsWith('/')) { throw new Error('Path must be absolute!'); }
-  const parentDir = pathLib.dirname(path);
-  if (parentDir && (parentDir !== '/')) {
-    await res.needs('file', { path: parentDir, mimeType: 'dir' });
+
+  const origSpec = initExtras.spawnOpt.spec;
+  const ignoreDepPaths = concatIf(origSpec.ignoreDepPaths, [path]);
+
+  const parentDir = (pathLib.dirname(path) || '/');
+  if (parentDir !== '/') {
+    if (!listHas(ignoreDepPaths, parentDir)) {
+      await res.needs('file', { path: parentDir + '/', ignoreDepPaths });
+    }
   }
 
   const facts = await res.toFactsDict({ acceptPreliminary: true });
-  const { targetMimeType } = initExtras.spawnOpt.spec;
+  const { targetMimeType } = origSpec;
   if (targetMimeType) {
-    await res.needs('file', { path: facts.content, mimeType: targetMimeType });
+    const tgtAbs = pathLib.resolve('/proc/ERR_BOGUS_PATH',
+      parentDir, facts.content);
+    const flinch = ((tgtAbs === parentDir)
+      || listHas(ignoreDepPaths, tgtAbs));
+    // console.error(path, 'tmt? ->', tgtAbs, ignoreDepPaths, parentDir);
+    if (!flinch) {
+      await res.needs('file', {
+        path: tgtAbs,
+        mimeType: targetMimeType,
+        ignoreDepPaths,
+      });
+    }
   }
 }
 
@@ -55,6 +76,15 @@ const recipe = {
     hatch,
     finalizePlan() { return this.hatchedPr; },
   },
+  mergePropsConflictSolvers: {
+    ...spRes.recipe.mergePropsConflictSolvers,
+    mimeType(orig, upd) {
+      const [a, b] = [orig, upd].sort();
+      if (a === 'inode/directory') {
+        if (b === 'inode/symlink') { return b; }
+      }
+    },
+  },
 };
 
 const baseSpawner = spRes.makeSpawner(recipe);
@@ -66,11 +96,12 @@ async function plan(origSpec) {
   const spec = normalizeProps(origSpec);
   const suggest = {};
 
-  const mtFx = mimeTypeFx[spec.mimeType.split(/;/)[0]];
-  if (mtFx) { Object.assign(spec, await mtFx.call(this, spec)); }
-
-  const mta = mimeTypeAliases[spec.mimeType];
-  if (mta) { spec.mimeType = mta; }
+  if (spec.mimeType) {
+    const mtFx = mimeTypeFx[spec.mimeType.split(/;/)[0]];
+    if (mtFx) { Object.assign(spec, await mtFx.call(this, spec)); }
+    const mta = mimeTypeAliases[spec.mimeType];
+    if (mta) { spec.mimeType = mta; }
+  }
 
   let path = (spec.pathPre || '') + spec.path + (spec.pathSuf || '');
   if (spec.enforcedOwner && path.startsWith('~')) {
@@ -78,10 +109,10 @@ async function plan(origSpec) {
   }
   if (path.endsWith('/')) {
     path = path.slice(0, -1);
-    suggest.mimeType = 'dir';
+    suggest.mimeType = 'inode/directory';
   }
 
-  if (spec.targetMimeType) { suggest.mimeType = 'sym'; }
+  if (spec.targetMimeType) { suggest.mimeType = 'inode/symlink'; }
 
   return baseSpawner(this, {
     ...suggest,
@@ -90,6 +121,7 @@ async function plan(origSpec) {
     targetMimeType: undefined,
     pathPre: undefined,
     pathSuf: undefined,
+    ignoreDepPaths: undefined,
   }, { spec });
 }
 

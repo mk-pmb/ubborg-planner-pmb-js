@@ -3,6 +3,8 @@
 import aMap from 'map-assoc-core';
 import findCommonAncestor from 'ubborg-lineage-find-common-ancestor-pmb';
 import preview from 'concise-value-preview-pmb';
+import pEachSeries from 'p-each-series';
+import mergeOpt from 'merge-options';
 
 import verifyAcceptProps from '../verifyAcceptProps';
 import trivialDictMergeInplace from '../../trivialDictMergeInplace';
@@ -10,6 +12,14 @@ import basicRelation from '../basicRelation';
 
 
 function doNothing() {}
+
+
+function makeMergeOptPropsReplacer(dest) {
+  return function mergeReplaceProps(upd) {
+    const merged = mergeOpt(dest.customProps, upd);
+    dest.customProps = merged; // eslint-disable-line no-param-reassign
+  };
+}
 
 
 function describeMergeConflict(origRes, dupeRes, err) {
@@ -32,7 +42,7 @@ const promising = {
     const res = this;
     const oldProps = res.customProps;
     if (oldProps !== null) {
-      throw new TypeError('Expected .customProps to still be null');
+      throw new TypeError(`Expected customProps to still be null`);
     }
     verifyAcceptProps(res, setProps);
     const okProps = {};
@@ -50,10 +60,26 @@ const promising = {
     }());
   },
 
-  mergeUpdate(dupeRes) {
+  async mergeUpdate(dupeRes) {
     const origRes = this;
+    const mergeCtx = {
+      id: origRes.id,
+
+      dupeRes: () => dupeRes,
+      dupeProps: () => dupeRes.customProps,
+      amendDupeProps: makeMergeOptPropsReplacer(dupeRes),
+
+      origRes: () => origRes,
+      origProps: () => origRes.customProps,
+      forceUpdateOrigProps: makeMergeOptPropsReplacer(origRes),
+    };
+    const typeMeta = origRes.getTypeMeta();
+    await pEachSeries(typeMeta.mergePropsPrepareSteps,
+      function prepare(impl) { return impl(mergeCtx); });
+
     try {
-      trivialDictMergeInplace(origRes.customProps, dupeRes.customProps);
+      trivialDictMergeInplace(origRes.customProps, dupeRes.customProps,
+        typeMeta.mergePropsConflictSolvers, mergeCtx);
     } catch (caught) {
       if (caught.name === 'trivialDictMergeError') {
         caught.message = describeMergeConflict(origRes, dupeRes,

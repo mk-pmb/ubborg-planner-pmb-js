@@ -2,7 +2,9 @@
 
 import aMap from 'map-assoc-core';
 import pEachSeries from 'p-each-series';
+import getOwn from 'getown';
 
+function arrowJoin(l) { return l && l.map(String).join(' » '); }
 function arrLast(i) { return this[this.length - (i || 1)]; }
 function subIndent(c) { return (c.indentPrefix + c.indent + c.indentSuffix); }
 
@@ -131,7 +133,7 @@ function ctxSelfToString() {
   const parPl = (this.parentPlans || false);
   if (!parPl.map) { return '[partially initialized context]'; }
   if (!parPl.length) { return '[empty context]'; }
-  return ('[context ' + parPl.map(String).join(' » ') + ']');
+  return ('[context ' + arrowJoin(parPl) + ']');
 }
 
 
@@ -140,7 +142,7 @@ function walkDepsTree(opt) {
   if (!foundRes) { throw new Error('foundRes handler required'); }
   if (!root) { throw new Error('root resPlan required'); }
   function orDefault(defaultVal, key) {
-    const optVal = opt[key];
+    const optVal = getOwn(opt, key);
     if (optVal !== undefined) { return optVal; }
     if (defaultVal === Object) { return {}; }
     return defaultVal;

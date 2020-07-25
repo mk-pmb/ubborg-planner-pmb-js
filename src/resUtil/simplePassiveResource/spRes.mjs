@@ -19,9 +19,11 @@ import vanillaApi from './vanillaApi';
 const typeMetaDictNames = [
   'acceptProps',
   'defaultProps',
+  'mergePropsConflictSolvers',
   recipeTimeouts.recipeTmoKey,
 ];
 const typeMetaListNames = [
+  'mergePropsPrepareSteps',
   'relationVerbs',
   'uniqueIndexProps',
 ];
