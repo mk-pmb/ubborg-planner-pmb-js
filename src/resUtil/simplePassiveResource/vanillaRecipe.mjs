@@ -20,6 +20,7 @@ const vanillaRecipe = {
 
   acceptProps: {},
   defaultProps: {},
+  mergePropsConflictSolvers: {},
 
   apiTimeoutsSec,
 
@@ -30,6 +31,7 @@ const vanillaRecipe = {
   ],
 
   uniqueIndexProps: [],
+  mergePropsPrepareSteps: [],
 
   forkLineageContext(ourLinCtx, changes) {
     const { relationVerb } = changes;
