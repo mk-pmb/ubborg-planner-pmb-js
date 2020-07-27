@@ -8,9 +8,9 @@
 \* ********************************************************** */
 
 import mergeOpt from 'merge-options';
+import makeParamPopperImpl from 'ubborg-restype-util-pmb/src/makeParamPopper';
 
 import spRes from '../resUtil/simplePassiveResource';
-import makeParamPopperImpl from '../resUtil/makeParamPopper';
 import trivialDictMergeInplace from '../trivialDictMergeInplace';
 
 const resPropsProp = 'customProps';

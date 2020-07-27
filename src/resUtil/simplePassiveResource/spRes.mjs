@@ -7,8 +7,8 @@ import mustBe from 'typechecks-pmb/must-be';
 import goak from 'getoraddkey-simple';
 import vTry from 'vtry';
 import pImmediate from 'p-immediate';
+import joinIdParts from 'ubborg-restype-util-pmb/src/joinIdParts';
 
-import joinIdParts from '../joinIdParts';
 import recipeTimeouts from '../recipeTimeouts';
 import hook from '../../hook';
 

@@ -8,12 +8,11 @@ import getOwn from 'getown';
 import bunUrls from 'ubborg-bundleurl-util-pmb';
 import loPick from 'lodash.pick';
 import vTry from 'vtry';
+import makeParamPopperImpl from 'ubborg-restype-util-pmb/src/makeParamPopper';
 
 import relRes from '../parentRelUrlResource';
 import slashableImport from '../../slashableImport';
 import trivialDictMergeInplace from '../../trivialDictMergeInplace';
-
-import makeParamPopperImpl from '../makeParamPopper';
 
 const { makeSpawner } = relRes;
 const inhPExpl = 'inheritParam';
