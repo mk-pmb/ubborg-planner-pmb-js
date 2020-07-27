@@ -3,8 +3,12 @@
 import aMap from 'map-assoc-core';
 import pEachSeries from 'p-each-series';
 import getOwn from 'getown';
+import spChars from 'ubborg-restype-util-pmb/src/specialChars';
 
-function arrowJoin(l) { return l && l.map(String).join(' » '); }
+const chainSepFwd = ` ${spChars.chainLinks.fwd} `;
+const chainSepBack = ` ${spChars.chainLinks.back} `;
+
+function arrowJoin(l) { return l && l.map(String).join(chainSepFwd); }
 function arrLast(i) { return this[this.length - (i || 1)]; }
 function subIndent(c) { return (c.indentPrefix + c.indent + c.indentSuffix); }
 
@@ -34,9 +38,10 @@ function updateStacks(origCtx, relVerb, resPlan) {
   const isCyclicDive = (parentIndex >= 0);
   const cycleSteps = (isCyclicDive && (depth - parentIndex));
   if (isCyclicDive && forbidCyclicDive) {
-    throw new Error('Found a cyclic dependency while forbidCyclicDive is set: '
-      + String(origCtx) + ' « ' + String(resPlan)
-      + ' (' + cycleSteps + ' steps up)');
+    const errMsg = `Found a cyclic dependency while forbidCyclicDive is set: ${
+      String(origCtx)}${chainSepBack}${String(resPlan)} (${
+      cycleSteps} steps up)`;
+    throw new Error(errMsg);
   }
 
   const arrayBonusFeatures = { arrLast };
