@@ -62,11 +62,14 @@ function makeSpawner(recipe) {
   function mustVanil(c, k) { return recPop.mustBe(c, k, vanillaRecipe[k]); }
   const installRelationFuncs = mustVanil('fun', 'installRelationFuncs');
   const forkLinCtxImpl = mustVanil('fun', 'forkLineageContext');
+  const parseStrSpec = mustVanil('fun | undef | nul', 'spawnParseStringSpec');
 
-  function normalizeProps(p) {
+  function normalizeProps(orig) {
     // We can't handle arrays of specs here, because spawn() is expected
     // to return a promise for exactly one resource.
     // Thus, the array convenience is reserved for relationVerb functions.
+    let p = orig;
+    if (parseStrSpec && is.str(p)) { p = parseStrSpec(p) || p; }
     if (is.dictObj(p)) { return { ...p }; }
     if (is.str(p) && (idProps.length === 1)) { return { [idProps[0]]: p }; }
     throw new Error('Unsupported props format for ' + typeName);

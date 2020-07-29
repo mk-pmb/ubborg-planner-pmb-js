@@ -1,6 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import pathLib from 'path';
+import mustBe from 'typechecks-pmb/must-be';
 import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
 
 import spRes from '../resUtil/simplePassiveResource';
@@ -91,10 +92,25 @@ const baseSpawner = spRes.makeSpawner(recipe);
 const { normalizeProps } = baseSpawner.typeMeta;
 
 
+const checkSymlinkArrow = (function compile() {
+  const when = ' (when used with symlink arrow notation)';
+  function und(o, k) { mustBe('undef', k + when)(k[o]); }
+  return function chk(spec) {
+    const sym = spec.path.split(/\s+=\->\s+/);
+    if (sym.length !== 2) { return null; }
+    und(spec, 'content');
+    und(spec, 'mimeType');
+    const [path, content] = sym;
+    return { path, content, mimeType: 'inode/symlink' };
+  };
+}());
+
+
 async function plan(origSpec) {
   const ourCtx = this;
   const spec = normalizeProps(origSpec);
-  const suggest = {};
+
+  Object.assign(spec, checkSymlinkArrow(spec));
 
   if (spec.mimeType) {
     const mtFx = mimeTypeFx[spec.mimeType.split(/;/)[0]];
@@ -107,16 +123,31 @@ async function plan(origSpec) {
   if (spec.enforcedOwner && path.startsWith('~')) {
     path = await homeDirTilde(ourCtx, path, spec.enforcedOwner);
   }
+
+  function declare(k, v) {
+    if (spec[k] === undefined) { spec[k] = v; }
+    if (spec[k] === v) { return; }
+    throw new Error(`file spec conflict "${k}": "${spec[k]}" != "${v}"`);
+  }
+  if (spec.targetMimeType) { declare('mimeType', 'inode/symlink'); }
+  if (spec.mimeType === 'inode/symlink') {
+    if ((spec.content || '').endsWith('/')) {
+      spec.content = spec.content.slice(0, -1);
+      declare('targetMimeType', 'inode/directory');
+    }
+  }
+
   if (path.endsWith('/')) {
-    path = path.slice(0, -1);
-    suggest.mimeType = 'inode/directory';
+    if (spec.mimeType === 'inode/symlink') {
+      path += pathLib.basename(mustBe.nest('symlink target', spec.content));
+    } else {
+      path = path.slice(0, -1);
+      declare('mimeType', 'inode/directory');
+    }
   }
   path = pathLib.normalize(path);
 
-  if (spec.targetMimeType) { suggest.mimeType = 'inode/symlink'; }
-
   return baseSpawner(this, {
-    ...suggest,
     ...spec,
     path,
     targetMimeType: undefined,
