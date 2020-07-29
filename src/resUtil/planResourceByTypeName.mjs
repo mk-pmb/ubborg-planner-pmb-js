@@ -3,6 +3,7 @@
 import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 import vTry from 'vtry';
+import findCommonAncestor from 'ubborg-lineage-find-common-ancestor-pmb';
 
 const resProvPrCache = {};
 
@@ -30,7 +31,8 @@ async function planResourceByTypeName(typeName, ctx, detailsPr) {
     throw new TypeError('Unsupported resource type: ' + typeName);
   }
   const details = await detailsPr;
-  const descr = 'While planning a resource of type ' + typeName;
+  const descr = ('While planning '
+    + findCommonAncestor.arrowJoin([...ctx.traceParents(), typeName + '[…]']));
   const resPlan = await vTry.pr(plannerFunc, descr).call(ctx, details);
   return resPlan;
 }
