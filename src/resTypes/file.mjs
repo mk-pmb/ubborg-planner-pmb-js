@@ -131,6 +131,10 @@ async function plan(origSpec) {
   }
   if (spec.targetMimeType) { declare('mimeType', 'inode/symlink'); }
   if (spec.mimeType === 'inode/symlink') {
+    if (spec.content) {
+      spec.content = ((spec.tgtPathPre || '') + spec.content
+        + (spec.tgtPathSuf || ''));
+    }
     if ((spec.content || '').endsWith('/')) {
       spec.content = spec.content.slice(0, -1);
       declare('targetMimeType', 'inode/directory');
@@ -153,6 +157,8 @@ async function plan(origSpec) {
     targetMimeType: undefined,
     pathPre: undefined,
     pathSuf: undefined,
+    tgtPathPre: undefined,
+    tgtPathSuf: undefined,
     ignoreDepPaths: undefined,
   }, { spec });
 }
