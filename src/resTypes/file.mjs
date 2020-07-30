@@ -134,6 +134,7 @@ async function plan(origSpec) {
     if (spec[k] === v) { return; }
     throw new Error(`file spec conflict "${k}": "${spec[k]}" != "${v}"`);
   }
+  if (spec.tgtPathPre || spec.tgtPathSuf) { declare('mimeType', mtSym); }
   if (spec.targetMimeType) {
     declare('mimeType', mtSym);
     checkAlias('targetMimeType', mtAlias);
