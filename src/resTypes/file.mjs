@@ -3,12 +3,17 @@
 import pathLib from 'path';
 import mustBe from 'typechecks-pmb/must-be';
 import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
+import getOwn from 'getown';
 
 import spRes from '../resUtil/simplePassiveResource';
 
-import mimeTypeAliases from '../resUtil/file/mimeAlias';
 import mimeTypeFx from '../resUtil/file/mimeFx';
+import mtAlias from '../resUtil/file/mimeAlias';
 
+const {
+  sym: mtSym,
+  dir: mtDir,
+} = mtAlias;
 
 function listHas(l, x) { return l && l.includes(x); }
 function concatIf(a, b) { return (a ? a.concat(b) : b); }
@@ -81,8 +86,8 @@ const recipe = {
     ...spRes.recipe.mergePropsConflictSolvers,
     mimeType(orig, upd) {
       const [a, b] = [orig, upd].sort();
-      if (a === 'inode/directory') {
-        if (b === 'inode/symlink') { return b; }
+      if (a === mtDir) {
+        if (b === mtSym) { return b; }
       }
     },
   },
@@ -101,7 +106,7 @@ const checkSymlinkArrow = (function compile() {
     und(spec, 'content');
     und(spec, 'mimeType');
     const [path, content] = sym;
-    return { path, content, mimeType: 'inode/symlink' };
+    return { path, content, mimeType: mtSym };
   };
 }());
 
@@ -111,12 +116,12 @@ async function plan(origSpec) {
   const spec = normalizeProps(origSpec);
 
   Object.assign(spec, checkSymlinkArrow(spec));
+  function checkAlias(k, d) { spec[k] = getOwn(d, spec[k], spec[k]); }
 
   if (spec.mimeType) {
-    const mtFx = mimeTypeFx[spec.mimeType.split(/;/)[0]];
+    const mtFx = getOwn(mimeTypeFx, spec.mimeType.split(/;/)[0]);
     if (mtFx) { Object.assign(spec, await mtFx.call(this, spec)); }
-    const mta = mimeTypeAliases[spec.mimeType];
-    if (mta) { spec.mimeType = mta; }
+    checkAlias('mimeType', mtAlias);
   }
 
   let path = (spec.pathPre || '') + spec.path + (spec.pathSuf || '');
@@ -129,24 +134,27 @@ async function plan(origSpec) {
     if (spec[k] === v) { return; }
     throw new Error(`file spec conflict "${k}": "${spec[k]}" != "${v}"`);
   }
-  if (spec.targetMimeType) { declare('mimeType', 'inode/symlink'); }
-  if (spec.mimeType === 'inode/symlink') {
+  if (spec.targetMimeType) {
+    declare('mimeType', mtSym);
+    checkAlias('targetMimeType', mtAlias);
+  }
+  if (spec.mimeType === mtSym) {
     if (spec.content) {
       spec.content = ((spec.tgtPathPre || '') + spec.content
         + (spec.tgtPathSuf || ''));
     }
     if ((spec.content || '').endsWith('/')) {
       spec.content = spec.content.slice(0, -1);
-      declare('targetMimeType', 'inode/directory');
+      declare('targetMimeType', mtDir);
     }
   }
 
   if (path.endsWith('/')) {
-    if (spec.mimeType === 'inode/symlink') {
+    if (spec.mimeType === mtSym) {
       path += pathLib.basename(mustBe.nest('symlink target', spec.content));
     } else {
       path = path.slice(0, -1);
-      declare('mimeType', 'inode/directory');
+      declare('mimeType', mtDir);
     }
   }
   path = pathLib.normalize(path);
