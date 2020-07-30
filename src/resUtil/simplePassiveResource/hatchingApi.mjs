@@ -25,12 +25,13 @@ function makeMergeOptPropsReplacer(dest) {
 function describeMergeConflict(origRes, dupeRes, err) {
   const anc = findCommonAncestor(origRes, dupeRes);
   const dp = findCommonAncestor.arrowJoin(err.dictPath.map(preview));
+  const origAnc = (String(anc.subA) || '(common ancestor)');
+  const dupeAnc = (String(anc.subB) || '(common ancestor)');
   return [
-    'No idea how to merge',
-    'unequal property ' + (dp || '(empty path)'),
-    'of new ' + (String(anc.subB) || '(common ancestor)'),
-    'into   ' + (String(anc.subA) || '(common ancestor)'),
-    'common ancestry ' + (String(anc.common) || '(none)') + ':',
+    `No idea how to merge unequal property ${dp || '(empty path)'}`,
+    `of new ${dupeRes.typeName} for ${dupeAnc}`,
+    `into ${origRes.typeName} from  ${origAnc}`,
+    `common ancestry ${String(anc.common) || '(none)'}:`,
     err.message,
   ];
 }
