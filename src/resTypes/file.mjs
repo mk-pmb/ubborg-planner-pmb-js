@@ -62,6 +62,7 @@ const recipe = {
   acceptProps: {
     replace: true,
     backupDir: true,
+    debugHints: true,
 
     // If the file is to be created:
     createdOwner: true,
@@ -145,7 +146,7 @@ async function plan(origSpec) {
         + (spec.tgtPathSuf || ''));
     }
     if ((spec.content || '').endsWith('/')) {
-      spec.content = spec.content.slice(0, -1);
+      spec.content = spec.content.replace(/\/+$/, '');
       declare('targetMimeType', mtDir);
     }
   }
@@ -154,11 +155,25 @@ async function plan(origSpec) {
     if (spec.mimeType === mtSym) {
       path += pathLib.basename(mustBe.nest('symlink target', spec.content));
     } else {
-      path = path.slice(0, -1);
+      path = path.replace(/\/+$/, '');
       declare('mimeType', mtDir);
     }
   }
   path = pathLib.normalize(path);
+
+  (function copyDebugHints() {
+    const dbh = {};
+    const props = [
+      'targetMimeType',
+    ];
+    props.forEach((p) => {
+      const v = spec[p];
+      if (v !== undefined) { dbh[p] = v; }
+    });
+    if (Object.keys(dbh).length) {
+      spec.debugHints = { ...spec.debugHints, ...dbh };
+    }
+  }());
 
   return baseSpawner(this, {
     ...spec,
