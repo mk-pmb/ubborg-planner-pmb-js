@@ -40,7 +40,13 @@ const recipe = {
         trivialDictMergeInplace(topic, upd);
       }
     },
-    makeSysFactPopper(opt) {
+    makeSysFactPopper(customOpt) {
+      const res = this;
+      const opt = {
+        mustBeDescrPrefix: String(res) + ' fact "',
+        mustBeDescrSuffix: '"',
+        ...customOpt,
+      };
       return makeParamPopperImpl(this.typeName + ' facts',
         this[resPropsProp][dataProp], opt);
     },
