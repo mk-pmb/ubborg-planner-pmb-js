@@ -39,8 +39,15 @@ function mergeSubDict(destDict, pathSteps, updDict, solvers, solverHints) {
       unequal.dictPath = subSteps;
       unequal.name = 'trivialDictMergeError';
       if (is.fun(solve)) {
-        const solVal = solve(oldVal, updVal,
-          { ...solverHints, dictPath: subSteps, err: unequal });
+        const solVal = solve(oldVal, updVal, {
+          ...solverHints,
+          dictPath: subSteps,
+          err: unequal,
+          flinch(why) {
+            unequal.message = why;
+            throw unequal;
+          },
+        });
         if (solVal !== undefined) {
           destDict[key] = solVal; // eslint-disable-line no-param-reassign
           return;

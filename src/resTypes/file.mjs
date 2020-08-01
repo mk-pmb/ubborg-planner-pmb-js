@@ -6,6 +6,7 @@ import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
 import getOwn from 'getown';
 
 import spRes from '../resUtil/simplePassiveResource';
+import phrases from '../resUtil/phrases';
 
 import mimeTypeFx from '../resUtil/file/mimeFx';
 import mtAlias from '../resUtil/file/mimeAlias';
@@ -24,21 +25,28 @@ async function hatch(initExtras) {
   const path = res.id;
   if (!path.startsWith('/')) { throw new Error('Path must be absolute!'); }
 
-  const origSpec = initExtras.spawnOpt.spec;
-  const ignoreDepPaths = concatIf(origSpec.ignoreDepPaths, [path]);
+  const { spec } = initExtras.spawnOpt;
+  const ignoreDepPaths = concatIf(spec.ignoreDepPaths, [path]);
 
   const parentDir = (pathLib.dirname(path) || '/');
   if (parentDir !== '/') {
     if (!listHas(ignoreDepPaths, parentDir)) {
-      await res.needs('file', { path: parentDir + '/', ignoreDepPaths });
+      await res.needs('file', {
+        path: parentDir + '/',
+        debugHints: { via: { [path]: 'parentDirOf' } },
+        ignoreDepPaths,
+      });
     }
   }
 
   const facts = await res.toFactsDict({ acceptPreliminary: true });
-  const { targetMimeType } = origSpec;
+  const { targetMimeType } = facts;
   if (targetMimeType) {
     const tgtAbs = pathLib.resolve('/proc/ERR_BOGUS_PATH',
       parentDir, facts.content);
+    await res.declareFacts({
+      debugHints: { targetPath: tgtAbs },
+    });
     const flinch = ((tgtAbs === parentDir)
       || listHas(ignoreDepPaths, tgtAbs));
     // console.error(path, 'tmt? ->', tgtAbs, ignoreDepPaths, parentDir);
@@ -46,6 +54,9 @@ async function hatch(initExtras) {
       await res.needs('file', {
         path: tgtAbs,
         mimeType: targetMimeType,
+        debugHints: {
+          via: { [path]: 'targetMimeTypeOf' },
+        },
         ignoreDepPaths,
       });
     }
@@ -53,30 +64,47 @@ async function hatch(initExtras) {
 }
 
 
+const propSolvers = {
+
+  mimeType(orig, upd, mergeCtx) {
+    if ((upd === mtDir) && (orig === mtSym)) {
+      if (mergeCtx.origProps().targetMimeType === mtDir) { return orig; }
+    }
+    if ((upd === mtSym) && (orig === mtDir)) {
+      mergeCtx.flinch(phrases.noDupeHatch(orig, upd));
+    }
+  },
+
+};
+
+
 const recipe = {
   typeName: 'file',
   idProps: ['path'],
   defaultProps: {
-    mimeType: '*/*',  // null = no such file should exist. NB aliases above.
+    mimeType: '*/*',  // NB aliases.
   },
   acceptProps: {
-    replace: true,
-    backupDir: true,
-    debugHints: true,
+    replace: 'bool',
+    backupDir: 'nonEmpty str',
+    debugHints: 'dictObj',
+    mimeType: 'nul | nonEmpty str',
+    targetMimeType: 'nonEmpty str',
 
     // If the file is to be created:
-    createdOwner: true,
-    createdGroup: true,
-    createdModes: true,
+    createdOwner: 'pos num | nonEmpty str',
+    createdGroup: 'pos num | nonEmpty str',
+    createdModes: 'nonEmpty str',
 
     // In case the file existed already:
-    enforcedOwner: true,
-    enforcedGroup: true,
-    enforcedModes: true,
+    enforcedOwner: 'pos num | nonEmpty str',
+    enforcedGroup: 'pos num | nonEmpty str',
+    enforcedModes: 'nonEmpty str',
 
     content: true,
     verifyContent: true,
-    uploadFromLocalPath: true,  // absolute, or "true" = same as "path" prop
+    uploadFromLocalPath: 'bool | nonEmpty str',
+    // ^-- absolute, or "true" = same as "path" prop
     downloadUrls: true,
   },
   promisingApi: {
@@ -85,12 +113,7 @@ const recipe = {
   },
   mergePropsConflictSolvers: {
     ...spRes.recipe.mergePropsConflictSolvers,
-    mimeType(orig, upd) {
-      const [a, b] = [orig, upd].sort();
-      if (a === mtDir) {
-        if (b === mtSym) { return b; }
-      }
-    },
+    ...propSolvers,
   },
 };
 
@@ -161,29 +184,27 @@ async function plan(origSpec) {
   }
   path = pathLib.normalize(path);
 
-  (function copyDebugHints() {
-    const dbh = {};
-    const props = [
-      'targetMimeType',
-    ];
-    props.forEach((p) => {
-      const v = spec[p];
-      if (v !== undefined) { dbh[p] = v; }
-    });
-    if (Object.keys(dbh).length) {
-      spec.debugHints = { ...spec.debugHints, ...dbh };
-    }
-  }());
+  // (function copyDebugHints() {
+  //   const dbh = {};
+  //   const props = [
+  //   ];
+  //   props.forEach((p) => {
+  //     const v = spec[p];
+  //     if (v !== undefined) { dbh[p] = v; }
+  //   });
+  //   if (Object.keys(dbh).length) {
+  //     spec.debugHints = { ...spec.debugHints, ...dbh };
+  //   }
+  // }());
 
   return baseSpawner(this, {
     ...spec,
     path,
-    targetMimeType: undefined,
+    ignoreDepPaths: undefined,
     pathPre: undefined,
     pathSuf: undefined,
     tgtPathPre: undefined,
     tgtPathSuf: undefined,
-    ignoreDepPaths: undefined,
   }, { spec });
 }
 
