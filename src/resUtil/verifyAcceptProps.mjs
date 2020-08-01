@@ -1,6 +1,8 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import aMap from 'map-assoc-core';
+import is from 'typechecks-pmb';
+import mustBe from 'typechecks-pmb/must-be';
 
 
 function verifyAcceptProps(res, props) {
@@ -20,6 +22,10 @@ function verifyAcceptProps(res, props) {
       const dfType = typeof dfVal;
       const valType = typeof val;
       if (valType === dfType) { return; }
+    }
+    if (is.str(rule) || is.ary(rule)) {
+      mustBe(rule, `${String(res)} fact "${key}"`)(val);
+      return;
     }
     unsupp.push(key);
   });

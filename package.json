@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.62",
+  "version": "0.0.63",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "borg",
@@ -50,7 +50,7 @@
     "minimist": "^1.2.5",
     "nodemjs": "^0.1.8",
     "nofs": "^0.12.2",
-    "objpop": "^0.1.3",
+    "objpop": "^0.1.4",
     "p-each-series": "^2.1.0",
     "p-fatal": "^0.1.3",
     "p-immediate": "^3.1.0",
@@ -64,7 +64,7 @@
     "ubborg-lineage-find-common-ancestor-pmb": "^1.0.1",
     "ubborg-resolve-homedir-tilde-by-user-plan-pmb": "^0.1.0",
     "ubborg-restype-util-pmb": "^0.1.0",
-    "ubborg-sysfacts-helper-pmb": "^0.2.0",
+    "ubborg-sysfacts-helper-pmb": "^0.2.1",
     "univeil": "^0.1.17",
     "usnam-pmb": "^0.2.4",
     "vtry": "^1.0.6"

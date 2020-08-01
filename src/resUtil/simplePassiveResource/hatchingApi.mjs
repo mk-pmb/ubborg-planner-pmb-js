@@ -84,7 +84,7 @@ const promising = {
     } catch (caught) {
       if (caught.name === 'trivialDictMergeError') {
         caught.message = describeMergeConflict(origRes, dupeRes,
-          caught).join('\n\t');
+          caught).join('\n    ');
       }
       throw caught;
     }
