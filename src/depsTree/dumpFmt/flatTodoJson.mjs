@@ -1,17 +1,17 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import univeil from 'univeil';
+import sortedJson from 'sortedjson';
 
-const { jsonify } = univeil;
+const jsonify = sortedJson.preset(2, { stfy: univeil.jsonify });
 const dimColor = 'dimgrey';
 
-function jsonify2(x) { return jsonify(x, null, 2); }
 function mergeLines(s) { return s.replace(/\n\s*/g, ' '); }
 
 function renderProps(ev, clz) {
   const { nFacts } = ev;
   if (nFacts < 1) { return '{}'; }
-  const props = clz('teal') + jsonify2(ev.factsDict);
+  const props = clz('teal') + jsonify(ev.factsDict);
   if (nFacts < 2) { return mergeLines(props); }
   return props.replace(/\n/g, clz() + '\n  ' + ev.ourCtx.indent + clz('teal'));
 }
@@ -62,9 +62,9 @@ const formatter = {
 
   header(job) {
     const { outputDest: { log: say }, getTopCtx } = job.config;
-    say('[ { "format":', mergeLines(jsonify2(formatter.fmtMeta)));
+    say('[ { "format":', mergeLines(jsonify(formatter.fmtMeta)));
     say('  , "uniqueIndexProps":',
-      jsonify2(getTopCtx().resByUniqueIndexProp.toJsonablePojo()
+      jsonify(getTopCtx().resByUniqueIndexProp.toJsonablePojo()
       ).replace(/\n/g, '\n    '));
     say('  }');
   },

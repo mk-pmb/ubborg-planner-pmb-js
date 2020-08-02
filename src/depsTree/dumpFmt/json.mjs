@@ -1,8 +1,9 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import univeil from 'univeil';
+import sortedJson from 'sortedjson';
 
-const { jsonify } = univeil;
+const jsonify = sortedJson.preset(2, { stfy: univeil.jsonify });
 const dimColor = 'dimgrey';
 
 function nameLine(nameColor, cont, dest, ev) {
@@ -29,7 +30,7 @@ const formatter = {
     nameLine('yellow', '', dest, ev);
     const { indent } = ev.ourCtx;
     const clz = dest.colorize;
-    let props = jsonify(ev.factsDict, null, 2);
+    let props = jsonify(ev.factsDict);
     props = (ev.nFacts > 1
       ? props.replace(/\n/g, clz() + '\n  ' + indent + clz('teal'))
       : props.replace(/\n\s*/g, ' '));
