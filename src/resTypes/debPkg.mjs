@@ -41,15 +41,15 @@ const recipe = {
   },
 };
 
-const baseSpawner = spRes.makeSpawner(recipe);
-const { normalizeProps } = baseSpawner.typeMeta;
-
 const simpleStates = [
   recipe.defaultProps.state,
   'absent',
   'banned',
 ];
 
+
+const baseSpawner = spRes.makeSpawner(recipe);
+const { normalizeProps } = baseSpawner.typeMeta;
 
 async function plan(origSpec) {
   const spec = normalizeProps(origSpec);
