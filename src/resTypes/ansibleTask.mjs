@@ -19,7 +19,7 @@ function plan(origSpec, opt, ...extra) {
   mustBe.dictObj('spec', origSpec);
   const spec = { ...origSpec };
   if (spec.task) {
-    spec.tasks = [].contat(spec.task, spec.tasks).filter(Boolean);
+    spec.tasks = [].concat(spec.task, spec.tasks).filter(Boolean);
     delete spec.task;
   }
   if (spec.eachTaskDefaults) {
