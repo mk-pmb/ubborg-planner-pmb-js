@@ -22,6 +22,7 @@ async function plan(spec) {
       Type: 'Application',
       Name: mustPop('nonEmpty str', 'title'),
       Comment: mustPop('str', 'descr', ''),
+      Icon: mustPop('str', 'icon', ''),
       Exec,
       StartupNotify: false,
       Terminal: false,
