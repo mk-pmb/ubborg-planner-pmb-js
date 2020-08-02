@@ -2,8 +2,9 @@
 
 import is from 'typechecks-pmb';
 import univeil from 'univeil';
+import sortedJson from 'sortedjson';
 
-const { jsonify } = univeil;
+const jsonify = sortedJson.preset(-1, { stfy: univeil.jsonify });
 
 function nameLine(color, symb, dest, ev) {
   dest.clog(color, ev.ourCtx.indent, symb + ' '
@@ -31,7 +32,7 @@ const formatter = {
     const { subInd } = ev.ourCtx;
     await ev.mapFactsDict(function printFact(val, key) {
       dest.clog('teal', subInd, '= ' + jsonifyUnlessSimpleId(key)
-        + ': ' + jsonify(val, -1));
+        + ': ' + jsonify(val));
     });
     await ev.diveVerbsSeries();
     dest.clog('brown', subInd, '-', ev.resNameParentIdPrefixEllipse);
