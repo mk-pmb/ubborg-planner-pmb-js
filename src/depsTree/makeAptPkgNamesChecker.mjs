@@ -15,7 +15,14 @@ async function readListFile(path) {
 
 async function makeChecker(popCliArg) {
   const availFile = popCliArg('aptpkgnames-avail');
-  // ^-- To obtain the list: apt list | cut -d / -sf 1 | sort -V >aptpkg.txt
+  /* ^-- To obtain the list:
+
+    # only real packages:
+    apt list | cut -d / -sf 1 | sort -V >aptpkg.txt
+
+    # also list virtual packages (e.g. for compatibility accross versions):
+    apt-cache pkgnames | sort -V >aptpkg.txt
+  */
   if (!availFile) { return false; }
   const pkgNamesAvail = new Set(await readListFile(availFile));
   const cpn = function checkPkgName(pkgName) {
