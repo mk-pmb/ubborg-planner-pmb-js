@@ -18,7 +18,7 @@ function makeSpawner(recipe) {
   const idProps = recPop.mustBe('nonEmpty ary', 'idProps');
 
   const api = aMap(vanillaApi, function mergeApi(vani, categ) {
-    return { ...vani, ...recPop.ifHas(categ + 'Api') };
+    return { ...vani, ...recPop(categ + 'Api') };
   });
   function mustVanil(c, k) { return recPop.mustBe(c, k, vanillaRecipe[k]); }
   const installRelationFuncs = mustVanil('fun', 'installRelationFuncs');
