@@ -4,9 +4,9 @@ import makeUipDb from './uniqueIndexPropsDb';
 
 
 function makeToplevelContext() {
-  const resourcesByTypeName = Object.create(null);
+  const resPlanPrsByTypeName = Object.create(null);
   const topCtx = {
-    getResourcesByTypeName() { return resourcesByTypeName; },
+    getResPlanPrByTypeName() { return resPlanPrsByTypeName; },
     traceParents() { return []; },
     pendingResPlanPromises: new Map(),
     resByUniqueIndexProp: makeUipDb(),
