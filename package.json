@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.67",
+  "version": "0.0.68",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
@@ -62,7 +62,7 @@
     "typechecks-pmb": "^0.200620.3",
     "ubborg-bundleurl-util-pmb": "^0.1.1",
     "ubborg-lineage-find-common-ancestor-pmb": "^1.0.1",
-    "ubborg-resolve-homedir-tilde-by-user-plan-pmb": "^0.1.0",
+    "ubborg-resolve-homedir-tilde-by-user-plan-pmb": "^0.2.0",
     "ubborg-restype-util-pmb": "^0.1.0",
     "ubborg-sysfacts-helper-pmb": "^0.2.1",
     "univeil": "^0.1.17",
