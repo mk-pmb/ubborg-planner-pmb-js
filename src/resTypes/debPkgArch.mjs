@@ -2,17 +2,11 @@
 
 import spRes from '../resUtil/simplePassiveResource';
 
-const defaultState = 'enabled';
-
 const recipe = {
   typeName: 'debPkgArch',
   idProps: ['name'],
-  defaultProps: {
-    state: defaultState,
-  },
-  acceptProps: {
-    state: [['oneOf', [defaultState, 'disabled']]],
-  },
+  defaultProps: { enabled: true },
+  acceptProps: { enabled: 'bool' },
 };
 
 const baseSpawner = spRes.makeSpawner(recipe);
