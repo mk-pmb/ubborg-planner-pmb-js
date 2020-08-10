@@ -104,7 +104,7 @@ async function hatch(initExtras) {
 
   const linCtx = initExtras.getLineageContext();
   const simplifiedLinCtx = loPick(linCtx, [
-    'getResourcesByTypeName',
+    'getResPlanPrByTypeName',
   ]);
   await vTry.pr(impl.bind(simplifiedLinCtx, bun), blameBundleImpl)();
   await bun.relations.waitForAllSubPlanning({ ignoreStillHatching: true });

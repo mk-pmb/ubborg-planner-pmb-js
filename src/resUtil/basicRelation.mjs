@@ -59,8 +59,8 @@ Object.assign(rela, {
 
   prepareRelationsManagement(res) {
     const spw = res.spawning;
-    if (spw.dupeOf) {
-      throw new Error("A transient dupe should't relate to anything!");
+    if (spw.isDupe) {
+      throw new Error('A transient dupe should not relate to anything!');
     }
 
     const active = {};    // e.g. requires

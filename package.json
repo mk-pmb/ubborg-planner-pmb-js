@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.66",
+  "version": "0.0.67",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
@@ -40,8 +40,6 @@
     "getown": "^1.0.0",
     "is-fn": "^2.0.0",
     "load-first-avail-module": "^0.1.1",
-    "lodash.camelcase": "^4.3.0",
-    "lodash.mapkeys": "^4.6.0",
     "lodash.padend": "^4.6.1",
     "lodash.pick": "^4.4.0",
     "lodash.snakecase": "^4.1.1",
@@ -68,6 +66,7 @@
     "ubborg-restype-util-pmb": "^0.1.0",
     "ubborg-sysfacts-helper-pmb": "^0.2.1",
     "univeil": "^0.1.17",
+    "using-its-own-promise-pmb": "^0.0.1",
     "usnam-pmb": "^0.2.4",
     "vtry": "^1.0.6"
   },
