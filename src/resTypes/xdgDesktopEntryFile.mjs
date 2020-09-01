@@ -7,7 +7,7 @@ import toSnakeCase from 'lodash.snakecase';
 
 import file from './file';
 
-async function plan(spec) {
+async function plan(spec, ...extras) {
   const ourCtx = this;
   const remain = { ...spec };
   const mustPop = objPop.d(remain, { mustBe }).mustBe;
@@ -39,7 +39,7 @@ async function plan(spec) {
     mimeType: 'static_ini',
     ...remain,
     content: { 'Desktop Entry': entry },
-  });
+  }, ...extras);
 }
 
 
