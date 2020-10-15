@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.72",
+  "version": "0.0.73",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
