@@ -41,7 +41,9 @@ async function hatch() {
     await res.toFactsDict({ acceptPreliminary: true }));
   const debLines = [fileGeneratedHint('# ', '\n')];
   const dists = mustFact('nonEmpty ary', 'dists');
-  const compo = mustFact('nonEmpty ary', 'components');
+  const isFlatRepo = ((dists.length === 1) && (dists[0] === '/'));
+  const compo = (mustFact(isFlatRepo ? 'undef' : 'nonEmpty ary',
+    'components') || []);
   const src = mustFact('bool', 'src');
   mustFact('nonEmpty ary', 'debUrls').map(rewriteUrlProtos).forEach((url) => {
     mustBe.near('dists', dists).forEach((dist) => {
