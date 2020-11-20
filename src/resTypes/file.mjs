@@ -44,9 +44,7 @@ async function hatch(initExtras) {
   if (targetMimeType) {
     const tgtAbs = pathLib.resolve('/proc/ERR_BOGUS_PATH',
       parentDir, facts.content);
-    await res.declareFacts({
-      debugHints: { targetPath: tgtAbs },
-    });
+    await res.declareFacts({ debugHints: { targetPath: tgtAbs } });
     const flinch = ((tgtAbs === parentDir)
       || listHas(ignoreDepPaths, tgtAbs));
     // console.error(path, 'tmt? ->', tgtAbs, ignoreDepPaths, parentDir);
@@ -54,9 +52,7 @@ async function hatch(initExtras) {
       await res.needs('file', {
         path: tgtAbs,
         mimeType: targetMimeType,
-        debugHints: {
-          via: { [path]: 'targetMimeTypeOf' },
-        },
+        debugHints: { via: { [path]: 'targetMimeTypeOf' } },
         ignoreDepPaths,
       });
     }
