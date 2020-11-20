@@ -1,5 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import nodeUrlLib from 'url';
+
 import mustBe from 'typechecks-pmb/must-be';
 import getOwn from 'getown';
 import sysFactsHelper from 'ubborg-sysfacts-helper-pmb';
@@ -26,6 +28,12 @@ function rewriteUrlProtos(origUrl) {
 }
 
 
+function makeRelativeUrlResolver(base) {
+  const { URL } = nodeUrlLib;
+  return function resolve(href) { return String(new URL(href, base)); };
+}
+
+
 async function hatch() {
   const res = this;
 
@@ -45,7 +53,8 @@ async function hatch() {
   const compo = (mustFact(isFlatRepo ? 'undef' : 'nonEmpty ary',
     'components') || []);
   const src = mustFact('bool', 'src');
-  mustFact('nonEmpty ary', 'debUrls').map(rewriteUrlProtos).forEach((url) => {
+  const repoUrls = mustFact('nonEmpty ary', 'debUrls').map(rewriteUrlProtos);
+  repoUrls.forEach((url) => {
     mustBe.near('dists', dists).forEach((dist) => {
       mustBe.nest('dist', dist);
       const debLn = renderOVT([url, dist, ...compo].join(' ') + '\n');
@@ -59,6 +68,20 @@ async function hatch() {
     mimeType: 'text/plain',
     content: debLines,
   });
+
+  await (async function maybeSetupGpgKey() {
+    let urls = mustFact('undef | nonEmpty ary', 'keyUrls');
+    const verifyContent = mustFact((urls ? 'obj' : 'undef'), 'keyVerify');
+    if (!urls) { return; }
+    const resolve = makeRelativeUrlResolver(repoUrls[0]);
+    urls = urls.map(rewriteUrlProtos).map(resolve);
+    await res.needs('admFile', {
+      path: `/etc/apt/trusted.gpg.d/ubborg.${res.id}.asc`,
+      mimeType: 'text/plain',
+      downloadUrls: urls,
+      verifyContent,
+    });
+  }());
 }
 
 
@@ -85,7 +108,7 @@ const recipe = {
     components: true,
     primaryKeyId: true,
 
-    keyUrl: true,
+    keyUrls: true,
     keyVerify: true,
   },
   promisingApi: {
