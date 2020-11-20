@@ -4,7 +4,7 @@ import preCfg from 'ubborg-restype-util-pmb/src/preconfiguredResType';
 import mustBe from 'typechecks-pmb/must-be';
 
 import origResType from './admFile';
-import fileGeneratedHint from '../resUtil/fileGeneratedHint';
+import fileGeneratedHint from '../resUtil/file/hintGenerated';
 
 
 function renderOneSection(sectSpec) {
