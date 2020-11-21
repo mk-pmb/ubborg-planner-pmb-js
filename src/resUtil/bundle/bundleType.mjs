@@ -91,16 +91,26 @@ async function prepareRunImpl(bun, how) {
 };
 
 
+function compileBundleUrlMethods(fullBunUrl) {
+  function reso(href) { return bunUrls.href(fullBunUrl, href); }
+  function relBunUrlToAbsPath(href, opt) {
+    const url = String(href || '').replace(/^file\+bun:/, '');
+    return bunUrls.toModuleId(reso(url), opt);
+  }
+  return {
+    relBunUrlToAbsPath,
+    shortRelUrl(href) { return bunUrls.shorten(reso(href)); },
+  };
+}
+
+
 async function hatch(initExtras) {
   const bun = this;
   const fullUrl = bunUrls.href(bun.id);
   const modSpec = bunUrls.toModuleId(fullUrl);
   const impl = await slashableImport(modSpec);
   await prepareRunImpl(bun, { initExtras, impl });
-
-  Object.assign(bun, {
-    shortRelUrl(href) { return bunUrls.shorten(bunUrls.href(fullUrl, href)); },
-  });
+  Object.assign(bun, compileBundleUrlMethods(fullUrl));
 
   const linCtx = initExtras.getLineageContext();
   const simplifiedLinCtx = loPick(linCtx, [
