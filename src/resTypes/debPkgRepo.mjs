@@ -59,6 +59,7 @@ const recipe = {
     [deferUpdProp]: true,
     src: true,    // whether to add deb-src as well.
     dists: ['%{codename}'],
+    archs: null,
   },
   acceptProps: {
     debUrls: true,
