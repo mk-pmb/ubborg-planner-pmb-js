@@ -34,10 +34,13 @@ async function hatch(initExtras) {
   const setupGpgKey = ((await maybeDownloadGpgKey(renderCtx))
     || false);
 
-  await (setupGpgKey && res.needs('admFile', {
+  await (setupGpgKey && res.needs('file', {
     path: `/etc/apt/trusted.gpg.d/ubborg.${res.id}.asc`,
     mimeType: 'text/plain',
     ...setupGpgKey,
+    enforcedOwner: 'root',
+    enforcedGroup: 'root',
+    enforcedModes: 'a=r',
   }));
 }
 
