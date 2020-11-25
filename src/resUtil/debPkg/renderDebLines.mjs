@@ -24,6 +24,7 @@ function renderDebLines(renderCtx) {
     'components') || []);
   const src = mustFact('bool', 'src');
   const debLines = [fileGeneratedHint('# ', '\n')];
+  const debTypePrefix = (renderCtx.repoEnabled ? '' : '# disabled # ');
   repoUrlTpls.forEach((url) => {
     mustBe.near('dists', dists).forEach((dist) => {
       mustBe.nest('dist', dist);
@@ -33,8 +34,8 @@ function renderDebLines(renderCtx) {
         dist,
         ...compo,
       ].filter(Boolean).join(' ') + '\n');
-      debLines.push('deb     ' + debLn);
-      if (src) { debLines.push('deb-src ' + debLn); }
+      debLines.push(debTypePrefix + 'deb     ' + debLn);
+      if (src) { debLines.push(debTypePrefix + 'deb-src ' + debLn); }
     });
   });
   return debLines;
