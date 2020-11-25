@@ -11,21 +11,40 @@ import maybeDownloadGpgKey from '../resUtil/debPkg/maybeDownloadGpgKey';
 
 
 const deferUpdProp = 'deferPkgListUpdate';
+const defaultState = 'enabled';
+const simpleStates = [
+  defaultState,
+  'disabled',
+  'absent',
+];
 
 
 async function hatch(initExtras) {
   const res = this;
   const mustFact = mustBe.tProp(res.typeName + ' prop ',
     await res.toFactsDict({ acceptPreliminary: true }));
+  const state = mustFact([['oneOf', simpleStates]], 'state');
+
+  const listPath = `/etc/apt/sources.list.d/ubborg.${res.id}.list`;
+  const keyPath = `/etc/apt/trusted.gpg.d/ubborg.${res.id}.asc`;
+
+  if (state === 'absent') {
+    await res.needs('file', { path: keyPath, mimeType: null });
+    await res.needs('file', { path: listPath, mimeType: null });
+    return;
+  }
+
   const renderCtx = {
     resId: res.id,
     mustFact,
     renderOVT: await compileOsVerTpl(res),
     repoUrlTpls: mustFact('nonEmpty ary', 'debUrls').map(rewriteUrlProtos),
+    repoEnabled: (state === defaultState),
   };
 
+
   await res.needs('admFile', {
-    path: `/etc/apt/sources.list.d/ubborg.${res.id}.list`,
+    path: listPath,
     mimeType: 'text/plain',
     content: await renderDebLines(renderCtx),
   });
@@ -35,7 +54,7 @@ async function hatch(initExtras) {
     || false);
 
   await (setupGpgKey && res.needs('file', {
-    path: `/etc/apt/trusted.gpg.d/ubborg.${res.id}.asc`,
+    path: keyPath,
     mimeType: 'text/plain',
     ...setupGpgKey,
     enforcedOwner: 'root',
@@ -58,7 +77,7 @@ const recipe = {
   typeName: 'debPkgRepo',
   idProps: ['name'],
   defaultProps: {
-    state: 'enabled',
+    state: defaultState,
     [deferUpdProp]: true,
     src: true,    // whether to add deb-src as well.
     dists: ['%{codename}'],
@@ -82,18 +101,11 @@ const recipe = {
 const baseSpawner = spRes.makeSpawner(recipe);
 const { normalizeProps } = baseSpawner.typeMeta;
 
-const simpleStates = [
-  recipe.defaultProps.state,
-  'absent',
-];
-
 
 
 
 async function plan(origSpec) {
   const spec = normalizeProps(origSpec);
-  const { state } = spec;
-  mustBe([['oneOf', [undefined, ...simpleStates]]], 'state')(state);
   const res = await baseSpawner(this, spec);
   return res;
 }
