@@ -12,6 +12,7 @@ const spawnCore = spRes.makeSpawner({
     loginName: true,
     grName: true,
     member: true,
+    assumeUserExists: true,
   },
 });
 
@@ -20,7 +21,9 @@ async function planOsUserGroupMembership(spec) {
   const res = await spawnCore(this, spec);
   const { loginName, grName, member } = spec;
   if (member) {
-    res.needs('osUserLogin', { loginName, exists: true });
+    if (!spec.assumeUserExists) {
+      res.needs('osUserLogin', { loginName, exists: true });
+    }
     res.needs('osUserGroup', { grName, exists: true });
   }
   return res;
