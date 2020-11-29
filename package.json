@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.79",
+  "version": "0.0.80",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
@@ -24,7 +24,7 @@
   "private": false, "license": "ISC",
 
   "main": "ubborg-planner-pmb.js",
-  "bin": "bin/cli.mjs",
+  "bin": "bin/cli.js",
   "directories": {
     "doc": "docs",
     "test": "test"
@@ -36,6 +36,7 @@
     "concise-value-preview-pmb": "^0.1.1",
     "dict-of-dicts-to-ini-lines-pmb": "^1.0.3",
     "equal-pmb": "^0.1.23",
+    "esmod-pmb": "^0.1.11",
     "getoraddkey-simple": "^0.1.6",
     "getown": "^1.0.0",
     "is-fn": "^2.0.0",
