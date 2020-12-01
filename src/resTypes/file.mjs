@@ -6,10 +6,11 @@ import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
 import getOwn from 'getown';
 
 import spRes from '../resUtil/simplePassiveResource';
-import phrases from '../resUtil/phrases';
 
 import mimeTypeFx from '../resUtil/file/mimeFx';
 import mtAlias from '../resUtil/file/mimeAlias';
+import simpleNonMagicProps from '../resUtil/file/simpleNonMagicProps';
+import propConflictSolvers from '../resUtil/file/propConflictSolvers';
 
 const {
   sym: mtSym,
@@ -60,20 +61,6 @@ async function hatch(initExtras) {
 }
 
 
-const propSolvers = {
-
-  mimeType(orig, upd, mergeCtx) {
-    if ((upd === mtDir) && (orig === mtSym)) {
-      if (mergeCtx.origProps().targetMimeType === mtDir) { return orig; }
-    }
-    if ((upd === mtSym) && (orig === mtDir)) {
-      mergeCtx.flinch(phrases.noDupeHatch(orig, upd));
-    }
-  },
-
-};
-
-
 const recipe = {
   typeName: 'file',
   idProps: ['path'],
@@ -83,19 +70,10 @@ const recipe = {
   acceptProps: {
     replace: 'bool',
     backupDir: 'nonEmpty str',
-    debugHints: 'dictObj',
     mimeType: 'nul | nonEmpty str',
     targetMimeType: 'nonEmpty str',
 
-    // If the file is to be created:
-    createdOwner: 'pos num | nonEmpty str',
-    createdGroup: 'pos num | nonEmpty str',
-    createdModes: 'nonEmpty str',
-
-    // In case the file existed already:
-    enforcedOwner: 'pos num | nonEmpty str',
-    enforcedGroup: 'pos num | nonEmpty str',
-    enforcedModes: 'nonEmpty str',
+    ...simpleNonMagicProps,
 
     content: true,
     verifyContent: true,
@@ -109,7 +87,7 @@ const recipe = {
   },
   mergePropsConflictSolvers: {
     ...spRes.recipe.mergePropsConflictSolvers,
-    ...propSolvers,
+    ...propConflictSolvers,
   },
 };
 
