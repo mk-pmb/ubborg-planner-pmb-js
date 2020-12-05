@@ -55,7 +55,7 @@ Object.assign(EX, {
     }
     pop('mimeType'); // It's being solved right now.
     pop('content'); // :TODO: Maybe solve if target has same content.
-    Object.keys(simpleNonMagicProps).forEach(x => pop(x));
+    Object.keys(simpleNonMagicProps.all).forEach(x => pop(x));
 
     const unsupp = pop.remainingKeys();
     if (unsupp.length) {

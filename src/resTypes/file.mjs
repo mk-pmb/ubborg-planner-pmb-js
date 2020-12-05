@@ -73,7 +73,7 @@ const recipe = {
     mimeType: 'nul | nonEmpty str',
     targetMimeType: 'nonEmpty str',
 
-    ...simpleNonMagicProps,
+    ...simpleNonMagicProps.all,
 
     content: true,
     verifyContent: true,
@@ -116,6 +116,15 @@ async function plan(origSpec) {
   Object.assign(spec, checkSymlinkArrow(spec));
   function checkAlias(k, d) { spec[k] = getOwn(d, spec[k], spec[k]); }
 
+  if (spec.mimeType === null) {
+    // File shall not exist => ignore props that are thus useless.
+    // This way file existence can easily be toggled without having to
+    // fork logic at each pre-configure level (e.g. admFile, userFile).
+    const useless = [
+      ...Object.keys(simpleNonMagicProps.accessProps),
+    ];
+    useless.forEach(function drop(p) { delete spec[p]; });
+  }
   if (spec.mimeType) {
     const mtFx = getOwn(mimeTypeFx, spec.mimeType.split(/;/)[0]);
     if (mtFx) { Object.assign(spec, await mtFx.call(this, spec)); }
