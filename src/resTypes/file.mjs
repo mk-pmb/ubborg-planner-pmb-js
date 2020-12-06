@@ -9,6 +9,7 @@ import spRes from '../resUtil/simplePassiveResource';
 
 import mimeTypeFx from '../resUtil/file/mimeFx';
 import mtAlias from '../resUtil/file/mimeAlias';
+import checkSymlinkArrow from '../resUtil/file/checkSymlinkArrow';
 import simpleNonMagicProps from '../resUtil/file/simpleNonMagicProps';
 import propConflictSolvers from '../resUtil/file/propConflictSolvers';
 
@@ -93,20 +94,6 @@ const recipe = {
 
 const baseSpawner = spRes.makeSpawner(recipe);
 const { normalizeProps } = baseSpawner.typeMeta;
-
-
-const checkSymlinkArrow = (function compile() {
-  const when = ' (when used with symlink arrow notation)';
-  function und(o, k) { mustBe('undef', k + when)(k[o]); }
-  return function chk(spec) {
-    const sym = spec.path.split(/\s+=\->\s+/);
-    if (sym.length !== 2) { return null; }
-    und(spec, 'content');
-    und(spec, 'mimeType');
-    const [path, content] = sym;
-    return { path, content, mimeType: mtSym };
-  };
-}());
 
 
 async function plan(origSpec) {
