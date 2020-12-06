@@ -23,7 +23,7 @@ function concatIf(a, b) { return (a ? a.concat(b) : b); }
 
 async function hatch(initExtras) {
   const res = this;
-  const path = res.id;
+  const path = decodeURIComponent(res.id);
   if (!path.startsWith('/')) { throw new Error('Path must be absolute!'); }
 
   const { spec } = initExtras.spawnOpt;
