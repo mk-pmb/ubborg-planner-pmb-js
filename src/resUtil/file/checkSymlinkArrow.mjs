@@ -19,4 +19,8 @@ function chk(spec) {
 }
 
 
+Object.assign(chk, {
+  updateInplace(spec) { return Object.assign(spec, chk(spec)); },
+});
+
 export default chk;

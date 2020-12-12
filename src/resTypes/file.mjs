@@ -9,7 +9,10 @@ import spRes from '../resUtil/simplePassiveResource';
 
 import mimeTypeFx from '../resUtil/file/mimeFx';
 import mtAlias from '../resUtil/file/mimeAlias';
+import checkInheritOwnerWithin from '../resUtil/file/checkInheritOwnerWithin';
 import checkSymlinkArrow from '../resUtil/file/checkSymlinkArrow';
+import maybePlanParentDir from '../resUtil/file/maybePlanParentDir';
+import maybePlanTarget from '../resUtil/file/maybePlanTarget';
 import simpleNonMagicProps from '../resUtil/file/simpleNonMagicProps';
 import propConflictSolvers from '../resUtil/file/propConflictSolvers';
 
@@ -18,47 +21,15 @@ const {
   dir: mtDir,
 } = mtAlias;
 
-function listHas(l, x) { return l && l.includes(x); }
-function concatIf(a, b) { return (a ? a.concat(b) : b); }
-
 
 async function hatch(initExtras) {
   const res = this;
   const path = decodeURIComponent(res.id);
   if (!path.startsWith('/')) { throw new Error('Path must be absolute!'); }
 
-  const { spec } = initExtras.spawnOpt;
-  const ignoreDepPaths = concatIf(spec.ignoreDepPaths, [path]);
-
-  const parentDir = (pathLib.dirname(path) || '/');
-  if (parentDir !== '/') {
-    if (!listHas(ignoreDepPaths, parentDir)) {
-      await res.needs('file', {
-        path: parentDir + '/',
-        debugHints: { via: { [path]: 'parentDirOf' } },
-        ignoreDepPaths,
-      });
-    }
-  }
-
-  const facts = await res.toFactsDict({ acceptPreliminary: true });
-  const { targetMimeType } = facts;
-  if (targetMimeType) {
-    const tgtAbs = pathLib.resolve('/proc/ERR_BOGUS_PATH',
-      parentDir, facts.content);
-    await res.declareFacts({ debugHints: { targetPath: tgtAbs } });
-    const flinch = ((tgtAbs === parentDir)
-      || listHas(ignoreDepPaths, tgtAbs));
-    // console.error(path, 'tmt? ->', tgtAbs, ignoreDepPaths, parentDir);
-    if (!flinch) {
-      await res.needs('file', {
-        path: tgtAbs,
-        mimeType: targetMimeType,
-        debugHints: { via: { [path]: 'targetMimeTypeOf' } },
-        ignoreDepPaths,
-      });
-    }
-  }
+  const { upgradedSpec } = initExtras.spawnOpt;
+  await maybePlanParentDir(res, path, upgradedSpec);
+  await maybePlanTarget(res, path, upgradedSpec);
 }
 
 
@@ -81,6 +52,8 @@ const recipe = {
     uploadFromLocalPath: 'bool | nonEmpty str',
     // ^-- absolute, or "true" = same as "path" prop
     downloadUrls: true,
+    inheritOwnerWithin: 'nul | nonEmpty str',
+    targetInheritOwnerWithin: 'nul | nonEmpty str',
   },
   promisingApi: {
     hatch,
@@ -100,8 +73,18 @@ async function plan(origSpec) {
   const ourCtx = this;
   const spec = normalizeProps(origSpec);
 
-  Object.assign(spec, checkSymlinkArrow(spec));
-  function checkAlias(k, d) { spec[k] = getOwn(d, spec[k], spec[k]); }
+  spec.path = (spec.pathPre || '') + spec.path + (spec.pathSuf || '');
+  delete spec.pathPre;
+  delete spec.pathSuf;
+  checkSymlinkArrow.updateInplace(spec);
+  checkInheritOwnerWithin.updateInplace(spec);
+
+  let { path } = spec; // Unpack only after the inplace updates are applied.
+  if (spec.enforcedOwner && path.startsWith('~')) {
+    path = await homeDirTilde(ourCtx, path, spec.enforcedOwner);
+  }
+
+  function mtTranslateAlias(k, d) { spec[k] = getOwn(d, spec[k], spec[k]); }
 
   if (spec.mimeType === null) {
     // File shall not exist => ignore props that are thus useless.
@@ -115,12 +98,7 @@ async function plan(origSpec) {
   if (spec.mimeType) {
     const mtFx = getOwn(mimeTypeFx, spec.mimeType.split(/;/)[0]);
     if (mtFx) { Object.assign(spec, await mtFx.call(this, spec)); }
-    checkAlias('mimeType', mtAlias);
-  }
-
-  let path = (spec.pathPre || '') + spec.path + (spec.pathSuf || '');
-  if (spec.enforcedOwner && path.startsWith('~')) {
-    path = await homeDirTilde(ourCtx, path, spec.enforcedOwner);
+    mtTranslateAlias('mimeType', mtAlias);
   }
 
   function declare(k, v) {
@@ -128,19 +106,25 @@ async function plan(origSpec) {
     if (spec[k] === v) { return; }
     throw new Error(`file spec conflict "${k}": "${spec[k]}" != "${v}"`);
   }
-  if (spec.tgtPathPre || spec.tgtPathSuf) { declare('mimeType', mtSym); }
+  if (spec.targetPathPre || spec.targetPathSuf) { declare('mimeType', mtSym); }
   if (spec.targetMimeType) {
     declare('mimeType', mtSym);
-    checkAlias('targetMimeType', mtAlias);
+    mtTranslateAlias('targetMimeType', mtAlias);
   }
   if (spec.mimeType === mtSym) {
     if (spec.content) {
-      spec.content = ((spec.tgtPathPre || '') + spec.content
-        + (spec.tgtPathSuf || ''));
+      spec.content = ((spec.targetPathPre || '') + spec.content
+        + (spec.targetPathSuf || ''));
     }
     if ((spec.content || '').endsWith('/')) {
       spec.content = spec.content.replace(/\/+$/, '');
       declare('targetMimeType', mtDir);
+    }
+    const tgtUpd = checkInheritOwnerWithin({ path: spec.content });
+    // console.error({ path, content: spec.content, tgtUpd });
+    if (tgtUpd) {
+      spec.content = tgtUpd.path;
+      declare('targetInheritOwnerWithin', tgtUpd.inheritOwnerWithin);
     }
   }
 
@@ -154,28 +138,15 @@ async function plan(origSpec) {
   }
   path = pathLib.normalize(path);
 
-  // (function copyDebugHints() {
-  //   const dbh = {};
-  //   const props = [
-  //   ];
-  //   props.forEach((p) => {
-  //     const v = spec[p];
-  //     if (v !== undefined) { dbh[p] = v; }
-  //   });
-  //   if (Object.keys(dbh).length) {
-  //     spec.debugHints = { ...spec.debugHints, ...dbh };
-  //   }
-  // }());
-
   return baseSpawner(this, {
     ...spec,
     path,
     ignoreDepPaths: undefined,
-    pathPre: undefined,
-    pathSuf: undefined,
-    tgtPathPre: undefined,
-    tgtPathSuf: undefined,
-  }, { spec });
+    targetPathPre: undefined,
+    targetPathSuf: undefined,
+    inheritOwnerWithin: undefined,
+    targetInheritOwnerWithin: undefined,
+  }, { upgradedSpec: spec });
 }
 
 
