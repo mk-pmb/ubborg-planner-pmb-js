@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.83",
+  "version": "0.0.84",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
@@ -50,6 +50,7 @@
     "minimist": "^1.2.5",
     "nodemjs": "^0.1.8",
     "nofs": "^0.12.2",
+    "obj-map-merge": "^0.1.1",
     "objpop": "^0.2.1",
     "p-each-series": "^2.1.0",
     "p-fatal": "^0.1.3",
