@@ -1,11 +1,13 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import mustBe from 'typechecks-pmb/must-be';
+
+import checkInheritOwnerWithin from './checkInheritOwnerWithin';
 import simpleNonMagicProps from './simpleNonMagicProps';
 
 
-const inhOwnScopeKey = 'inheritOwnerWithin';
+const inhOwnScopeKey = checkInheritOwnerWithin.scopeKey;
 const inhOwnProps = [
-  inhOwnScopeKey,
   ...Object.keys(simpleNonMagicProps.accessProps),
 ];
 
@@ -16,9 +18,20 @@ function ensureTrailingSlash(s) { return s.replace(/\/*$/, '/'); }
 const EX = function copyDependencyFilePropsOnto(src, dest, addIDP) {
   // eslint-disable-next-line no-param-reassign
   if (addIDP) { dest.ignoreDepPaths = concatIf(src.ignoreDepPaths, addIDP); }
+  EX.inhOwn(src, dest);
+};
 
-  const inhOwnBase = src[inhOwnScopeKey];
-  if (inhOwnBase && dest.path.startsWith(ensureTrailingSlash(inhOwnBase))) {
+Object.assign(EX, {
+
+  inhOwn(src, dest) {
+    const within = mustBe('undef | nonEmpty str',
+      inhOwnScopeKey)(src[inhOwnScopeKey]);
+    if (!within) { return; }
+    if (!within.startsWith('/')) {
+      const msg = inhOwnScopeKey + ' path must be absolute, not ' + within;
+      throw new Error(msg);
+    }
+    if (!dest.path.startsWith(ensureTrailingSlash(within))) { return; }
     inhOwnProps.forEach(function copy(k) {
       if (dest[k] !== undefined) { return; }
       const val = src[k];
@@ -26,8 +39,10 @@ const EX = function copyDependencyFilePropsOnto(src, dest, addIDP) {
       // eslint-disable-next-line no-param-reassign
       dest[k] = val;
     });
-  }
-};
+    // eslint-disable-next-line no-param-reassign
+    dest[inhOwnScopeKey] = within;
+  },
 
+});
 
 export default EX;
