@@ -3,6 +3,7 @@
 import pathLib from 'path';
 
 import copyDependencyFilePropsOnto from './copyDependencyFilePropsOnto';
+import chkInhOwn from './checkInheritOwnerWithin';
 
 
 const EX = async function maybePlanTarget(srcRes, srcPath, upgradedSrcSpec) {
@@ -16,16 +17,19 @@ const EX = async function maybePlanTarget(srcRes, srcPath, upgradedSrcSpec) {
   await srcRes.declareFacts({
     debugHints: { targetPathResolved: tgtPathAbs },
   });
-  const tgtOwnerWithin = upgradedSrcSpec.targetInheritOwnerWithin;
+  const tgtOwnerWithin = {
+    [chkInhOwn.scopeKey]: upgradedSrcSpec[chkInhOwn.tgtScopeKey],
+  };
   const tgtSpec = {
     path: tgtPathAbs,
     mimeType: tgtMime,
     debugHints: { via: { [srcPath]: 'targetMimeTypeOf' } },
-    inheritOwnerWithin: tgtOwnerWithin,
+    ...tgtOwnerWithin,
   };
   copyDependencyFilePropsOnto({
     ...upgradedSrcSpec,
-    inheritOwnerWithin: tgtOwnerWithin,
+    ...tgtOwnerWithin,
+    [chkInhOwn.scopeKey + 'RelativeTo']: srcPath,
   }, tgtSpec, [srcPath, srcParentDir]);
   // console.error('maybePlanTarget: %o\n-> %o\n', upgradedSrcSpec, tgtSpec);
   await srcRes.needs('file', tgtSpec);

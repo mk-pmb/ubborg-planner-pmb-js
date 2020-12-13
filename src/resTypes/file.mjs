@@ -52,8 +52,8 @@ const recipe = {
     uploadFromLocalPath: 'bool | nonEmpty str',
     // ^-- absolute, or "true" = same as "path" prop
     downloadUrls: true,
-    inheritOwnerWithin: 'nul | nonEmpty str',
-    targetInheritOwnerWithin: 'nul | nonEmpty str',
+    [checkInheritOwnerWithin.scopeKey]: 'nul | nonEmpty str',
+    [checkInheritOwnerWithin.tgtScopeKey]: 'nul | nonEmpty str',
   },
   promisingApi: {
     hatch,
@@ -120,11 +120,15 @@ async function plan(origSpec) {
       spec.content = spec.content.replace(/\/+$/, '');
       declare('targetMimeType', mtDir);
     }
-    const tgtUpd = checkInheritOwnerWithin({ path: spec.content });
-    // console.error({ path, content: spec.content, tgtUpd });
+    const tgtUpd = checkInheritOwnerWithin({
+      path: spec.content,
+      [checkInheritOwnerWithin.scopeKey + 'RelativeTo']: path,
+    });
+    // console.error('from inhOwn:', { path, content: spec.content, tgtUpd });
     if (tgtUpd) {
       spec.content = tgtUpd.path;
-      declare('targetInheritOwnerWithin', tgtUpd.inheritOwnerWithin);
+      declare(checkInheritOwnerWithin.tgtScopeKey,
+        tgtUpd[checkInheritOwnerWithin.scopeKey]);
     }
   }
 
@@ -144,8 +148,8 @@ async function plan(origSpec) {
     ignoreDepPaths: undefined,
     targetPathPre: undefined,
     targetPathSuf: undefined,
-    inheritOwnerWithin: undefined,
-    targetInheritOwnerWithin: undefined,
+    [checkInheritOwnerWithin.scopeKey]: undefined,
+    [checkInheritOwnerWithin.tgtScopeKey]: undefined,
   }, { upgradedSpec: spec });
 }
 
