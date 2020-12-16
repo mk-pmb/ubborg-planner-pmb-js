@@ -7,6 +7,12 @@ import copyDependencyFilePropsOnto from './copyDependencyFilePropsOnto';
 
 const EX = async function maybePlanParentDir(res, path, upgradedSpec) {
   const parDirPath = (pathLib.dirname(path) || '/');
+  const facts = await res.toFactsDict({ acceptPreliminary: true });
+  if (facts.mimeType === null) {
+    // to-be-deleted files don't need a parent directory.
+    return;
+  }
+  if (!facts.mimeType) { throw new Error('Unexpected false-y mimeType!'); }
   if (parDirPath === '/') { return; }
   if (parDirPath === path) {
     // Shouldn't actually be possible except for root directory.
