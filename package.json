@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.86",
+  "version": "0.0.87",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
@@ -32,10 +32,10 @@
   "scripts": { "test": "nodejs test/all.js" },
 
   "dependencies": {
-    "@instaffogmbh/promise-timeout-with-warning": "^0.1.14",
+    "@instaffogmbh/promise-timeout-with-warning": "^0.1.15",
     "concise-value-preview-pmb": "^0.1.1",
     "dict-of-dicts-to-ini-lines-pmb": "^1.0.3",
-    "equal-pmb": "^0.1.23",
+    "equal-pmb": "^0.1.24",
     "esmod-pmb": "^0.1.11",
     "getoraddkey-simple": "^0.1.6",
     "getown": "^1.0.0",
@@ -57,6 +57,7 @@
     "p-immediate": "^3.1.0",
     "p-map": "^4.0.0",
     "p-props": "^4.0.0",
+    "qrystr": "^0.1.3",
     "slashable-import-pmb": "^0.1.0",
     "sortedjson": "^0.2.6",
     "strip-bom": "^4.0.0",
@@ -70,8 +71,9 @@
     "ubuntu-versions-table-pmb": "^0.2.2",
     "univeil": "^0.1.17",
     "using-its-own-promise-pmb": "^0.0.1",
-    "usnam-pmb": "^0.2.4",
-    "vtry": "^1.0.6"
+    "usnam-pmb": "^0.2.5",
+    "vtry": "^1.0.6",
+    "yamlify-safe-pmb": "^0.1.1"
   },
   "devDependencies": {
   },
