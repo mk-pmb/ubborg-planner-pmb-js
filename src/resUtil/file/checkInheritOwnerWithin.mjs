@@ -24,7 +24,8 @@ function chk(spec) {
   let within = (origWithinSpec || './');
   const dividedAtSlash = (within.endsWith('/') || sub.startsWith('/'));
   if (!dividedAtSlash) {
-    throw new Error(`${key} separater can only be used between directories`);
+    const msg = ' separater can only be used between directories: ';
+    throw new Error(key + msg + spec);
   }
   const relTo = spec[key + 'RelativeTo'];
   // console.error('inhOwn:', { path: src.path, relTo, within });
