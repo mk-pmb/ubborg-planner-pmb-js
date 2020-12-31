@@ -7,9 +7,7 @@ import simpleNonMagicProps from './simpleNonMagicProps';
 
 
 const inhOwnScopeKey = checkInheritOwnerWithin.scopeKey;
-const inhOwnProps = [
-  ...Object.keys(simpleNonMagicProps.accessProps),
-];
+const inhOwnProps = Object.keys(simpleNonMagicProps.ownership);
 
 function concatIf(a, b) { return (a ? a.concat(b) : b); }
 function ensureTrailingSlash(s) { return s.replace(/\/*$/, '/'); }
