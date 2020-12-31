@@ -45,7 +45,7 @@ const recipe = {
     mimeType: 'nul | nonEmpty str',
     targetMimeType: 'nonEmpty str',
 
-    ...simpleNonMagicProps.all,
+    ...mustBe.tProp(null, simpleNonMagicProps, 'dictObj', 'allResProps'),
 
     content: true,
     verifyContent: true,
@@ -91,7 +91,7 @@ async function plan(origSpec) {
     // This way file existence can easily be toggled without having to
     // fork logic at each pre-configure level (e.g. admFile, userFile).
     const useless = [
-      ...Object.keys(simpleNonMagicProps.accessProps),
+      ...Object.keys(simpleNonMagicProps.uselessOnAbsentFiles),
     ];
     useless.forEach(function drop(p) { delete spec[p]; });
   }
