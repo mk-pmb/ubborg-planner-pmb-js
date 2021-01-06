@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.89",
+  "version": "0.0.90",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
@@ -40,6 +40,7 @@
     "getoraddkey-simple": "^0.1.6",
     "getown": "^1.0.0",
     "is-fn": "^2.0.0",
+    "is-string": "^1.0.4",
     "load-first-avail-module": "^0.1.1",
     "lodash.padend": "^4.6.1",
     "lodash.pick": "^4.4.0",
