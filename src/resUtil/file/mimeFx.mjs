@@ -37,7 +37,7 @@ const mtFx = {
 
   utf8_tw(spec) {
     let [, tw, pre] = spec.mimeType.split(/; */);
-    pre = (pre ? pre + ' ' : '');
+    pre = (pre ? decodeURIComponent(pre) + ' ' : '');
     if (tw === undefined) { tw = 2; }
     tw = ((+tw || 0) > 0 ? ', tab-width: ' + tw : '');
     const header = pre + '-*- coding: utf-8' + tw + ' -*-';
