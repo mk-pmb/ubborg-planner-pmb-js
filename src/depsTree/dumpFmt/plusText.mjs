@@ -1,10 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import is from 'typechecks-pmb';
-import univeil from 'univeil';
-import sortedJson from 'sortedjson';
-
-const jsonify = sortedJson.preset(-1, { stfy: univeil.jsonify });
+import jsonify from 'safe-sortedjson';
 
 function nameLine(color, symb, dest, ev) {
   dest.clog(color, ev.ourCtx.indent, symb + ' '

@@ -73,7 +73,10 @@ async function plan(origSpec) {
   const ourCtx = this;
   const spec = normalizeProps(origSpec);
 
-  spec.path = (spec.pathPre || '') + spec.path + (spec.pathSuf || '');
+  spec.path = ((spec.pathPre || '')
+    + (spec.path || '')
+    // ^-- It's perfectly valid to construct the path from just …Pre or …Suf.
+    + (spec.pathSuf || ''));
   delete spec.pathPre;
   delete spec.pathSuf;
   checkSymlinkArrow.updateInplace(spec);
@@ -132,6 +135,7 @@ async function plan(origSpec) {
     }
   }
 
+  mustBe.nest('effective path', path);
   if (path.endsWith('/')) {
     if (spec.mimeType === mtSym) {
       path += pathLib.basename(mustBe.nest('symlink target', spec.content));

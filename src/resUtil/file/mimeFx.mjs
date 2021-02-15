@@ -4,10 +4,10 @@ import dictOfDictsToIniLines from 'dict-of-dicts-to-ini-lines-pmb';
 import qryStr from 'qrystr';
 import getOwn from 'getown';
 import yamlify from 'yamlify-safe-pmb';
+import jsonify from 'safe-sortedjson';
 
 
 function semiQry(s) { return qryStr((s.mimeType || s).replace(/;\s*/g, '&')); }
-
 
 const mtFx = {
 
@@ -29,10 +29,14 @@ const mtFx = {
   },
 
   lines(spec) {
-    return {
-      mimeType: 'text/plain; charset=UTF-8',
-      content: spec.content.map(ln => ln + '\n'),
-    };
+    let tx = spec.content;
+    if (!Array.isArray(tx)) {
+      tx = String(tx).trim().split(/\n/);
+      // Would be nice to have non-consuming look-behind, so we could
+      // split immediately after /\n/, rather than re-appending it.
+    }
+    tx = tx.map(ln => ln + '\n');
+    return { mimeType: 'text/plain; charset=UTF-8', content: tx };
   },
 
   utf8_tw(spec) {
@@ -45,10 +49,10 @@ const mtFx = {
   },
 
   yaml(spec) {
-    let data = yamlify(spec.content);
-    if (!Array.isArray(data)) { data = String(data).trim().split(/\n/); }
-    return mtFx.lines({ content: yamlify.wrapBody(data) });
+    return mtFx.lines({ content: yamlify.wrapBody(yamlify(spec.content)) });
   },
+
+  json(spec) { return mtFx.lines({ content: jsonify(spec.content) }); },
 
 };
 
