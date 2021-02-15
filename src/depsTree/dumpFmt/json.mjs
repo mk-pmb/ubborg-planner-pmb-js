@@ -1,9 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import univeil from 'univeil';
-import sortedJson from 'sortedjson';
+import jsonify from 'safe-sortedjson';
 
-const jsonify = sortedJson.preset(2, { stfy: univeil.jsonify });
 const dimColor = 'dimgrey';
 
 function nameLine(nameColor, cont, dest, ev) {
