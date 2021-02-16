@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.92",
+  "version": "0.0.93",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
@@ -59,7 +59,7 @@
     "p-map": "^4.0.0",
     "p-props": "^4.0.0",
     "qrystr": "^0.1.3",
-    "safe-sortedjson": "^1.0.1",
+    "safe-sortedjson": "^1.0.3",
     "slashable-import-pmb": "^0.1.0",
     "strip-bom": "^4.0.0",
     "terminal-color-numbers-pmb": "^0.1.1",

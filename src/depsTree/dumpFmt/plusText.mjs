@@ -1,7 +1,10 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import is from 'typechecks-pmb';
-import jsonify from 'safe-sortedjson';
+import safeSortedJsonify from 'safe-sortedjson';
+
+
+const jsonify = safeSortedJsonify.cfg({ space: 1, mergeNlWsp: true });
 
 function nameLine(color, symb, dest, ev) {
   dest.clog(color, ev.ourCtx.indent, symb + ' '
