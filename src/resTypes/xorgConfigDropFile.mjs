@@ -3,8 +3,8 @@
 import preCfg from 'ubborg-restype-util-pmb/src/preconfiguredResType';
 import mustBe from 'typechecks-pmb/must-be';
 
-import origResType from './admFile';
-import fileGeneratedHint from '../resUtil/file/hintGenerated';
+import origResType from './admFile.mjs';
+import fileGeneratedHint from '../resUtil/file/hintGenerated.mjs';
 
 
 function renderOneSection(sectSpec) {

@@ -2,8 +2,8 @@
 
 import mergeOpt from 'merge-options';
 
-import verifyAcceptProps from '../verifyAcceptProps';
-import trivialDictMergeInplace from '../../trivialDictMergeInplace';
+import verifyAcceptProps from '../verifyAcceptProps.mjs';
+import trivialDictMergeInplace from '../../trivialDictMergeInplace.mjs';
 
 
 function orf(x) { return (x || false); }

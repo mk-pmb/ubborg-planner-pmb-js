@@ -2,11 +2,11 @@
 
 import pProps from 'p-props';
 
-import spRes from '../resUtil/simplePassiveResource';
-import parseUserGroupsList from '../parseUserGroupsList';
+import spRes from '../resUtil/simplePassiveResource/index.mjs';
+import parseUserGroupsList from '../parseUserGroupsList.mjs';
 
-import osUserLogin from './osUserLogin';
-import sshAuthKeys from '../resUtil/osUser/sshAuthKeys';
+import osUserLogin from './osUserLogin.mjs';
+import sshAuthKeys from '../resUtil/osUser/sshAuthKeys.mjs';
 
 
 async function hatch(initExtras) {

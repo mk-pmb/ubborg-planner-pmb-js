@@ -7,7 +7,7 @@ import rPad from 'lodash.padend';
 import mapMerge from 'map-merge-defaults-pmb';
 
 import vTry from 'vtry';
-import slashableImport from '../../slashableImport';
+import slashableImport from '../../slashableImport.mjs';
 
 
 function glueKeysDictEntry([k, v]) { return (k && v && `${v} ${k}`); }

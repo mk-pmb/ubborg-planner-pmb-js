@@ -3,7 +3,7 @@
 import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 
-import recipeTimeouts from '../recipeTimeouts';
+import recipeTimeouts from '../recipeTimeouts.mjs';
 
 
 const typeMetaDictNames = [

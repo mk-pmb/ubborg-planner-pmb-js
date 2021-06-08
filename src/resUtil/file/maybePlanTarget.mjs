@@ -2,8 +2,8 @@
 
 import pathLib from 'path';
 
-import copyDependencyFilePropsOnto from './copyDependencyFilePropsOnto';
-import chkInhOwn from './checkInheritOwnerWithin';
+import copyDependencyFilePropsOnto from './copyDependencyFilePropsOnto.mjs';
+import chkInhOwn from './checkInheritOwnerWithin.mjs';
 
 
 const EX = async function maybePlanTarget(srcRes, srcPath, upgradedSrcSpec) {

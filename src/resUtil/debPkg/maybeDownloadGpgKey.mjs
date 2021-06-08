@@ -2,7 +2,7 @@
 
 import nodeUrlLib from 'url';
 
-import rewriteUrlProtos from './rewriteUrlProtos';
+import rewriteUrlProtos from './rewriteUrlProtos.mjs';
 
 
 function makeRelativeUrlResolver(base) {

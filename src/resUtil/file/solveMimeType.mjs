@@ -2,9 +2,9 @@
 
 import objPop from 'objpop';
 
-import phrases from '../phrases';
-import mtAlias from './mimeAlias';
-import simpleNonMagicProps from './simpleNonMagicProps';
+import phrases from '../phrases.mjs';
+import mtAlias from './mimeAlias.mjs';
+import simpleNonMagicProps from './simpleNonMagicProps.mjs';
 
 
 const {

@@ -3,7 +3,7 @@
 import mustBe from 'typechecks-pmb/must-be';
 import buu from 'ubborg-bundleurl-util-pmb';
 
-import spRes from './simplePassiveResource';
+import spRes from './simplePassiveResource/index.mjs';
 
 
 function makeSpawner(recipe) {

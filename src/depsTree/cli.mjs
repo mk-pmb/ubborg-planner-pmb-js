@@ -6,12 +6,12 @@ import pMap from 'p-map';
 import makeFirstAvailModLoader from 'load-first-avail-module';
 import objPop from 'objpop';
 
-import walkDepsTree from './walk';
-import resHook from './resHook/__main__';
-import makeToplevelContext from '../resUtil/makeToplevelContext';
-import planResourceByTypeName from '../resUtil/planResourceByTypeName';
-import makeColorfulLogDest from '../makeColorfulLogDest';
-import makeAptPkgNamesChecker from './makeAptPkgNamesChecker';
+import walkDepsTree from './walk.mjs';
+import resHook from './resHook/__main__.mjs';
+import makeToplevelContext from '../resUtil/makeToplevelContext.mjs';
+import planResourceByTypeName from '../resUtil/planResourceByTypeName.mjs';
+import makeColorfulLogDest from '../makeColorfulLogDest.mjs';
+import makeAptPkgNamesChecker from './makeAptPkgNamesChecker.mjs';
 
 const importFirstAvailableModule = makeFirstAvailModLoader(id => import(id));
 

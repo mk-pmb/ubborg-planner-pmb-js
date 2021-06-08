@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import deFile from './xdgDesktopEntryFile';
+import deFile from './xdgDesktopEntryFile.mjs';
 
 function plan(spec) {
   const baseDir = (spec.owner ? '~/.config' : '/etc/xdg') + '/autostart';

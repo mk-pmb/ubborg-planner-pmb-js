@@ -2,8 +2,8 @@
 
 import mustBe from 'typechecks-pmb/must-be';
 
-import spRes from '../resUtil/simplePassiveResource';
-import claimStageFacts from '../resUtil/bundle/claimStageFacts';
+import spRes from '../resUtil/simplePassiveResource/index.mjs';
+import claimStageFacts from '../resUtil/bundle/claimStageFacts.mjs';
 
 
 const defaultPolicy = {

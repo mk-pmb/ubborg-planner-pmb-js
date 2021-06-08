@@ -5,11 +5,11 @@ import objPop from 'objpop';
 import mustBe from 'typechecks-pmb/must-be';
 import usingItsOwnPromise from 'using-its-own-promise-pmb';
 
-import vanillaRecipe from './vanillaRecipe';
-import vanillaApi from './vanillaApi';
+import vanillaRecipe from './vanillaRecipe.mjs';
+import vanillaApi from './vanillaApi.mjs';
 
-import compileTypeMeta from './compileTypeMeta';
-import spawnResPlan from './spawnResPlan';
+import compileTypeMeta from './compileTypeMeta.mjs';
+import spawnResPlan from './spawnResPlan.mjs';
 
 
 function makeSpawner(recipe) {

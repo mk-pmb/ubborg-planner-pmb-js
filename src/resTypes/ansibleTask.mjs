@@ -2,7 +2,7 @@
 
 import mustBe from 'typechecks-pmb/must-be';
 
-import relRes from '../resUtil/parentRelUrlResource';
+import relRes from '../resUtil/parentRelUrlResource.mjs';
 
 const recipe = {
   ...relRes.recipe,

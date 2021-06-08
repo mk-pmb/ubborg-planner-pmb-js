@@ -5,9 +5,9 @@ import vTry from 'vtry';
 import is from 'typechecks-pmb';
 import goak from 'getoraddkey-simple';
 
-import planResourceByTypeName from './planResourceByTypeName';
-import mightBeResourcePlan from './mightBeResourcePlan';
-import recipeTimeouts from './recipeTimeouts';
+import planResourceByTypeName from './planResourceByTypeName.mjs';
+import mightBeResourcePlan from './mightBeResourcePlan.mjs';
+import recipeTimeouts from './recipeTimeouts.mjs';
 
 const rela = {};
 

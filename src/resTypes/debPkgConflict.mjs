@@ -2,6 +2,6 @@
 
 import preCfg from 'ubborg-restype-util-pmb/src/preconfiguredResType';
 
-import origResType from './debPkg';
+import origResType from './debPkg.mjs';
 
 export default preCfg(origResType, { state: 'absent' });

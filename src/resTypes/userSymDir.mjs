@@ -2,6 +2,6 @@
 
 import preCfg from 'ubborg-restype-util-pmb/src/preconfiguredResType';
 
-import origResType from './userFile';
+import origResType from './userFile.mjs';
 
 export default preCfg(origResType, { mimeType: 'sym', targetMimeType: 'dir' });

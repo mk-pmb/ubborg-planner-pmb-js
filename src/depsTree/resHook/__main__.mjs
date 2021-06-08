@@ -2,7 +2,7 @@
 
 import getOwn from 'getown';
 
-import stage from './stage';
+import stage from './stage.mjs';
 
 
 const hooksByType = {

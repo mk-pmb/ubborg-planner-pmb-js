@@ -2,8 +2,8 @@
 
 import mustBe from 'typechecks-pmb/must-be';
 
-import mightBeResourcePlan from '../mightBeResourcePlan';
-import basicRelation from '../basicRelation';
+import mightBeResourcePlan from '../mightBeResourcePlan.mjs';
+import basicRelation from '../basicRelation.mjs';
 
 const apiTimeoutsSec = (function compile() {
   const spawn = 2;
