@@ -2,7 +2,7 @@
 
 import mustBe from 'typechecks-pmb/must-be';
 
-import spRes from '../resUtil/simplePassiveResource';
+import spRes from '../resUtil/simplePassiveResource/index.mjs';
 
 
 const debConfNativeTypes = [

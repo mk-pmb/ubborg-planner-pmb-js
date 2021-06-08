@@ -2,7 +2,7 @@
 
 import mustBe from 'typechecks-pmb/must-be';
 
-import mtAlias from './mimeAlias';
+import mtAlias from './mimeAlias.mjs';
 
 
 const when = ' (when used with symlink arrow notation)';

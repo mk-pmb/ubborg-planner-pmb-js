@@ -2,7 +2,7 @@
 
 import mustBe from 'typechecks-pmb/must-be';
 
-import fileGeneratedHint from '../file/hintGenerated';
+import fileGeneratedHint from '../file/hintGenerated.mjs';
 
 
 const archsListSep = ',';

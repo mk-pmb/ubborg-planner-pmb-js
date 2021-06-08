@@ -1,9 +1,9 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import hook from '../../hook';
-import recipeTimeouts from '../recipeTimeouts';
-import prepareInitExtras from './prepareInitExtras';
-import startHatching from './startHatching';
+import hook from '../../hook.mjs';
+import recipeTimeouts from '../recipeTimeouts.mjs';
+import prepareInitExtras from './prepareInitExtras.mjs';
+import startHatching from './startHatching.mjs';
 
 
 async function spawnResPlan(ourPlanPr, spawnExtras) {

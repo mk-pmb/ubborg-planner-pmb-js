@@ -5,7 +5,7 @@ import mustBe from 'typechecks-pmb/must-be';
 import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
 import toSnakeCase from 'lodash.snakecase';
 
-import file from './file';
+import file from './file.mjs';
 
 async function plan(spec, ...extras) {
   const ourCtx = this;

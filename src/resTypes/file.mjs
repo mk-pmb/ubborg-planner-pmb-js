@@ -5,16 +5,17 @@ import mustBe from 'typechecks-pmb/must-be';
 import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
 import getOwn from 'getown';
 
-import spRes from '../resUtil/simplePassiveResource';
+import spRes from '../resUtil/simplePassiveResource/index.mjs';
 
-import mimeTypeFx from '../resUtil/file/mimeFx';
-import mtAlias from '../resUtil/file/mimeAlias';
-import checkInheritOwnerWithin from '../resUtil/file/checkInheritOwnerWithin';
-import checkSymlinkArrow from '../resUtil/file/checkSymlinkArrow';
-import maybePlanParentDir from '../resUtil/file/maybePlanParentDir';
-import maybePlanTarget from '../resUtil/file/maybePlanTarget';
-import simpleNonMagicProps from '../resUtil/file/simpleNonMagicProps';
-import propConflictSolvers from '../resUtil/file/propConflictSolvers';
+import mimeTypeFx from '../resUtil/file/mimeFx.mjs';
+import mtAlias from '../resUtil/file/mimeAlias.mjs';
+import checkInheritOwnerWithin
+  from '../resUtil/file/checkInheritOwnerWithin.mjs';
+import checkSymlinkArrow from '../resUtil/file/checkSymlinkArrow.mjs';
+import maybePlanParentDir from '../resUtil/file/maybePlanParentDir.mjs';
+import maybePlanTarget from '../resUtil/file/maybePlanTarget.mjs';
+import simpleNonMagicProps from '../resUtil/file/simpleNonMagicProps.mjs';
+import propConflictSolvers from '../resUtil/file/propConflictSolvers.mjs';
 
 const {
   sym: mtSym,

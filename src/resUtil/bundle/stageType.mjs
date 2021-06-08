@@ -2,13 +2,13 @@
 
 import mergeOpt from 'merge-options';
 
-import basicRelation from '../basicRelation';
-import hook from '../../hook';
+import basicRelation from '../basicRelation.mjs';
+import hook from '../../hook.mjs';
 
-import bundle from './bundleType';
-import debPkg from '../../resTypes/debPkg';
+import bundle from './bundleType.mjs';
+import debPkg from '../../resTypes/debPkg.mjs';
 
-import reportDeferredDebPkg from './reportDeferredDebPkg';
+import reportDeferredDebPkg from './reportDeferredDebPkg.mjs';
 
 
 const bunRec = bundle.recipe;

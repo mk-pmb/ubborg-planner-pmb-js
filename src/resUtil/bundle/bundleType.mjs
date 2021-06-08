@@ -10,9 +10,9 @@ import loPick from 'lodash.pick';
 import vTry from 'vtry';
 import makeParamPopperImpl from 'ubborg-restype-util-pmb/src/makeParamPopper';
 
-import relRes from '../parentRelUrlResource';
-import slashableImport from '../../slashableImport';
-import trivialDictMergeInplace from '../../trivialDictMergeInplace';
+import relRes from '../parentRelUrlResource.mjs';
+import slashableImport from '../../slashableImport.mjs';
+import trivialDictMergeInplace from '../../trivialDictMergeInplace.mjs';
 
 const { makeSpawner } = relRes;
 const inhPExpl = 'inheritParam';

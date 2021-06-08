@@ -8,10 +8,10 @@ import mergeOpt from 'merge-options';
 import vTry from 'vtry';
 import mustBe from 'typechecks-pmb/must-be';
 
-import verifyAcceptProps from '../verifyAcceptProps';
-import trivialDictMergeInplace from '../../trivialDictMergeInplace';
-import basicRelation from '../basicRelation';
-import phrases from '../phrases';
+import verifyAcceptProps from '../verifyAcceptProps.mjs';
+import trivialDictMergeInplace from '../../trivialDictMergeInplace.mjs';
+import basicRelation from '../basicRelation.mjs';
+import phrases from '../phrases.mjs';
 
 
 function doNothing() {}

@@ -2,8 +2,8 @@
 
 import aMap from 'map-assoc-core';
 
-import factsApi from './factsApi';
-import hatchingApi from './hatchingApi';
+import factsApi from './factsApi.mjs';
+import hatchingApi from './hatchingApi.mjs';
 
 const parts = [
   factsApi,

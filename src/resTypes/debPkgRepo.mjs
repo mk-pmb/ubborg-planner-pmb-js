@@ -2,12 +2,12 @@
 
 import mustBe from 'typechecks-pmb/must-be';
 
-import spRes from '../resUtil/simplePassiveResource';
-import claimStageFacts from '../resUtil/bundle/claimStageFacts';
-import compileOsVerTpl from '../resUtil/debPkg/compileOsVersionTemplate';
-import rewriteUrlProtos from '../resUtil/debPkg/rewriteUrlProtos';
-import renderDebLines from '../resUtil/debPkg/renderDebLines';
-import maybeDownloadGpgKey from '../resUtil/debPkg/maybeDownloadGpgKey';
+import spRes from '../resUtil/simplePassiveResource/index.mjs';
+import claimStageFacts from '../resUtil/bundle/claimStageFacts.mjs';
+import compileOsVerTpl from '../resUtil/debPkg/compileOsVersionTemplate.mjs';
+import rewriteUrlProtos from '../resUtil/debPkg/rewriteUrlProtos.mjs';
+import renderDebLines from '../resUtil/debPkg/renderDebLines.mjs';
+import maybeDownloadGpgKey from '../resUtil/debPkg/maybeDownloadGpgKey.mjs';
 
 
 const deferUpdProp = 'deferPkgListUpdate';

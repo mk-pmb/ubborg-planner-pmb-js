@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import makeUipDb from './uniqueIndexPropsDb';
+import makeUipDb from './uniqueIndexPropsDb.mjs';
 
 
 function makeToplevelContext() {

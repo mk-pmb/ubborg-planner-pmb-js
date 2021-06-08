@@ -2,7 +2,7 @@
 
 import pathLib from 'path';
 
-import copyDependencyFilePropsOnto from './copyDependencyFilePropsOnto';
+import copyDependencyFilePropsOnto from './copyDependencyFilePropsOnto.mjs';
 
 
 const EX = async function maybePlanParentDir(res, path, upgradedSpec) {

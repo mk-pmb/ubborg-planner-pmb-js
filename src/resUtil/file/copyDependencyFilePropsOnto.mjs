@@ -2,8 +2,8 @@
 
 import mustBe from 'typechecks-pmb/must-be';
 
-import checkInheritOwnerWithin from './checkInheritOwnerWithin';
-import simpleNonMagicProps from './simpleNonMagicProps';
+import checkInheritOwnerWithin from './checkInheritOwnerWithin.mjs';
+import simpleNonMagicProps from './simpleNonMagicProps.mjs';
 
 
 const inhOwnScopeKey = checkInheritOwnerWithin.scopeKey;

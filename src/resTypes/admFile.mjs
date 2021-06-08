@@ -2,7 +2,7 @@
 
 import preCfg from 'ubborg-restype-util-pmb/src/preconfiguredResType';
 
-import origResType from './file';
+import origResType from './file.mjs';
 
 export default preCfg(origResType, {
   enforcedOwner: 'root',

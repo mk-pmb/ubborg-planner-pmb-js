@@ -3,7 +3,7 @@
 import pProps from 'p-props';
 // import mustBe from 'typechecks-pmb/must-be';
 
-import spRes from '../resUtil/simplePassiveResource';
+import spRes from '../resUtil/simplePassiveResource/index.mjs';
 
 
 async function hatch(initExtras) {

@@ -10,8 +10,8 @@
 import mergeOpt from 'merge-options';
 import makeParamPopperImpl from 'ubborg-restype-util-pmb/src/makeParamPopper';
 
-import spRes from '../resUtil/simplePassiveResource';
-import trivialDictMergeInplace from '../trivialDictMergeInplace';
+import spRes from '../resUtil/simplePassiveResource/index.mjs';
+import trivialDictMergeInplace from '../trivialDictMergeInplace.mjs';
 
 const resPropsProp = 'customProps';
 const dataProp = 'facts';

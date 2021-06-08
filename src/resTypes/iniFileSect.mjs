@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import spRes from '../resUtil/simplePassiveResource';
+import spRes from '../resUtil/simplePassiveResource/index.mjs';
 
 
 const recipe = {
