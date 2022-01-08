@@ -31,32 +31,39 @@ async function plan(spec, ...extras) {
     ...mustPop('undef | dictObj', 'entry'),
   };
 
-  return file.plan.call(this, {
+  const fileSpec = {
     path: await homeDirTilde(ourCtx, path, owner),
     enforcedOwner: owner,
     enforcedGroup: owner,
-    enforcedModes: 'a=rx,ug+w',
+    enforcedModes: [
+      'a=r',
+      'ug+w',
+      (Exec && 'a+x'),
+    ].filter(Boolean).join(','),
     mimeType: 'static_ini',
     ...remain,
     content: { 'Desktop Entry': entry },
-  }, ...extras);
+  };
+  return file.plan.call(this, fileSpec, ...extras);
 }
 
 
 function inDir(basedir) {
-  function planInBaseDir(spec) {
-    let { bfn } = spec;
+  function planInBaseDir(origSpec) {
+    let { bfn } = origSpec;
     if (bfn === undefined) {
-      const { title } = spec;
+      const { title } = origSpec;
       mustBe.nest('At least one of props "title" and "bfn"', title);
       bfn = toSnakeCase(title);
     }
     mustBe.nest('bfn (base filename) prop, if given', bfn);
-    return plan.call(this, {
-      ...spec,
+    const path = `${basedir}/${bfn}.desktop`;
+    const spec = {
+      ...origSpec,
       bfn: undefined,
-      path: `${basedir}/${bfn}.desktop`,
-    });
+      path,
+    };
+    return plan.call(this, spec);
   }
   return planInBaseDir;
 }
