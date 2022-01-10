@@ -84,6 +84,7 @@ async function plan(origSpec) {
   checkInheritOwnerWithin.updateInplace(spec);
 
   let { path } = spec; // Unpack only after the inplace updates are applied.
+  mustBe.nest('decoded unmodified path', spec.path);
   if (spec.enforcedOwner && path.startsWith('~')) {
     path = await homeDirTilde(ourCtx, path, spec.enforcedOwner);
   }
@@ -98,6 +99,11 @@ async function plan(origSpec) {
       ...Object.keys(simpleNonMagicProps.uselessOnAbsentFiles),
     ];
     useless.forEach(function drop(p) { delete spec[p]; });
+  }
+  if (spec.targetPath !== undefined) {
+    const nope = ('Unsupported property "targetPath".'
+      + ' In case of symlinks: Did you mean "content"?');
+    throw new Error(nope);
   }
   if (spec.mimeType) {
     const mtFx = getOwn(mimeTypeFx, spec.mimeType.split(/;/)[0]);
@@ -139,7 +145,9 @@ async function plan(origSpec) {
   mustBe.nest('effective path', path);
   if (path.endsWith('/')) {
     if (spec.mimeType === mtSym) {
-      path += pathLib.basename(mustBe.nest('symlink target', spec.content));
+      const symDest = spec.content;
+      mustBe.nest('property "content" (i.e. symlink target)', symDest);
+      path += pathLib.basename(symDest);
     } else {
       path = path.replace(/\/+$/, '');
       declare('mimeType', mtDir);
