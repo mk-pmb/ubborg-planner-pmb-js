@@ -30,9 +30,16 @@ const EX = {
   },
 };
 
+EX.symlinkProps = {
+  content: 'str | buf | ary',
+  targetPathPre: 'str',
+  targetPathSuf: 'str',
+  targetMimeType: 'str',
+};
 EX.uselessOnAbsentFiles = {
   ...EX.ownership,
   ...EX.permissions,
+  ...EX.symlinkProps,
 };
 EX.allResProps = {
   ...EX.uselessOnAbsentFiles,
