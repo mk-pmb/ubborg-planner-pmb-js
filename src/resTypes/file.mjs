@@ -55,6 +55,7 @@ const recipe = {
     downloadUrls: true,
     [checkInheritOwnerWithin.scopeKey]: 'nul | nonEmpty str',
     [checkInheritOwnerWithin.tgtScopeKey]: 'nul | nonEmpty str',
+    homeDirPaths: 'undef | obj', // Work-around for homeDirTilde
   },
   promisingApi: {
     hatch,
@@ -86,8 +87,9 @@ async function plan(origSpec) {
   let { path } = spec; // Unpack only after the inplace updates are applied.
   mustBe.nest('decoded unmodified path', spec.path);
   if (spec.enforcedOwner && path.startsWith('~')) {
-    path = await homeDirTilde(ourCtx, path, spec.enforcedOwner);
+    path = await homeDirTilde(ourCtx, path, spec);
   }
+  delete spec.homeDirPaths; // was only used for homeDirTilde
 
   function mtTranslateAlias(k, d) { spec[k] = getOwn(d, spec[k], spec[k]); }
 

@@ -32,7 +32,7 @@ async function plan(spec, ...extras) {
   };
 
   const fileSpec = {
-    path: await homeDirTilde(ourCtx, path, owner),
+    path: await homeDirTilde(ourCtx, path, spec),
     enforcedOwner: owner,
     enforcedGroup: owner,
     enforcedModes: [
