@@ -30,7 +30,9 @@ function verifyAcceptProps(res, props) {
     unsupp.push(key);
   });
   if (unsupp.length) {
-    throw new Error('Unsupported properties: ' + unsupp.join(', '));
+    const msg = ('Unsupported properties for type ' + typeMeta.name
+      + ': ' + unsupp.join(', '));
+    throw new Error(msg);
   }
 }
 
