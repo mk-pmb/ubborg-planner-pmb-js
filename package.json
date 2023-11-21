@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.95",
+  "version": "0.0.96",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
@@ -23,7 +23,7 @@
 
   "private": false, "license": "ISC",
 
-  "main": "ubborg-planner-pmb.js",
+  "main": "src/index.js",
   "bin": "bin/cli.js",
   "directories": {
     "doc": "docs",
