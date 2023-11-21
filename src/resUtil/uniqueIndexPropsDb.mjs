@@ -35,11 +35,11 @@ function registerUip(typeName, propName, res) {
   const dict = resByProp(db, typeName, propName);
   const dupe = dict.get(val);
   if (dupe === res) { return; }
-  if (dupe) {
-    throw new Error(`Duplicate unique property: ${propName}="${
-      val}", already registered by ${String(dupe)}`);
-  }
-  dict.set(val, res);
+  if (!dupe) { return dict.set(val, res); }
+  console.error({ res: String(res), dupe: String(dupe) });
+  console.error({ res, dupe });
+  throw new Error(`Duplicate unique property: ${propName}="${
+    val}", already registered by ${String(dupe)}`);
 }
 
 
