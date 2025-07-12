@@ -46,7 +46,7 @@ function relateToMaybeSpawn(res, spawning, verb, relResType, relSpec) {
   }
   const subLin = vTry(
     spawning.forkLineageContext,
-    'forkLineageContext of ' + res + ' because it ' + verb + ' a ' + relResType
+    'forkLineageContext of ' + res + ' because it ' + verb + ' a ' + relResType,
   )({ relationVerb: verb });
   // console.debug('relateTo: gonna spawn a new', String(relResType),
   //   String(relSpec), 'for', String(res));

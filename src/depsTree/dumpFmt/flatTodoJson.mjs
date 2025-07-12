@@ -62,7 +62,7 @@ const formatter = {
     const { outputDest: { log: say }, getTopCtx } = job.config;
     say('[ { "format":', mergeLines(jsonify(formatter.fmtMeta)));
     say('  , "uniqueIndexProps":',
-      jsonify(getTopCtx().resByUniqueIndexProp.toJsonablePojo()
+      jsonify(getTopCtx().resByUniqueIndexProp.toJsonablePojo(),
       ).replace(/\n/g, '\n    '));
     say('  }');
   },

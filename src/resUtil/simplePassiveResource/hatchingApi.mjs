@@ -62,7 +62,7 @@ const promising = {
     const res = this;
     const oldProps = res.customProps;
     if (oldProps !== null) {
-      throw new TypeError(`Expected customProps to still be null`);
+      throw new TypeError('Expected customProps to still be null');
     }
     verifyAcceptProps(res, setProps);
     const okProps = {};

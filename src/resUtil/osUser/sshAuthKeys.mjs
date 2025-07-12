@@ -64,7 +64,7 @@ const sak = {
       ...(await fromCjsPr),
       ...popSpec.mustBe('undef | dictObj', 'verbatimDict'),
     };
-    const keysList = [].concat(...Object.entries(keysDict
+    const keysList = [].concat(...Object.entries(keysDict,
     ).map(glueKeysDictEntry).map(sak.reformat));
     return (keysList.length && keysList);
   },
