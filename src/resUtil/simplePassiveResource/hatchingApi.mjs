@@ -6,7 +6,7 @@ import preview from 'concise-value-preview-pmb';
 import pEachSeries from 'p-each-series';
 import mergeOpt from 'merge-options';
 import vTry from 'vtry';
-import mustBe from 'typechecks-pmb/must-be';
+import mustBe from 'typechecks-pmb/must-be.js';
 
 import verifyAcceptProps from '../verifyAcceptProps.mjs';
 import trivialDictMergeInplace from '../../trivialDictMergeInplace.mjs';

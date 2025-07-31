@@ -3,7 +3,7 @@
 import aMap from 'map-assoc-core';
 import pEachSeries from 'p-each-series';
 import getOwn from 'getown';
-import spChars from 'ubborg-restype-util-pmb/src/specialChars';
+import spChars from 'ubborg-restype-util-pmb/src/specialChars.mjs';
 
 const chainSepFwd = ` ${spChars.chainLinks.fwd} `;
 const chainSepBack = ` ${spChars.chainLinks.back} `;

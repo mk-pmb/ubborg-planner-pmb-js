@@ -2,7 +2,7 @@
 
 import aMap from 'map-assoc-core';
 import getOwn from 'getown';
-import mustBe from 'typechecks-pmb/must-be';
+import mustBe from 'typechecks-pmb/must-be.js';
 
 
 const stateToCateg = {

@@ -2,7 +2,7 @@
 
 import aMap from 'map-assoc-core';
 import is from 'typechecks-pmb';
-import mustBe from 'typechecks-pmb/must-be';
+import mustBe from 'typechecks-pmb/must-be.js';
 
 
 function verifyAcceptProps(res, props) {

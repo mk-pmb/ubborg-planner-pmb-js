@@ -2,7 +2,7 @@
 
 import aMap from 'map-assoc-core';
 import objPop from 'objpop';
-import mustBe from 'typechecks-pmb/must-be';
+import mustBe from 'typechecks-pmb/must-be.js';
 import usingItsOwnPromise from 'using-its-own-promise-pmb';
 
 import vanillaRecipe from './vanillaRecipe.mjs';

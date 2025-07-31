@@ -1,7 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import pathLib from 'path';
-import mustBe from 'typechecks-pmb/must-be';
+import mustBe from 'typechecks-pmb/must-be.js';
 import homeDirTilde from 'ubborg-resolve-homedir-tilde-by-user-plan-pmb';
 import getOwn from 'getown';
 

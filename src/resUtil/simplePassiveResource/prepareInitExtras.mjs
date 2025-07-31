@@ -3,7 +3,7 @@
 import goak from 'getoraddkey-simple';
 import vTry from 'vtry';
 import getOwn from 'getown';
-import joinIdParts from 'ubborg-restype-util-pmb/src/joinIdParts';
+import joinIdParts from 'ubborg-restype-util-pmb/src/joinIdParts.mjs';
 
 
 function prepareInitExtras(ourPlanPr, spawnExtras) {

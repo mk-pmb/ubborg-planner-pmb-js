@@ -2,7 +2,7 @@
 
 import aMap from 'map-assoc-core';
 import isFun from 'is-fn';
-import mustBe from 'typechecks-pmb/must-be';
+import mustBe from 'typechecks-pmb/must-be.js';
 import prTimeoutWarn from '@instaffogmbh/promise-timeout-with-warning';
 
 const globalTimeoutFactor = (+process.env.UBBORG_TIMEOUT_FACTOR || 1);

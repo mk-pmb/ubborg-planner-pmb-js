@@ -1,7 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import preCfg from 'ubborg-restype-util-pmb/src/preconfiguredResType';
-import mustBe from 'typechecks-pmb/must-be';
+import preCfg from 'ubborg-restype-util-pmb/src/preconfiguredResType.mjs';
+import mustBe from 'typechecks-pmb/must-be.js';
 
 import origResType from './admFile.mjs';
 import fileGeneratedHint from '../resUtil/file/hintGenerated.mjs';

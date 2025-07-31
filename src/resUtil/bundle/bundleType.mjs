@@ -2,13 +2,14 @@
 
 import mergeOpt from 'merge-options';
 import objPop from 'objpop';
-import mustBe from 'typechecks-pmb/must-be';
+import mustBe from 'typechecks-pmb/must-be.js';
 import aMap from 'map-assoc-core';
 import getOwn from 'getown';
 import bunUrls from 'ubborg-bundleurl-util-pmb';
 import loPick from 'lodash.pick';
 import vTry from 'vtry';
-import makeParamPopperImpl from 'ubborg-restype-util-pmb/src/makeParamPopper';
+import makeParamPopperImpl from
+  'ubborg-restype-util-pmb/src/makeParamPopper.mjs';
 
 import relRes from '../parentRelUrlResource.mjs';
 import slashableImport from '../../slashableImport.mjs';

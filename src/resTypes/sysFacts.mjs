@@ -8,7 +8,8 @@
 \* ********************************************************** */
 
 import mergeOpt from 'merge-options';
-import makeParamPopperImpl from 'ubborg-restype-util-pmb/src/makeParamPopper';
+import makeParamPopperImpl from
+  'ubborg-restype-util-pmb/src/makeParamPopper.mjs';
 
 import spRes from '../resUtil/simplePassiveResource/index.mjs';
 import trivialDictMergeInplace from '../trivialDictMergeInplace.mjs';

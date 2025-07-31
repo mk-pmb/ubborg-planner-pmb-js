@@ -2,7 +2,7 @@
 
 import sysFactsHelper from 'ubborg-sysfacts-helper-pmb';
 import ubuntuVersions from 'ubuntu-versions-table-pmb';
-import mustBe from 'typechecks-pmb/must-be';
+import mustBe from 'typechecks-pmb/must-be.js';
 import getOwn from 'getown';
 
 async function compileOsVersionTemplate(res) {

@@ -1,7 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import is from 'typechecks-pmb';
-import mustBe from 'typechecks-pmb/must-be';
+import mustBe from 'typechecks-pmb/must-be.js';
 import vTry from 'vtry';
 import findCommonAncestor from 'ubborg-lineage-find-common-ancestor-pmb';
 
