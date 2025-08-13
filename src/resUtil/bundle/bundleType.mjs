@@ -23,6 +23,13 @@ const objHas = Object.prototype.hasOwnProperty;
 const blameBundleImpl = 'While running the custom bundle implementation';
 
 
+const reservedVendorSpecificBundleProps = [
+  'doc', // for documentation
+  'extra',
+  'vnd', // vendor-specific stuff
+];
+
+
 const apiTimeoutsSec = (function compile() {
   const waitSub = 30;
   return {
@@ -52,12 +59,18 @@ function copyInheritedParams(parentBundle, dfParam, explicit, others) {
 
 async function prepareRunImpl(bun, how) {
   const { initExtras, impl } = how;
+
   mustBe.fun('bundle implementation', impl);
-  const mustImpl = objPop.d({
-    toString() { return 'implementation of ' + String(bun); },
-    paramDefaults: {},
-    ...impl,
-  }, { mustBe }).mustBe;
+
+  const mustImpl = objPop.d((function extractStandardProps() {
+    const std = {
+      toString() { return 'implementation of ' + String(bun); },
+      paramDefaults: {},
+      ...impl,
+    };
+    reservedVendorSpecificBundleProps.forEach(k => delete std[k]);
+    return std;
+  }()), { mustBe }).mustBe;
   function implDict(k) { return mustImpl('undef | nul | dictObj', k); }
   const dfParam = implDict('paramDefaults');
 

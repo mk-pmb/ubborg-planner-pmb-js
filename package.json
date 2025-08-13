@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.99",
+  "version": "0.0.100",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
@@ -36,7 +36,7 @@
     "@instaffogmbh/promise-timeout-with-warning": "^0.1.15",
     "concise-value-preview-pmb": "^0.1.1",
     "dict-of-dicts-to-ini-lines-pmb": "^1.0.3",
-    "equal-pmb": "^0.1.28",
+    "equal-pmb": "^0.1.29",
     "esmod-pmb": "^0.1.13",
     "getoraddkey-simple": "^0.1.8",
     "getown": "^1.0.1",
@@ -69,11 +69,11 @@
     "ubborg-resolve-homedir-tilde-by-user-plan-pmb": "^0.2.2",
     "ubborg-restype-util-pmb": "^0.1.1",
     "ubborg-sysfacts-helper-pmb": "^0.2.1",
-    "ubuntu-versions-table-pmb": "^0.2.3",
+    "ubuntu-versions-table-pmb": "^0.2.4",
     "using-its-own-promise-pmb": "^0.0.1",
     "usnam-pmb": "^0.2.5",
     "vtry": "^1.0.9",
-    "yamlify-safe-pmb": "^0.1.1"
+    "yamlify-safe-pmb": "^0.1.2"
   },
   "devDependencies": {
     "eslint-config-nodejs-pmb": "^0.3.9",
