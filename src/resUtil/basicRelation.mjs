@@ -1,9 +1,10 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import pProps from 'p-props';
-import vTry from 'vtry';
-import is from 'typechecks-pmb';
 import goak from 'getoraddkey-simple';
+import is from 'typechecks-pmb';
+import pProps from 'p-props';
+import preview from 'concise-value-preview-pmb';
+import vTry from 'vtry';
 
 import planResourceByTypeName from './planResourceByTypeName.mjs';
 import mightBeResourcePlan from './mightBeResourcePlan.mjs';
@@ -42,7 +43,9 @@ function relateToMaybeSpawn(res, spawning, verb, relResType, relSpec) {
       }
       throw new Error('Object must be a resource plan, not ' + relResType);
     }
-    throw new Error('relSpec required to spawn a ' + relResType);
+    const msg = ('A relSpec is required to spawn a ' + relResType
+      + ', but instead, we got a false-y value: ' + preview(relSpec));
+    throw new Error(msg);
   }
   const subLin = vTry(
     spawning.forkLineageContext,
