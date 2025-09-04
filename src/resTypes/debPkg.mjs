@@ -13,6 +13,9 @@ const defaultPolicy = {
 };
 
 
+const tracePkgNames = []; // a hack for debugging.
+
+
 async function finalizePlan(initExtras) {
   await claimStageFacts(initExtras, function claims(facts) {
     if (!facts.defer) { return; }
@@ -72,6 +75,10 @@ async function plan(origSpec) {
     ...spec,
     name,
   });
+  if (tracePkgNames.includes(name)) {
+    const trc = res.traceParents().concat(name).join(' \u2192 ');
+    console.warn('T: debPkg:', trc);
+  }
   return res;
 }
 
