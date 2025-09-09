@@ -7,6 +7,7 @@ function makeToplevelContext() {
   const resPlanPrsByTypeName = Object.create(null);
   const topCtx = {
     getResPlanPrByTypeName() { return resPlanPrsByTypeName; },
+    parentStage: null,
     pendingResPlanPromises: new Map(),
     resByUniqueIndexProp: makeUipDb(),
     traceParents() { return []; },
