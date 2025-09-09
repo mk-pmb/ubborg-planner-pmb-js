@@ -137,10 +137,8 @@ async function hatch(initExtras) {
 
 function forkLineageContext(ourLinCtx, changes) {
   const bun = this;
-  const upd = {
-    parentBundle: bun,
-    ...changes,
-  };
+  const par = { parentBundle: bun };
+  const upd = { ...par, ...changes };
   return relRes.recipe.forkLineageContext.call(bun, ourLinCtx, upd);
 }
 
