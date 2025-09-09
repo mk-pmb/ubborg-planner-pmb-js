@@ -119,21 +119,33 @@ function compileBundleUrlMethods(fullBunUrl) {
 
 async function hatch(initExtras) {
   const bun = this;
-  const fullUrl = bunUrls.href(bun.id);
-  const modSpec = bunUrls.toModuleId(fullUrl);
-  // eslint-disable-next-line no-param-reassign
-  initExtras.bundleContentsImpl = await slashableImport(modSpec);
-  await prepareRunImpl(bun, initExtras);
-  Object.assign(bun, compileBundleUrlMethods(fullUrl));
-
-  const fullLinCtx = initExtras.getLineageContext();
-  const simplifiedLinCtx = loPick(fullLinCtx, [
-    'getResPlanPrByTypeName',
-  ]);
-  await vTry.pr(initExtras.bundleContentsImpl.bind(simplifiedLinCtx, bun),
-    blameBundleImpl)();
-  await bun.relations.waitForAllSubPlanning({ ignoreStillHatching: true });
+  await hatch.prepare(bun, initExtras);
+  await hatch.runBundleImpl(bun, initExtras);
 }
+
+
+Object.assign(hatch, {
+
+  async prepare(bun, initExtras) {
+    const fullUrl = bunUrls.href(bun.id);
+    const modSpec = bunUrls.toModuleId(fullUrl);
+    // eslint-disable-next-line no-param-reassign
+    initExtras.bundleContentsImpl = await slashableImport(modSpec);
+    await prepareRunImpl(bun, initExtras);
+    Object.assign(bun, compileBundleUrlMethods(fullUrl));
+  },
+
+  async runBundleImpl(bun, initExtras) {
+    const fullLinCtx = initExtras.getLineageContext();
+    const simplifiedLinCtx = loPick(fullLinCtx, [
+      'getResPlanPrByTypeName',
+    ]);
+    await vTry.pr(initExtras.bundleContentsImpl.bind(simplifiedLinCtx, bun),
+      blameBundleImpl)();
+    await bun.relations.waitForAllSubPlanning({ ignoreStillHatching: true });
+  },
+
+});
 
 
 function forkLineageContext(ourLinCtx, changes) {
