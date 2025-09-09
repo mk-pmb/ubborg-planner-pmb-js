@@ -27,6 +27,10 @@ const defaultPropsIfDebPkg = { deferredDebPkgs: {
 
 async function finalizePlan(initExtras) {
   const stg = this;
+  const linCtx = initExtras.getLineageContext();
+  if (!linCtx.getTopStage) {
+    linCtx.getTopStage = Object.bind(null, stg);
+  }
   await bunRec.promisingApi.finalizePlan.call(stg, initExtras);
 
   await stg.hatchedPr;

@@ -32,6 +32,8 @@ const reservedVendorSpecificBundleProps = [
 
 const linCtxMethodsAvailableToBundleImpl = [
   'getResPlanPrByTypeName',
+  'getTopStage',
+  'traceParents',
 ];
 
 
