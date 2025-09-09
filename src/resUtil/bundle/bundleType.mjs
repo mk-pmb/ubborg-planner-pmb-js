@@ -30,6 +30,11 @@ const reservedVendorSpecificBundleProps = [
 ];
 
 
+const linCtxMethodsAvailableToBundleImpl = [
+  'getResPlanPrByTypeName',
+];
+
+
 const apiTimeoutsSec = (function compile() {
   const waitSub = 30;
   return {
@@ -137,9 +142,8 @@ Object.assign(hatch, {
 
   async runBundleImpl(bun, initExtras) {
     const fullLinCtx = initExtras.getLineageContext();
-    const simplifiedLinCtx = loPick(fullLinCtx, [
-      'getResPlanPrByTypeName',
-    ]);
+    const simplifiedLinCtx = loPick(fullLinCtx,
+      linCtxMethodsAvailableToBundleImpl);
     await vTry.pr(initExtras.bundleContentsImpl.bind(simplifiedLinCtx, bun),
       blameBundleImpl)();
     await bun.relations.waitForAllSubPlanning({ ignoreStillHatching: true });
