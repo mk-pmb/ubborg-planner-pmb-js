@@ -57,9 +57,8 @@ function copyInheritedParams(parentBundle, dfParam, explicit, others) {
 }
 
 
-async function prepareRunImpl(bun, how) {
-  const { initExtras, bundleContentsImpl } = how;
-
+async function prepareRunImpl(bun, initExtras) {
+  const { bundleContentsImpl } = initExtras;
   mustBe.fun('bundle implementation', bundleContentsImpl);
 
   const mustImpl = objPop.d((function extractStandardProps() {
@@ -122,15 +121,16 @@ async function hatch(initExtras) {
   const bun = this;
   const fullUrl = bunUrls.href(bun.id);
   const modSpec = bunUrls.toModuleId(fullUrl);
-  const bundleContentsImpl = await slashableImport(modSpec);
-  await prepareRunImpl(bun, { initExtras, bundleContentsImpl });
+  // eslint-disable-next-line no-param-reassign
+  initExtras.bundleContentsImpl = await slashableImport(modSpec);
+  await prepareRunImpl(bun, initExtras);
   Object.assign(bun, compileBundleUrlMethods(fullUrl));
 
   const linCtx = initExtras.getLineageContext();
   const simplifiedLinCtx = loPick(linCtx, [
     'getResPlanPrByTypeName',
   ]);
-  await vTry.pr(bundleContentsImpl.bind(simplifiedLinCtx, bun),
+  await vTry.pr(initExtras.bundleContentsImpl.bind(simplifiedLinCtx, bun),
     blameBundleImpl)();
   await bun.relations.waitForAllSubPlanning({ ignoreStillHatching: true });
 }
