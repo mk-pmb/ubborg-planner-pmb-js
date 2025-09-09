@@ -126,8 +126,8 @@ async function hatch(initExtras) {
   await prepareRunImpl(bun, initExtras);
   Object.assign(bun, compileBundleUrlMethods(fullUrl));
 
-  const linCtx = initExtras.getLineageContext();
-  const simplifiedLinCtx = loPick(linCtx, [
+  const fullLinCtx = initExtras.getLineageContext();
+  const simplifiedLinCtx = loPick(fullLinCtx, [
     'getResPlanPrByTypeName',
   ]);
   await vTry.pr(initExtras.bundleContentsImpl.bind(simplifiedLinCtx, bun),
