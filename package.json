@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.101",
+  "version": "0.0.103",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
@@ -59,7 +59,7 @@
     "p-map": "^4.0.0",
     "p-props": "^4.0.0",
     "qrystr": "^0.1.5",
-    "safe-sortedjson": "^1.0.8",
+    "safe-sortedjson": "^1.0.9",
     "slashable-import-pmb": "^0.1.0",
     "strip-bom": "^4.0.0",
     "terminal-color-numbers-pmb": "^0.1.1",
@@ -68,15 +68,16 @@
     "ubborg-lineage-find-common-ancestor-pmb": "^1.0.1",
     "ubborg-resolve-homedir-tilde-by-user-plan-pmb": "^0.2.2",
     "ubborg-restype-util-pmb": "^0.1.1",
-    "ubborg-sysfacts-helper-pmb": "^0.2.1",
+    "ubborg-sysfacts-helper-pmb": "^0.2.2",
     "ubuntu-versions-table-pmb": "^0.2.4",
+    "unwrap-single-prop": "^0.1.0",
     "using-its-own-promise-pmb": "^0.0.1",
     "usnam-pmb": "^0.2.5",
     "vtry": "^1.0.9",
     "yamlify-safe-pmb": "^0.1.2"
   },
   "devDependencies": {
-    "eslint-config-nodejs-pmb": "^0.3.9",
+    "eslint-config-nodejs-pmb": "^0.3.13",
     "eslint-plugin-json-light-pmb": "^1.0.7",
     "eslint-plugin-n": "^17.16.2"
   },
