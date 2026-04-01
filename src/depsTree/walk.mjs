@@ -5,8 +5,8 @@ import pEachSeries from 'p-each-series';
 import getOwn from 'getown';
 import spChars from 'ubborg-restype-util-pmb/src/specialChars.mjs';
 
-const chainSepFwd = ` ${spChars.chainLinks.fwd} `;
-const chainSepBack = ` ${spChars.chainLinks.back} `;
+const chainSepFwd = spChars.wideChainLinks.fwd;
+const chainSepBack = spChars.wideChainLinks.back;
 
 function arrowJoin(l) { return l && l.map(String).join(chainSepFwd); }
 function arrLast(i) { return this[this.length - (i || 1)]; }

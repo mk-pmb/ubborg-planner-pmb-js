@@ -89,7 +89,7 @@ async function plan(origSpec) {
 
   const res = await baseSpawner(this, spec);
   if (tracePkgNames.includes(spec.name)) {
-    const trc = res.traceParents().concat(spec.name).join(' \u2192 ');
+    const trc = String(res.traceParents().concat(res));
     console.warn('T: debPkg:', trc);
   }
   return res;
