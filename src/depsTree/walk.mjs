@@ -72,8 +72,22 @@ async function diveVerbsSeriesCore(ev, diver) {
     const planPrs = verbsDict[verb];
     if (!planPrs) { return; }
     const plans = await Promise.all(planPrs);
-    function diveIntoDep(subPr) {
-      return diver(ev.subCtx, subPr, verb);
+    const homonymousSubPlans = {};
+    function diveIntoDep(subPlan) {
+      const subName = String(subPlan);
+      const incumbent = getOwn(homonymousSubPlans, subName);
+      homonymousSubPlans[subName] = subPlan;
+      if (incumbent === subPlan) { return; }
+      if (incumbent) {
+        console.warn('E:', ev.parentResName,
+          'alread had a differemt child named', subName,
+          '– earlier:', incumbent, 'now:', subPlan);
+        const err = new Error('Sibling name conflict');
+        err.incumbent = incumbent;
+        err.contender = subPlan;
+        throw err;
+      }
+      return diver(ev.subCtx, subPlan, verb);
     }
     await pEachSeries(plans, diveIntoDep);
   }
