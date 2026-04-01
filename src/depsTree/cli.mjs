@@ -35,6 +35,13 @@ async function foundRes(ev) {
   const { outputDest, formatter: fmt } = ev.ourCtx.config;
   if (ev.nPrevEncounters && fmt.known) { return fmt.known(outputDest, ev); }
 
+  const { resName, siblingReuseCounter } = ev;
+  if (siblingReuseCounter) {
+    const msg = ('FUBAR: This seems to be the first encounter of resource '
+      + resName + ' but the siblingReuseCounter is at ' + siblingReuseCounter);
+    throw new Error(msg);
+  }
+
   const { resPlan, subRelVerbPrs } = ev;
   delete subRelVerbPrs.spawns;
 

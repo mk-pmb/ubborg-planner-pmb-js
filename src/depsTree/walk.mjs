@@ -13,6 +13,14 @@ function arrLast(i) { return this[this.length - (i || 1)]; }
 function subIndent(c) { return (c.indentPrefix + c.indent + c.indentSuffix); }
 
 
+function initNonInheritableContextProps() {
+  const ctxUpd = {
+    reuseCountsForSiblingsByName: {},
+  };
+  return ctxUpd;
+}
+
+
 function updateStacks(origCtx, relVerb, resPlan) {
   const valuesToBePushed = {
     // stack name -> value to be added if stack exists
@@ -81,6 +89,7 @@ function forkSubCtxState() {
 
 
 async function walkDepsTreeCore(ourCtx, resPr, relVerb) {
+  const parentResName = ourCtx.resName;
   const resPlan = await resPr;
   await resPlan.hatchedPr;
   const resName = String(resPlan);
@@ -97,8 +106,10 @@ async function walkDepsTreeCore(ourCtx, resPr, relVerb) {
 
   const subCtx = {
     ...ourCtx,
+    ...initNonInheritableContextProps(),
     ...updateStacks(ourCtx, relVerb, resPlan),
     indent: ourCtx.subInd,
+    parentResName,
   };
   subCtx.subInd = subIndent(subCtx);
 
@@ -112,6 +123,15 @@ async function walkDepsTreeCore(ourCtx, resPr, relVerb) {
     subCtx.nDiscovered += 1;
     notes.nthDiscovered = subCtx.nDiscovered;
   }
+
+  const siblingReuseCounter = (function checkSiblingReuse() {
+    const ruc = ourCtx.reuseCountsForSiblingsByName;
+    const had = (getOwn(ruc, resName) + 1) || 0;
+    ruc[resName] = had;
+    if (!had) { return; }
+    console.warn('W:', resName, 'had already been mentioned as a child of',
+      (parentResName || '(top-level)'), 'earlier,', had, 'time(s).');
+  }());
 
   function diveVerbsSeries(diver) {
     return diveVerbsSeriesCore(this, diver || walkDepsTreeCore);
@@ -128,6 +148,7 @@ async function walkDepsTreeCore(ourCtx, resPr, relVerb) {
     resName,
     resNameParentIdPrefixEllipse,
     resPlan,
+    siblingReuseCounter,
     subRelVerbPrs: { ...(await resPlan.relations.getRelatedPlanPromises()) },
   };
   await subCtx.foundRes(ev);
@@ -155,7 +176,9 @@ function walkDepsTree(opt) {
   const topCtx = {
     knownRes: new Map(),
     resNotes: new Map(),
+    parentResName: '',
     nDiscovered: 0,
+    ...initNonInheritableContextProps(),
     ...updateStacks(),
     foundRes,
     ...aMap(walkDepsTree.defaultOpts, orDefault),

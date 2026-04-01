@@ -6,6 +6,8 @@ import safeSortedJsonify from 'safe-sortedjson';
 
 const jsonify = safeSortedJsonify.cfg({ space: 1, mergeNlWsp: true });
 
+const skipSiblingRepeats = true;
+
 function nameLine(color, symb, dest, ev) {
   dest.clog(color, ev.ourCtx.indent, symb + ' '
     + ev.resNameParentIdPrefixEllipse);
@@ -24,7 +26,11 @@ const formatter = {
     indentPrefix: '  ',
   },
 
-  known: nameLine.bind(null, 'green', '^'),
+  known(dest, ev) {
+    if (ev.siblingReuseCounter && skipSiblingRepeats) { return; }
+    nameLine('green', '^', dest, ev);
+  },
+
   leaf: nameLine.bind(null, 'brgreen', '*'),
 
   async branch(dest, ev) {
