@@ -139,7 +139,12 @@ Object.assign(rela, {
     const relPrLists = await res.relations.getRelatedPlanPromises();
     await Promise.all(verbs.map(async function makeList(verb) {
       const mtd = res[verb];
-      mtd.list = await Promise.all(relPrLists[verb] || []);
+      const prs = relPrLists[verb];
+      if (prs && prs.length) {
+        mtd.list = Array.from(new Set(await Promise.all(prs)));
+      } else {
+        mtd.list = [];
+      }
     }));
   },
 
