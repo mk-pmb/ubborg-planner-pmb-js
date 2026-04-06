@@ -1,5 +1,5 @@
 { "name": "ubborg-planner-pmb",
-  "version": "0.0.106",
+  "version": "0.0.107",
   "description": "Helps me describe system configurations.",
   "keywords": [
     "ansible",
@@ -23,8 +23,8 @@
 
   "private": false, "license": "ISC",
 
-  "main": "src/index.js",
-  "bin": "bin/cli.js",
+  "main": "src/index.mjs",
+  "bin": "cli.mjs",
   "directories": {
     "doc": "docs",
     "test": "test"
@@ -33,11 +33,9 @@
   "scripts": { "test": "nodejs test/all.js" },
 
   "dependencies": {
-    "@instaffogmbh/promise-timeout-with-warning": "^0.1.15",
     "concise-value-preview-pmb": "^0.1.1",
     "dict-of-dicts-to-ini-lines-pmb": "^1.0.3",
     "equal-pmb": "^0.1.29",
-    "esmod-pmb": "^0.1.14",
     "getoraddkey-simple": "^0.1.8",
     "getown": "^1.0.1",
     "is-fn": "^2.0.0",
@@ -54,10 +52,10 @@
     "obj-map-merge": "^0.1.2",
     "objpop": "^0.3.6",
     "p-each-series": "^2.2.0",
-    "p-fatal": "^0.1.6",
     "p-immediate": "^3.2.0",
     "p-map": "^4.0.0",
     "p-props": "^4.0.0",
+    "promise-timeout-with-warning-pmb": "^0.1.16",
     "qrystr": "^0.1.5",
     "safe-sortedjson": "^1.0.9",
     "slashable-import-pmb": "^0.1.0",
@@ -71,9 +69,9 @@
     "ubborg-sysfacts-helper-pmb": "^0.2.2",
     "ubuntu-versions-table-pmb": "^0.2.4",
     "unwrap-single-prop": "^0.1.0",
-    "using-its-own-promise-pmb": "^0.0.1",
+    "using-its-own-promise-pmb": "^0.1.0",
     "usnam-pmb": "^0.2.5",
-    "vtry": "^1.0.9",
+    "vtry": "^1.1.0",
     "yamlify-safe-pmb": "^0.1.2"
   },
   "devDependencies": {
@@ -83,5 +81,5 @@
   },
 
 
-  "npm vs. BOM = Unexpected token": "-*- coding: UTF-8 -*-"
+  "engines": { "npm": ">=7.0.0", "node": ">=24.0.0" }
 }

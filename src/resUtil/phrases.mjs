@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import pkgMeta from '../../package.json';
+import pkgMeta from '../pkgMeta.mjs';
 
 function mergeNlSpace(s) { return s.trim().replace(/\n +/g, ' '); }
 
