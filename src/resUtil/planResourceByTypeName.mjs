@@ -3,23 +3,27 @@
 import is from 'typechecks-pmb';
 import mustBe from 'typechecks-pmb/must-be.js';
 import vTry from 'vtry';
+
 import findCommonAncestor from 'ubborg-lineage-find-common-ancestor-pmb';
 
-const resProvPrCache = {};
+const resProvPrCache = new Map();
 
 
 async function loadResourceProviderByTypeName(typeName) {
   mustBe.nest('resource type', typeName);
-  let rpp = resProvPrCache[typeName];
-  if (rpp) { return rpp; }
+  let rpPromise = resProvPrCache.get(typeName);
+  if (rpPromise) { return rpPromise; }
+  const rpDescr = ' ResourceProvider for type ' + typeName;
   async function init() {
-    let how = (await import('../resTypes/' + typeName)).default;
-    if (is.fun(how)) { how = how({ typeName }); }
+    let how = (await import('../resTypes/' + typeName + '.mjs')).default;
+    if (is.fun(how)) {
+      how = await vTry.pr(how, 'Initialize' + rpDescr)({ typeName });
+    }
     return how;
   }
-  rpp = vTry.pr(init, 'Load ResourceProvider for type ' + typeName)();
-  resProvPrCache[typeName] = rpp;
-  return rpp;
+  rpPromise = vTry.pr(init, 'Load' + rpDescr)();
+  resProvPrCache.set(typeName, rpPromise);
+  return rpPromise;
 }
 
 
