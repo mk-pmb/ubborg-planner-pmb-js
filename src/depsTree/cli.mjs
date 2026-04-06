@@ -90,7 +90,7 @@ async function runFromCli(...cliArgsOrig) {
 
   const fmtName = (popCliArg('format') || 'plusText');
   const mkFmt = (await importFirstAvailableModule([
-    `../depsTree/dumpFmt/${fmtName}`,
+    `../depsTree/dumpFmt/${fmtName}.mjs`,
     fmtName,
   ])).default;
   if (!mkFmt) { throw new Error('Unsupported output format'); }
